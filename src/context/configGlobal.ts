@@ -19,6 +19,13 @@ const configGlobal = {
   // shadowGeneral: "drop-shadow(0px 2px 8px rgba(255, 255, 255, 0.75))",
 };
 
+// Colores asignados a los grupos de nodos
+const positionColor: Record<string, string> = {
+  control: "rgb(0, 0, 255)", // Azul
+  sumision: "rgb(0, 255, 51)", // Rojo
+  pasaje: "rgb(27, 250, 250)", // Amarillo
+};
+
 const cameraPropsDev = {
   fov: 70, // Ángulo de visión en grados (por defecto, el ángulo vertical) que define cuán amplia es la perspectiva de la cámara. 
   near: 0.1, // Distancia mínima desde la cámara a la que se renderizan los objetos.
@@ -45,7 +52,7 @@ const tableNameDB = {
 }
 
 
-export { configGlobal, cameraPropsDev, scenePropsDev, tableNameDB };
+export { configGlobal, cameraPropsDev, scenePropsDev, tableNameDB, positionColor };
 
 
 
@@ -97,12 +104,6 @@ export { configGlobal, cameraPropsDev, scenePropsDev, tableNameDB };
 
 
 
-// // Colores asignados a los grupos de nodos
-// const groupColors: Record<string, string> = {
-//   control: "rgb(0, 0, 255)", // Azul
-//   sumision: "rgb(255, 0, 0)", // Rojo
-//   pasaje: "rgb(255, 255, 0)", // Amarillo
-// };
 
 // /**
 //    * Definición de tipo para los enlaces

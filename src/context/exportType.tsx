@@ -20,7 +20,8 @@ interface NodeType {
       x?: number;
       y?: number;
       z?: number;
-      name?: string;
+      nombre?: string;
+      posicion?: string;
       color?: string;
       group?: string;
   };

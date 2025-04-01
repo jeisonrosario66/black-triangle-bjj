@@ -7,6 +7,8 @@ import { useFrame } from "@react-three/fiber";
 import GraphComponent from "@src/utils/nodeGenerator"; // Datos del grafo
 import { GraphRefType, GraphNode } from "@src/context/exportType"; // Tipo de referencia para el grafo
 import { CameraControls } from "@react-three/drei";
+import { positionColor } from "@src/context/configGlobal";
+import SpriteText from "three-spritetext";
 
 type NodeComponentProps = {
   cameraControlsRef: React.RefObject<CameraControls>;
@@ -46,7 +48,29 @@ const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
       ref={graphRef}
       graphData={gData}
       onNodeClick={(node) => handleNodeClick(node)} // Pasamos controls
-      //   onNodeHover={handleNodeHover}
+      nodeAutoColorBy={(node) => (node.posicion ? positionColor[node.posicion] : "gray")}
+      nodeThreeObject={(node: GraphNode) => {
+        const group = new THREE.Group();
+        const nodeColor = positionColor[node.posicion || "default"] || "gray"; // Default a gris si no se encuentra el grupo
+
+        const sphereGeometry = new THREE.SphereGeometry(5,5);
+        const sphereMaterial = new THREE.MeshStandardMaterial({
+          color: nodeColor, // Asigna el color basado en el grupo
+        });
+
+        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+        const sprite = new SpriteText(
+          `${node.nombre} {${node.id}}` || `Node ${node.id}`
+        );
+        sprite.color = "white";
+        sprite.textHeight = 3;
+        sprite.position.set(0, 5 + 2, 0);
+        sprite.backgroundColor = "#000";
+
+        group.add(sphere);
+        group.add(sprite);
+        return group;
+      }}
     />
   );
 };

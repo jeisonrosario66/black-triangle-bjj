@@ -100,16 +100,12 @@ const NodeForm: React.FC = () => {
                 labelId="position-select-label"
                 id="position-select"
                 label="Posición BJJ"
-                defaultValue="Guardia"
+                defaultValue="control"
                 {...field}
               >
-                <MenuItem value={"guardia"}>Guardia</MenuItem>
-                <MenuItem value={"monta"}>Montura</MenuItem>
-                <MenuItem value={"espalda"}>Espalda</MenuItem>
-                <MenuItem value={"mariposa"}>Mariposa</MenuItem>
-                <MenuItem value={"media_guardia"}>Media Guardia</MenuItem>
-                <MenuItem value={"guardia_abierda"}>Guardia Abierta</MenuItem>
-                <MenuItem value={"guardia_cerrada"}>Guardia Cerrada</MenuItem>
+                <MenuItem value={"control"}>Control</MenuItem>
+                <MenuItem value={"sumision"}>sumisión</MenuItem>
+                <MenuItem value={"pasaje"}>pasaje</MenuItem>
               </Select>
             </>
           )}
