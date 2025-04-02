@@ -13,7 +13,8 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import InputLabel from "@mui/material/InputLabel";
 import styles from "@cssModules/addNodeWindow.module.css";
 import { addData, getIndex } from "@src/services/firebaseService";
-import { tableNameDB } from "@src/context/configGlobal"
+import { tableNameDB } from "@src/context/configGlobal";
+import StepperComponent from "@src/components/Stepper";
 
 type NodeFormData = {
   index: number;
@@ -47,7 +48,7 @@ const NodeForm: React.FC = () => {
       data.description || "null",
       data.autor || "null",
       data.linkVideo || "null",
-      data.uploadedDate = today.toLocaleDateString(),
+      (data.uploadedDate = today.toLocaleDateString()),
       data.uploadedBy || "null"
     );
 
@@ -149,9 +150,10 @@ const NodeForm: React.FC = () => {
           rows={3}
           {...register("description")}
         />
-        <Button type="submit" variant="contained" color="primary">
+        <StepperComponent/>
+        {/* <Button type="submit" variant="contained" color="primary">
           Agregar Nodo
-        </Button>
+        </Button> */}
       </Box>
     </div>
   );

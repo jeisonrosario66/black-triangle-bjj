@@ -16,16 +16,12 @@ Black Triangle BJJ es una aplicación interactiva para la gestión y visualizaci
 📦 BlackTriangleBJJ
 ├── 📁 src
 │   ├── 📁 components      # Componentes reutilizables
-│   │   ├── 📁 addNode     # Formularios y UI para agregar nodos
-│   │   ├── 📁 ButtonAddNode  # Botón para añadir nodos
-│   │   └── GraphScene.tsx  # Escena 3D con @react-three/fiber
 │   ├── 📁 context         # Configuración global del proyecto
 │   ├── 📁 store           # Estado global con Zustand
 │   ├── 📁 styles          # Estilos CSS Modules
 │   ├── App.tsx           # Componente principal
 │   └── main.tsx          # Punto de entrada de la aplicación
 ├── .env.local             # Variables de entorno (excluidas en Git)
-├── .gitignore             # Archivos ignorados en el repositorio
 ├── tsconfig.json          # Configuración de TypeScript
 ├── vite.config.ts         # Configuración de Vite
 └── package.json           # Dependencias y scripts
