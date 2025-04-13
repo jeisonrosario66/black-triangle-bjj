@@ -1,161 +1,141 @@
 import React from "react";
-import { useForm, SubmitHandler, Controller } from "react-hook-form";
-import TextField from "@mui/material/TextField";
-import Button from "@mui/material/Button";
+
+import { useForm, SubmitHandler } from "react-hook-form";
+
 import Box from "@mui/material/Box";
-import Header from "./Header";
-import Select from "@mui/material/Select";
-import MenuItem from "@mui/material/MenuItem";
-import RadioGroup from "@mui/material/RadioGroup";
-import Divider from "@mui/material/Divider";
-import Radio from "@mui/material/Radio";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import InputLabel from "@mui/material/InputLabel";
-import styles from "@cssModules/addNodeWindow.module.css";
-import { addData, getIndex } from "@src/services/firebaseService";
+import { NodeOptionFirestone } from "@src/context/exportType";
+import Header from "@src/components/addNode/Header";
+import { addData, getIndex, getData } from "@src/services/firebaseService";
 import { tableNameDB } from "@src/context/configGlobal";
 import StepperComponent from "@src/components/Stepper";
+import useUIStore from "@src/store/useCounterStore";
+import { debugLog } from "@src/utils/debugLog";
+import { Step1, Step2 } from "@src/components/addNode/StepByStep";
+import * as yup from "yup";
+import { yupResolver } from "@hookform/resolvers/yup";
+import { containerAddNodeWindow } from "@src/styles/stylesAddNodeWindow";
+const schema = yup.object({
+  index: yup.number().required(),
+  name: yup
+    .string()
+    .min(3, "El nombre debe tener al menos 3 caracteres")
+    .required("El nombre es obligatorio"),
+  position: yup.string().required("La posición es obligatoria"),
+  nodeSource: yup.number().required("El nodo origen es obligatorio"),
+  // nodeTarget: yup.number().required("El nodo destino es obligatorio"),
+});
 
 type NodeFormData = {
+  /**
+   * Se definen los datos que recogera el formulario
+   */
   index: number;
   name: string;
-  position: string; // Ejemplo: "Guard", "Mount", "Back Control", etc.
-  useGi: string;
-  description?: string;
-  select?: string;
-  linkVideo: string;
-  autor: string;
-  uploadedDate: string;
-  uploadedBy: string;
+  position: string;
+  nodeSource: number;
+  // nodeTarget: number;
+  uploadedDate?: string;
 };
 
 const NodeForm: React.FC = () => {
-  const { register, handleSubmit, control } = useForm<NodeFormData>();
+  /**
+   * Componente contenedor del formulario
+   */
+  const {
+    control,
+    trigger,
+    handleSubmit, // envuelve "onSubmit para ser enviado sina argumentos"
+    formState: { errors },
+  } = useForm<NodeFormData>({
+    resolver: yupResolver(schema),
+    mode: "onChange", // Propaga los cambios de los inputs
+    defaultValues: {
+      index: 0,
+      name: "",
+      position: "",
+      nodeSource: undefined,
+      // nodeTarget: undefined,
+    },
+  });
 
-  const onSubmit: SubmitHandler<NodeFormData> = async (data) => {
+  const activeStep = useUIStore((state) => state.activeStep);
+  const [nodeOptions, setNodeOptions] = React.useState<NodeOptionFirestone[]>(
+    []
+  );
+  let count = 0;
+  // Llama getNameNodes una sola vez al montar el componente
+  React.useEffect(() => {
+  
+    const getDataNodes = async () => {
+      try {
+        const dataNodes = await getData(tableNameDB.nodes);
+        console.log("Ejecuciones: ", count);
+        count += 1;
+        setNodeOptions(dataNodes || []);
+      } catch (error) {
+        console.error("Error al obtener nodos desde Firestore:", error);
+        setNodeOptions([]); // Opcional: asegúrate de no dejar el estado sin asignar
+      }
+    };
+  
+    getDataNodes();
+  }, []);
+
+  const onSubmit: SubmitHandler<NodeFormData> = async (dataNodes) => {
     // Obtendra el index del ultimo nodo almacenado y aumentara en 1 para un nuevo registro
-    const index = (await getIndex(tableNameDB.nodes)) + 1;
-    // Obtiene la fecha altual para guardar en el registro
+    const indexNewNode = (await getIndex(tableNameDB.nodes)) + 1;
+
+    // Obtiene la fecha altual al guardar en el registro
     const date = new Date();
     const today = new Date(date);
 
     addData(
       tableNameDB.nodes,
-      (data.index = index),
-      data.name,
-      data.select || "",
-      data.useGi === "true",
-      data.description || "null",
-      data.autor || "null",
-      data.linkVideo || "null",
-      (data.uploadedDate = today.toLocaleDateString()),
-      data.uploadedBy || "null"
+      tableNameDB.links,
+      (dataNodes.index = indexNewNode),
+      dataNodes.name,
+      dataNodes.position,
+      dataNodes.nodeSource,
+      (dataNodes.uploadedDate = today.toLocaleDateString())
     );
-
-    // getData("nodos");
     // reset();
+    debugLog("debug", "Informacion enviada a firestone: ", dataNodes);
+  };
+
+  const handleValidate = async () => {
+    /**
+     * @summary : Valida el ingreso de los datos requeridos en cada paso del stepper
+     * @event: trigger: Permite evaluar los campos del formulario manualmente
+     */
+    const arrayStepper = [false, false];
+    const isValidStep1 = await trigger(["name", "position"]);
+    const isValidStep2 = await trigger(["nodeSource"]);
+
+    if (isValidStep1) {
+      arrayStepper[0] = true;
+    }
+    if (isValidStep2) {
+      arrayStepper[1] = true;
+    }
+    return arrayStepper;
   };
 
   return (
-    <div className={styles.formContainer}>
-      <Box
-        component="form"
-        onSubmit={handleSubmit(onSubmit)}
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 2,
-          p: 2,
-          Width: "90vw",
-          Height: "100vh",
-          color: "#333",
-          backgroundColor: "#f2f2f2",
-          border: "1px solid #ccc",
-          boxShadow: "0 0 17px rgb(106, 38, 166)",
-        }}
-      >
-        <Header description="Agrega un nuevo nodo al grafo" />
-        <Divider />
+    <Box
+      style={containerAddNodeWindow}
+    >
+      <Header />
 
-        <TextField
-          label="Nombre de la posición"
-          variant="outlined"
-          {...register("name", { required: true })}
-        />
+      {activeStep === 0 && <Step1 control={control} errors={errors} />}
+      {activeStep === 1 && (
+        <Step2 control={control} errors={errors} nodeOptions={nodeOptions} />
+      )}
 
-        <TextField
-          label="Link del video"
-          variant="outlined"
-          {...register("linkVideo", { required: true })}
-        />
-
-        {/* Select control para elegir una posición en BJJ */}
-        <Controller
-          name="select"
-          control={control}
-          rules={{ required: true }}
-          render={({ field }) => (
-            <>
-              <InputLabel id="position-select-label">Posición BJJ</InputLabel>
-              <Select
-                labelId="position-select-label"
-                id="position-select"
-                label="Posición BJJ"
-                defaultValue="control"
-                {...field}
-              >
-                <MenuItem value={"control"}>Control</MenuItem>
-                <MenuItem value={"sumision"}>sumisión</MenuItem>
-                <MenuItem value={"pasaje"}>pasaje</MenuItem>
-              </Select>
-            </>
-          )}
-        />
-
-        <section>
-          <label>Uniforme</label>
-          <Controller
-            name="useGi"
-            control={control}
-            defaultValue=""
-            rules={{ required: "Selecciona un uniforme" }}
-            render={({ field, fieldState: { error } }) => (
-              <>
-                <RadioGroup aria-label="Uniforme" {...field}>
-                  <FormControlLabel
-                    value="true"
-                    control={<Radio />}
-                    label="Gi"
-                  />
-                  <FormControlLabel
-                    value="false"
-                    control={<Radio />}
-                    label="No Gi"
-                  />
-                </RadioGroup>
-                {error && (
-                  <span style={{ color: "red", fontSize: "0.8rem" }}>
-                    {error.message}
-                  </span>
-                )}
-              </>
-            )}
-          />
-        </section>
-
-        <TextField
-          label="Descripción"
-          variant="outlined"
-          multiline
-          rows={3}
-          {...register("description")}
-        />
-        <StepperComponent/>
-        {/* <Button type="submit" variant="contained" color="primary">
-          Agregar Nodo
-        </Button> */}
-      </Box>
-    </div>
+      <StepperComponent
+        onValidate={handleValidate}
+        onHandleSubmit={handleSubmit(onSubmit)}
+      />
+    </Box>
   );
 };
 

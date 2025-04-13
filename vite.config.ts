@@ -18,7 +18,7 @@ export default defineConfig({
      // Alias para acceder a la carpeta src de forma más limpia
      "@src": path.resolve(__dirname, "src"),
      // Alias para módulos CSS
-     "@cssModules": path.resolve(__dirname, "src/components/cssModules"),
+     "@cssModule": path.resolve(__dirname, "src/styles"),
     },
   },
 })

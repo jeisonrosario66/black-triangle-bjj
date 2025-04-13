@@ -2,63 +2,55 @@ import database from "@src/hooks/fireBase";
 import { collection, getDocs } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import useUIStore from "@src/store/useCounterStore";
+import { GraphNode, GraphLink } from "@src/context/exportType";
+import { tableNameDB } from "@src/context/configGlobal";
 
-// 📌 Define los nodos y enlaces
+type GraphData = {
+  nodes: GraphNode[];
+  links: GraphLink[];
+};
 
-// const N = 10;
-// const gData = {
-//   nodes: [...Array(N).keys()].map((i) => ({
-//     id: i,
-//     // x: Math.random() * 200 - 100, // Posición aleatoria en el espacio 3D
-//     // y: Math.random() * 200 - 100,
-//     // z: Math.random() * 200 - 100,
-//   })),
-//   links: [...Array(N).keys()]
-//     .filter((id) => id)
-//     .map((id) => ({
-//       source: id,
-//       target: Math.round(Math.random() * (id - 1)),
-//     })),
-// };
-
-// const isLoadingFirestore = useUIStore((state) =>  state.isLoadingFirestore);
-
-const GraphComponent = () => {
-  const [gData, setGData] = useState<{
-    nodes: { id: number }[];
-    links: { source: number; target: number }[];
-  }>({ nodes: [], links: [] });
+const useGraphData = () => {
+  /**
+   * Este hook recupera nodos y enlaces desde Firebase Firestore y los almacena
+   * en el estado local para ser usados en una visualización de grafo.
+   */
+  const [gData, setGData] = useState<GraphData>({
+    nodes: [],
+    links: [],
+  });
 
   useEffect(() => {
     useUIStore.setState({ isLoadingFirestore: true });
     const fetchData = async () => {
       try {
         // 1. Obtener nodos
-        const nodesSnapshot = await getDocs(collection(database, "nodos"));
-        const nodes = nodesSnapshot.docs.map((doc) => ({
-          id: parseInt(doc.data().index, 10), // Asegura que el ID es un número
-          nombre: doc.data().nombre,
-          posicion: doc.data().posicion,
-          uniforme: doc.data().uniforme,
-          descripcion: doc.data().descripcion,
-          linkVideo: doc.data().linkVideo,
-          likes: doc.data().likes,
-          fechaSubida: doc.data().fechaSubida,
-          subidoPor: doc.data().subidoPor,
-          autor: doc.data().autor,
-          disLikes: doc.data().disLikes,
+        const nodesSnapshot = await getDocs(
+          collection(database, tableNameDB.nodes)
+        );
+        const nodes: GraphNode[] = nodesSnapshot.docs.map((doc) => {
+          const data = doc.data();
 
-          
-
-          // ...doc.data(),
-        }));
+          // Esta informacion se mostrara al hacer click en un nodo
+          // handleCLickNode
+          return {
+            id: parseInt(data.index, 10), 
+            name: data.name,
+            position: data.position, 
+            color: data.color,
+            group: data.group,
+          };
+        });
 
         // 2. Obtener enlaces
-        const linksSnapshot = await getDocs(collection(database, "links"));
-        const links = linksSnapshot.docs.map((doc) => ({
-          source: doc.data().source,
-          target: doc.data().target,
-        }));
+        const linksSnapshot = await getDocs(collection(database, tableNameDB.links));
+        const links: GraphLink[] = linksSnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+            source: data.source,
+            target: data.target,
+          };
+        });
 
         setGData({ nodes, links });
       } catch (error) {
@@ -73,4 +65,4 @@ const GraphComponent = () => {
   return gData;
 };
 
-export default GraphComponent;
+export default useGraphData;

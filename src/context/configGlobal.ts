@@ -21,9 +21,9 @@ const configGlobal = {
 
 // Colores asignados a los grupos de nodos
 const positionColor: Record<string, string> = {
-  control: "rgb(0, 0, 255)", // Azul
-  sumision: "rgb(0, 255, 51)", // Rojo
-  pasaje: "rgb(27, 250, 250)", // Amarillo
+  guard: "rgb(0, 0, 255)", // Azul
+  control: "rgb(0, 255, 51)", // Rojo
+  pass: "rgb(27, 250, 250)", // Amarillo
 };
 
 const cameraPropsDev = {
@@ -53,121 +53,3 @@ const tableNameDB = {
 
 
 export { configGlobal, cameraPropsDev, scenePropsDev, tableNameDB, positionColor };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// /**
-//    * Definición de tipo para los enlaces
-//    * @typedef {Object} LinkType
-//    * @property {string} source - Nodo fuente del enlace
-//    * @property {string} target - Nodo destino del enlace
-//    * @property {boolean} isBidirectional - Indica si el enlace es bidireccional
-//    */
-// interface LinkType {
-//   source: string;
-//   target: string;
-//   isBidirectional: boolean;
-// }
-
-
-
-// /**
-//  * @typedef {Object} GraphLink
-//  * @property {number} id - Identificador del enlace
-//  * @property {number} x - Posición en el eje x
-//  * @property {number} y - Posición en el eje y
-//  * @property {number} z - Posición en el eje z
-//  * @property {string} name - Nombre del enlace
-//  * @property {number} source - Nodo fuente del enlace
-//  * @property {number} target - Nodo destino del enlace
-//  * @property {string} group - Grupo al que pertenece el enlace
-//  * @property {boolean} isBidirectional - Indica si el enlace está invertido
-//  * @property {number} curvature - Curvatura del enlace
-//  */
-// type GraphLink = {
-//   id: number;
-//   x?: number;
-//   y?: number;
-//   z?: number;
-//   name: string;
-//   source: number;
-//   target: number;
-//   group?: string;
-//   isBidirectional?: boolean;
-//   curvature?: number
-//   start: number,
-//   end: number
-// };
-
-// /**
-//  * @typedef {Object} GraphNode
-//  * @property {number} id - Identificador del nodo
-//  * @property {number} x - Posición en el eje x
-//  * @property {number} y - Posición en el eje y
-//  * @property {number} z - Posición en el eje z
-//  * @property {string} name - Nombre del nodo
-//  * @property {string} color - Color del nodo
-//  * @property {string} group - Grupo al que pertenece el nodo
-//  * @property {string} type - Tipo de nodo
-//  */
-// type GraphNode = {
-//   id: number;
-//   x?: number;
-//   y?: number;
-//   z?: number;
-//   name?: string;
-//   color?: string;
-//   group?: string;
-// };
-
-
-// export { configGlobal, groupColors, NodeType, LinkType, GraphLink, GraphNode }; 

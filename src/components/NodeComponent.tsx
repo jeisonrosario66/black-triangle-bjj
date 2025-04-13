@@ -1,37 +1,41 @@
 import ForceGraph3D from "r3f-forcegraph";
 import * as THREE from "three";
-// import gsap from "gsap";
-import animateCameraToNode from "@src/hooks/useCameraAnimation"; // Animación de la cámara
+import animateCameraToNode from "@src/hooks/useCameraAnimation";
 import React, { useRef, useCallback } from "react";
 import { useFrame } from "@react-three/fiber";
-import GraphComponent from "@src/utils/nodeGenerator"; // Datos del grafo
-import { GraphRefType, GraphNode } from "@src/context/exportType"; // Tipo de referencia para el grafo
+import useGraphData from "@src/utils/nodeGenerator";
+import { GraphRefType, GraphNode } from "@src/context/exportType";
 import { CameraControls } from "@react-three/drei";
 import { positionColor } from "@src/context/configGlobal";
 import SpriteText from "three-spritetext";
-
+import {debugLog} from "@src/utils/debugLog"
 type NodeComponentProps = {
   cameraControlsRef: React.RefObject<CameraControls>;
 };
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
-  useFrame(() => graphRef.current?.tickFrame()); // Actualizar el grafo en cada frame
   const graphRef = useRef<GraphRefType>(undefined); // Referencia para el grafo 3D
-  const gData = GraphComponent(); // Llama a la función para obtener los datos del grafo
+  useFrame(() => graphRef.current?.tickFrame()); // Actualizar el grafo en cada frame
+  
+  // Llama a la función para obtener los datos del grafo
+  const gData = useGraphData(); 
 
   const handleNodeClick = useCallback(
-    // Manejar el evento de clic sobre un nodo
-    (node: GraphNode | null) => {
+    /**
+     * @summary: Manejar el evento de clic sobre un nodo
+     * @param node 
+     */
+    (node: GraphNode) => {
       // Si el nodo es null o no existe, la función simplemente retorna, evitando errores
       if (!node) {
         return;
       }
+
       if (!cameraControlsRef.current) {
-        console.error("❌ cameraControlsRef no está inicializado.");
+        console.error("cameraControlsRef no está inicializado.");
       }
-      console.info("Node clicked:", node); // Imprimir el nodo en la consola
-      // Creamos un vector con la posición del nodo
+      debugLog("info","Node clicked:", node);
+      // nodePosition: Vector con la posición del nodo
       const nodePosition = new THREE.Vector3(
         node.x || 0,
         node.y || 0,
@@ -47,11 +51,12 @@ const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
     <ForceGraph3D
       ref={graphRef}
       graphData={gData}
-      onNodeClick={(node) => handleNodeClick(node)} // Pasamos controls
-      nodeAutoColorBy={(node) => (node.posicion ? positionColor[node.posicion] : "gray")}
+      onNodeClick={handleNodeClick}
+
+      nodeAutoColorBy={(node) => (node.position ? positionColor[node.position] : "gray")}
       nodeThreeObject={(node: GraphNode) => {
         const group = new THREE.Group();
-        const nodeColor = positionColor[node.posicion || "default"] || "gray"; // Default a gris si no se encuentra el grupo
+        const nodeColor = positionColor[node.position || "default"] || "gray"; // Default a gris si no se encuentra el grupo
 
         const sphereGeometry = new THREE.SphereGeometry(5,5);
         const sphereMaterial = new THREE.MeshStandardMaterial({
@@ -60,7 +65,7 @@ const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
 
         const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
         const sprite = new SpriteText(
-          `${node.nombre} {${node.id}}` || `Node ${node.id}`
+          `${node.name} {${node.id}}` || `Node ${node.id}`
         );
         sprite.color = "white";
         sprite.textHeight = 3;

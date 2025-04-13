@@ -19,9 +19,54 @@ Black Triangle BJJ es una aplicación interactiva para la gestión y visualizaci
 │   ├── 📁 context         # Configuración global del proyecto
 │   ├── 📁 store           # Estado global con Zustand
 │   ├── 📁 styles          # Estilos CSS Modules
+│   ├── 📁 hooks           # Hooks personalizados
+│   ├── 📁 services        # Lógica de conexión con Firestore
+│   ├── 📁 utils           # Funciones auxiliares
 │   ├── App.tsx           # Componente principal
 │   └── main.tsx          # Punto de entrada de la aplicación
-├── .env.local             # Variables de entorno (excluidas en Git)
-├── tsconfig.json          # Configuración de TypeScript
-├── vite.config.ts         # Configuración de Vite
-└── package.json           # Dependencias y scripts
+├── [.env.local]         # Variables de entorno (excluidas en Git)
+├── [tsconfig.json]      # Configuración de TypeScript
+├── [vite.config.ts]     # Configuración de Vite
+└── [package.json]       # Dependencias y scripts
+```
+
+📦 Instalación
+Sigue estos pasos para configurar el proyecto en tu máquina local:
+
+Clona el repositorio:
+```bash
+git clone https://github.com/tu-usuario/black-triangle-bjj.git
+cd black-triangle-bjj
+```
+
+Instala las dependencias:
+```bash
+npm install
+```
+
+Configura las variables de entorno:
+- Crea un archivo .env.local en la raíz del proyecto.
+- Agrega las siguientes variables:
+```bash
+VITE_FIREBASE_API_KEY=tu_api_key
+VITE_FIREBASE_AUTH_DOMAIN=tu_auth_domain
+VITE_FIREBASE_PROJECT_ID=tu_project_id
+VITE_FIREBASE_STORAGE_BUCKET=tu_storage_bucket
+VITE_FIREBASE_MESSAGING_SENDER_ID=tu_messaging_sender_id
+VITE_FIREBASE_APP_ID=tu_app_id
+```
+
+Inicia el servidor de desarrollo:
+```bash
+npm run dev
+```
+
+
+📄 Licencia
+Este proyecto está bajo la licencia MIT.
+
+📧 Contacto
+Si tienes preguntas o sugerencias, no dudes en contactarme:
+
+Email: jeisonrosario5.com
+GitHub: jeisonrosario66

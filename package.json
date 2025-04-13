@@ -1,7 +1,8 @@
 {
   "name": "black-triangle-bjj",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.2.0",
+  "description": "Aplicación para gestión de nodos en 3D",
   "type": "module",
   "scripts": {
     "dev": "vite",
@@ -14,6 +15,7 @@
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
     "@fontsource/roboto": "^5.2.5",
+    "@hookform/resolvers": "^5.0.1",
     "@mui/icons-material": "^6.4.8",
     "@mui/material": "^6.4.8",
     "@mui/styles": "^6.4.8",
@@ -28,6 +30,7 @@
     "react-native": "^0.78.1",
     "three": "^0.174.0",
     "three-spritetext": "^1.9.5",
+    "yup": "^1.6.1",
     "zustand": "^5.0.3"
   },
   "devDependencies": {

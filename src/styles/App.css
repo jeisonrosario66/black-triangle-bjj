@@ -1,34 +1,38 @@
 html,
 body,
 #root {
-  width: 100vw;
-  height: 100vh;
+  /* width: 100vw; */
+  /* height: 100vh; */
   margin: 0;
   padding: 0;
   overflow: hidden; /* 🔴 IMPORTANTE: Evita el scrollbar en toda la página */
 }
 
 .appContainer {
-  max-width: 100%;
-  max-height: 100%;
+  /* max-width: 100%; */
+  /* max-height: 100%; */
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .canvasContainer {
-  width: 100%;
+  width: 100vw;
   height: 100vh;
 }
 
 .formContainer {
   z-index: 10;
   position: absolute;
-  top: 5%;
-  overflow-y: auto; /* Evita el scrollbar */
+  background-color: #16CBF2;
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+  /* top: 5%; */
+  /* overflow-y: auto; /* Evita el scrollbar *//*
   max-height: 90%;
   border-radius: "8px" !important;
   -webkit-box-shadow: 0px 0px 17px 10px rgba(108, 83, 130, 1);
   -moz-box-shadow: 0px 0px 17px 10px rgba(108, 83, 130, 1);
-  box-shadow: 0px 0px 17px 10px rgba(108, 83, 130, 1);
+  box-shadow: 0px 0px 17px 10px rgba(108, 83, 130, 1); */
 }
