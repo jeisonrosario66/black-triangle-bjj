@@ -5,6 +5,8 @@ import {
   NodeOptionFirestone
 
 } from "@src/context/exportType";
+import useUIStore from "@src/store/useCounterStore";
+
 const getData = async (dbName: string) => {
   /**
    * Consulta una colección de Firestore y devuelve una lista de nodos tipados.
@@ -81,9 +83,10 @@ const addData = async (
         source: nodeSource,
       });
     }
-
-    debugLog("info", "Nodo agregado:", index, name);
-    debugLog("info", "Link  agregado: Source:", nodeSource !==1 ? nodeSource: "Nodo sin conexción {1}");
+    // Modifica el estado global para indicar que se estan cargando datos a firestore
+    useUIStore.setState({ isUploadFirestore: false })
+    debugLog("info", "Nodo agregado:", name, index);
+    debugLog("info", "Link  agregado: Source:", nodeSource !== 1 ? nodeSource : "Nodo sin conexción {1}");
   } catch (error) {
     console.error("Error al agregar documento:", error);
   }

@@ -12,6 +12,13 @@ interface UIState {
   // Función para establecer el estado de carga desde Firestore
   setIsLoadingFirestore: (loading: boolean) => void;
 
+    // Indica si se está subiendo información desde Firestore
+    isUploadFirestore: boolean;
+    // Función para establecer el estado de subida desde Firestore
+    setIsUploadFirestore: (upload: boolean) => void;
+  
+
+
   // Indica el paso actual en el componente Stepper
   activeStep: number;
   // Función para asignar un paso específico
@@ -50,6 +57,9 @@ const useUIStore = create<AppState>((set, get) => ({
 
   isLoadingFirestore: false,
   setIsLoadingFirestore: (loading) => set({ isLoadingFirestore: loading }),
+
+  isUploadFirestore: false,
+  setIsUploadFirestore: (upload) => set({isUploadFirestore: upload }),
 
   activeStep: 0,
   setActiveStep: (step) => set({ activeStep: step }),

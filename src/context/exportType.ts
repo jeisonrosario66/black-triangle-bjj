@@ -9,7 +9,6 @@ type NodeFormData = {
   name: string;
   position: string;
   nodeSource: number;
-  nodeTarget: number;
   // useGi?: string;
   // description?: string;
   // linkVideo?: string;

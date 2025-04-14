@@ -5,13 +5,16 @@ const themeApp = createTheme({
     palette: {
       background: {
         paper: '#fff',
+        form:"#f3f3f3",
+        formInput:"#fff",
       },
       text: {
         primary: '#173A5E',
         secondary: '#46505A',
       },
       action: {
-        active: '#001E3C',
+        progress: '#001E3C',
+        success: '#1976d2',
         deactivate: '#d32f2f',
       },
       success: {

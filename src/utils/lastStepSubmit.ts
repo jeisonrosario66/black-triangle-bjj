@@ -3,9 +3,7 @@ export const lastStepSubmit = (onHandleSubmit: () => void, nextStep: () => void,
     if (activeStep + 1 === steps.length) {
         nextStep();
         onHandleSubmit();
-        console.log("ultimo paso")
     } else {
         nextStep();
-        console.log("siguiente paso")
     }
 };

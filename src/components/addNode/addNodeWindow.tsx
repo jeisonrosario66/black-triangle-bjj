@@ -1,4 +1,4 @@
-import React from "react";
+import React, {useState} from "react";
 
 import { useForm, SubmitHandler } from "react-hook-form";
 
@@ -10,7 +10,7 @@ import { tableNameDB } from "@src/context/configGlobal";
 import StepperComponent from "@src/components/Stepper";
 import useUIStore from "@src/store/useCounterStore";
 import { debugLog } from "@src/utils/debugLog";
-import { Step1, Step2 } from "@src/components/addNode/StepByStep";
+import { Step1, Step2, StepFinal } from "@src/components/addNode/StepByStep";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { containerAddNodeWindow } from "@src/styles/stylesAddNodeWindow";
@@ -41,6 +41,13 @@ const NodeForm: React.FC = () => {
   /**
    * Componente contenedor del formulario
    */
+  const [finalFormData, setFinalFormData] = useState<NodeFormData>({
+    index: 0,
+    name: "",
+    position: "",
+    nodeSource: 1,
+  });
+
   const {
     control,
     trigger,
@@ -61,7 +68,7 @@ const NodeForm: React.FC = () => {
   });
 
   const activeStep = useUIStore((state) => state.activeStep);
-  const [nodeOptions, setNodeOptions] = React.useState<NodeOptionFirestone[]>(
+  const [nodeOptions, setNodeOptions] = useState<NodeOptionFirestone[]>(
     []
   );
   // Llama getNameNodes una sola vez al montar el componente
@@ -80,6 +87,8 @@ const NodeForm: React.FC = () => {
   }, []);
 
   const onSubmit: SubmitHandler<NodeFormData> = async (dataNodes) => {
+    // Modifica el estado global para indicar que se estan cargando datos a firestore
+    useUIStore.setState({isUploadFirestore:true})
     // Obtendra el index del ultimo nodo almacenado y aumentara en 1 para un nuevo registro
     const indexNewNode = (await getIndex(tableNameDB.nodes)) + 1;
 
@@ -96,6 +105,8 @@ const NodeForm: React.FC = () => {
       dataNodes.nodeSource,
       (dataNodes.uploadedDate = today.toLocaleDateString())
     );
+    // guarda los datos para mostrarlos en StepFinal
+    setFinalFormData({ ...dataNodes });
     reset();
     debugLog("debug", "Informacion enviada a firestone: ", dataNodes);
   };
@@ -115,7 +126,7 @@ const NodeForm: React.FC = () => {
     // isNot1_Step2: Representa la primera opcion en el input "nodeSource"
     // si este es igual 1, entonces no pasara la verificacion
     // 1 sera el defaulValue en el input
-    if ( isNot1_Step2 !== 1) {
+    if (isNot1_Step2 !== 1) {
       arrayStepper[1] = true;
     } else {
       debugLog(
@@ -132,8 +143,14 @@ const NodeForm: React.FC = () => {
 
       {activeStep === 0 && <Step1 control={control} errors={errors} />}
       {activeStep === 1 && (
-        <Step2 control={control} errors={errors} nodeOptions={nodeOptions} isNot1Step2={watch("nodeSource")} />
+        <Step2
+          control={control}
+          errors={errors}
+          nodeOptions={nodeOptions}
+          isNot1Step2={watch("nodeSource")}
+        />
       )}
+      {activeStep === 2 && <StepFinal dataNodes={finalFormData} />}
 
       <StepperComponent
         onValidate={handleValidate}

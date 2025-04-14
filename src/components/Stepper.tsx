@@ -4,7 +4,6 @@ import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
-import { StepFinal } from "@src/components/addNode/StepByStep";
 import Typography from "@mui/material/Typography";
 import useUIStore from "@src/store/useCounterStore";
 import { lastStepSubmit } from "@src/utils/lastStepSubmit";
@@ -19,6 +18,8 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
   onValidate,
   onHandleSubmit,
 }) => {
+  const isUploadFirestore = useUIStore((state) => state.isUploadFirestore);
+
   // Configuracion de stepper
   const activeStep = useUIStore((state) => state.activeStep);
 
@@ -55,9 +56,19 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
   };
 
   return (
-    <Box >
+    <Box
+      sx={{ paddingLeft: "1rem", paddingRight: "1rem", marginBottom: "1rem" }}
+    >
       {activeStep === steps.length ? (
-        <StepFinal handleReset={handleReset} />
+        <React.Fragment>
+          <Typography sx={{ mt: 2, mb: 1 }}>
+            Todos los pasos completados
+          </Typography>
+          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+            <Box sx={{ flex: "1 1 auto" }} />
+            <Button disabled={isUploadFirestore} onClick={handleReset}>Volver</Button>
+          </Box>
+        </React.Fragment>
       ) : (
         <React.Fragment>
           <Typography sx={{ mt: 2, mb: 1 }}>Paso {activeStep + 1}</Typography>
