@@ -1,9 +1,10 @@
 import database from "@src/hooks/fireBase";
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { debugLog } from "@src/utils/debugLog";
-import { NodeOptionFirestone
+import {
+  NodeOptionFirestone
 
- } from "@src/context/exportType";
+} from "@src/context/exportType";
 const getData = async (dbName: string) => {
   /**
    * Consulta una colección de Firestore y devuelve una lista de nodos tipados.
@@ -14,7 +15,6 @@ const getData = async (dbName: string) => {
     const querySnapshot = await getDocs(collection(database, dbName));
     const data: NodeOptionFirestone[] = querySnapshot.docs.map((doc) => {
       const docData = doc.data();
-      debugLog("info", "docData: ", docData)
       return {
         id: doc.id,
         index: docData.index,
@@ -53,13 +53,12 @@ const addData = async (
   nodeSource: number,
   uploadedDate: string
 ) => {
-  debugLog("info", "Agregando documentos a firestone...");
   try {
     const nodesRef = collection(database, dbNodesName);
 
     // 1. Crear una consulta para buscar si `name` ya existe
-    const q = query(nodesRef, where("name", "==", name)); 
-      
+    const q = query(nodesRef, where("name", "==", name));
+
     // 2. Ejecutar la consulta con `getDocs`
     const querySnapshot = await getDocs(q);
     // 3. Si el documento ya existe, cancelar la operación
@@ -75,13 +74,16 @@ const addData = async (
     });
 
 
-    const docLinkSource = await addDoc(collection(database, dbLinksName), {
-      target: index,
-      source: nodeSource,
-    });
+    if (nodeSource !== 1) {
+      // Filtra para evitar guardar ensalaces cuando el source es igual a 1
+      const docLinkSource = await addDoc(collection(database, dbLinksName), {
+        target: index,
+        source: nodeSource,
+      });
+    }
 
-    debugLog("info", "Documento agregado con ID:", index, " - ", docNodeRef.firestore);
-    debugLog("info", "Link  agregado con Source:", nodeSource, " - Target: ", index);
+    debugLog("info", "Nodo agregado:", index, name);
+    debugLog("info", "Link  agregado: Source:", nodeSource !==1 ? nodeSource: "Nodo sin conexción {1}");
   } catch (error) {
     console.error("Error al agregar documento:", error);
   }

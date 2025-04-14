@@ -21,7 +21,7 @@ const schema = yup.object({
     .min(3, "El nombre debe tener al menos 3 caracteres")
     .required("El nombre es obligatorio"),
   position: yup.string().required("La posición es obligatoria"),
-  nodeSource: yup.number().required("El nodo origen es obligatorio"),
+  nodeSource: yup.number().required("El nodo origen es obligatorio"), // No tiene Efecto
   // nodeTarget: yup.number().required("El nodo destino es obligatorio"),
 });
 
@@ -44,6 +44,8 @@ const NodeForm: React.FC = () => {
   const {
     control,
     trigger,
+    watch,
+    reset,
     handleSubmit, // envuelve "onSubmit para ser enviado sina argumentos"
     formState: { errors },
   } = useForm<NodeFormData>({
@@ -53,7 +55,7 @@ const NodeForm: React.FC = () => {
       index: 0,
       name: "",
       position: "",
-      nodeSource: undefined,
+      nodeSource: 1,
       // nodeTarget: undefined,
     },
   });
@@ -62,22 +64,18 @@ const NodeForm: React.FC = () => {
   const [nodeOptions, setNodeOptions] = React.useState<NodeOptionFirestone[]>(
     []
   );
-  let count = 0;
   // Llama getNameNodes una sola vez al montar el componente
   React.useEffect(() => {
-  
     const getDataNodes = async () => {
       try {
         const dataNodes = await getData(tableNameDB.nodes);
-        console.log("Ejecuciones: ", count);
-        count += 1;
         setNodeOptions(dataNodes || []);
       } catch (error) {
         console.error("Error al obtener nodos desde Firestore:", error);
         setNodeOptions([]); // Opcional: asegúrate de no dejar el estado sin asignar
       }
     };
-  
+
     getDataNodes();
   }, []);
 
@@ -98,7 +96,7 @@ const NodeForm: React.FC = () => {
       dataNodes.nodeSource,
       (dataNodes.uploadedDate = today.toLocaleDateString())
     );
-    // reset();
+    reset();
     debugLog("debug", "Informacion enviada a firestone: ", dataNodes);
   };
 
@@ -109,26 +107,32 @@ const NodeForm: React.FC = () => {
      */
     const arrayStepper = [false, false];
     const isValidStep1 = await trigger(["name", "position"]);
-    const isValidStep2 = await trigger(["nodeSource"]);
+    const isNot1_Step2 = watch("nodeSource");
 
     if (isValidStep1) {
       arrayStepper[0] = true;
     }
-    if (isValidStep2) {
+    // isNot1_Step2: Representa la primera opcion en el input "nodeSource"
+    // si este es igual 1, entonces no pasara la verificacion
+    // 1 sera el defaulValue en el input
+    if ( isNot1_Step2 !== 1) {
       arrayStepper[1] = true;
+    } else {
+      debugLog(
+        "warn",
+        "Escoge una conexión de origen para el nodo o preciona en saltar"
+      );
     }
     return arrayStepper;
   };
 
   return (
-    <Box
-      style={containerAddNodeWindow}
-    >
+    <Box style={containerAddNodeWindow}>
       <Header />
 
       {activeStep === 0 && <Step1 control={control} errors={errors} />}
       {activeStep === 1 && (
-        <Step2 control={control} errors={errors} nodeOptions={nodeOptions} />
+        <Step2 control={control} errors={errors} nodeOptions={nodeOptions} isNot1Step2={watch("nodeSource")} />
       )}
 
       <StepperComponent

@@ -1,5 +1,5 @@
 
-import { createTheme } from '@mui/system';
+  import { createTheme } from '@mui/system';
 
 const themeApp = createTheme({
     palette: {
@@ -12,7 +12,7 @@ const themeApp = createTheme({
       },
       action: {
         active: '#001E3C',
-        deactivate: '#F50801',
+        deactivate: '#d32f2f',
       },
       success: {
         dark: '#009688',

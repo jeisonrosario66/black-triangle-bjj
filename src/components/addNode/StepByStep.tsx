@@ -11,8 +11,9 @@ import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
 import { MenuItem, Select } from "@mui/material";
 import { NodeOptionFirestone } from "@src/context/exportType";
-import * as style from "@src/styles/styleStepByStep";
 import Button from "@mui/material/Button";
+import * as style from "@src/styles/styleStepByStep";
+import { is } from "@react-three/fiber/dist/declarations/src/core/utils";
 
 type Step1Props = {
   control: Control<any>;
@@ -23,6 +24,7 @@ type Step2Props = {
   control: Control<any>;
   errors: FieldErrors<any>;
   nodeOptions: NodeOptionFirestone[];
+  isNot1Step2: number;
 };
 
 type StepFinalProps = {
@@ -94,7 +96,12 @@ const Step1: React.FC<Step1Props> = ({ control, errors }) => {
   );
 };
 
-const Step2: React.FC<Step2Props> = ({ control, errors, nodeOptions }) => {
+const Step2: React.FC<Step2Props> = ({
+  control,
+  errors,
+  nodeOptions,
+    isNot1Step2,
+}) => {
   return (
     <Box style={style.containerBoxStep}>
       <FormLabel>Seleccionar nodo origen</FormLabel>
@@ -103,17 +110,20 @@ const Step2: React.FC<Step2Props> = ({ control, errors, nodeOptions }) => {
         control={control}
         render={({ field }) => (
           <FormControl error={!!errors.nodeSource}>
-            <Select {...field}>
-              {/*  Mapea el estado "nodeOptions" para obtener solo los nombres  */}
-              {nodeOptions
-                //Filtra los nombre vacios
-                .filter((node) => node.name && node.name.trim() !== "")
-                .map((node, index) => (
-                  <MenuItem key={index} value={node.index}>
-                    {`${node.name}: ${node.index}`}
-                  </MenuItem>
-                ))}
-            </Select>
+            <Box sx={style.boxFormSelect(isNot1Step2 == 1)}>
+              <Typography>Elige una conexión de origen o presioná en saltar</Typography>
+              <Select sx={style.formSelect(isNot1Step2 == 1)} {...field}>
+                {/*  Mapea el estado "nodeOptions" para obtener solo los nombres  */}
+                {nodeOptions
+                  //Filtra los nombre vacios
+                  .filter((node) => node.name && node.name.trim() !== "")
+                  .map((node, index) => (
+                    <MenuItem key={index} value={node.index}>
+                      {`${node.name}: ${node.index}`}
+                    </MenuItem>
+                  ))}
+              </Select>
+            </Box>
             {errors.nodeSource && (
               <Typography color="error" variant="caption">
                 {typeof errors.nodeSource?.message === "string"
@@ -124,32 +134,6 @@ const Step2: React.FC<Step2Props> = ({ control, errors, nodeOptions }) => {
           </FormControl>
         )}
       />
-
-      {/* <FormLabel>Seleccionar nodo destino</FormLabel>
-      <Controller
-        name="nodeTarget"
-        control={control}
-        render={({ field }) => (
-          <FormControl error={!!errors.nodeTarget}>
-            <Select {...field}>
-              {nodeOptions
-                .filter((node) => node.name && node.name.trim() !== "")
-                .map((node, index) => (
-                  <MenuItem key={index} value={node.index}>
-                    {`${node.name}: ${node.index}`}
-                  </MenuItem>
-                ))}
-            </Select>
-            {errors.nodeTarget && (
-              <Typography color="error" variant="caption">
-                {typeof errors.nodeTarget?.message === "string"
-                  ? errors.nodeTarget.message
-                  : ""}
-              </Typography>
-            )}
-          </FormControl>
-        )}
-      /> */}
     </Box>
   );
 };

@@ -3,13 +3,15 @@ import Box from "@mui/material/Box";
 import Stepper from "@mui/material/Stepper";
 import Step from "@mui/material/Step";
 import StepLabel from "@mui/material/StepLabel";
-import Button from "@mui/material/Button";  
-import {StepFinal} from "@src/components/addNode/StepByStep"
+import Button from "@mui/material/Button";
+import { StepFinal } from "@src/components/addNode/StepByStep";
 import Typography from "@mui/material/Typography";
-const steps = ["Estas creando un nuevo nodo", "Conecta el nodo"];
 import useUIStore from "@src/store/useCounterStore";
+import { lastStepSubmit } from "@src/utils/lastStepSubmit";
+
+const steps = ["Estas creando un nuevo nodo", "Conecta el nodo"];
 type StepperComponentProps = {
-  onValidate?: () => void; // la haces opcional si no siempre la necesitas
+  onValidate?: () => void;
   onHandleSubmit: () => void;
 };
 
@@ -37,10 +39,7 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
     if (!isValidThisStep) {
       return; // Si no es válido, no avanza al siguiente paso
     }
-    nextStep();
-    if (activeStep === steps.length - 1) {
-      onHandleSubmit();
-    }
+    lastStepSubmit(onHandleSubmit, nextStep, activeStep, steps);
   };
 
   const handleBack = () => {
@@ -52,13 +51,13 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
   };
 
   const handleSkip = () => {
-    nextStep();
+    lastStepSubmit(onHandleSubmit, nextStep, activeStep, steps);
   };
 
   return (
-    <Box sx={{ width: "100%" }}>
+    <Box >
       {activeStep === steps.length ? (
-       <StepFinal handleReset={handleReset}/>
+        <StepFinal handleReset={handleReset} />
       ) : (
         <React.Fragment>
           <Typography sx={{ mt: 2, mb: 1 }}>Paso {activeStep + 1}</Typography>
