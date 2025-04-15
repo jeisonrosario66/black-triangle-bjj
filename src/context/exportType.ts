@@ -5,10 +5,13 @@ type GraphRefType =
   | undefined;
 
 type NodeFormData = {
+  /**
+  * Se definen los datos que recogera el formulario
+  */
   index: number;
   name: string;
   position: string;
-  nodeSource: number;
+  nodeSourceIndex: number;
   // useGi?: string;
   // description?: string;
   // linkVideo?: string;
@@ -18,14 +21,14 @@ type NodeFormData = {
 };
 
 type NodeOptionFirestone = {
-  id: string;
-  index: number;
-  name: string;
-  position: string;
+  id?: number;
+  index?: number;
+  name?: string;
+  position?: string;
 };
 
-type GraphNode =   {
-  id: number;
+type GraphNode = {
+  id?: number;
   x?: number;
   y?: number;
   z?: number;
@@ -40,4 +43,9 @@ type GraphLink = {
   target: number;
 };
 
-export type { GraphNode, GraphRefType, NodeFormData, NodeOptionFirestone, GraphLink};
+type GraphData = {
+  nodes: GraphNode[];
+  links: GraphLink[];
+};
+
+export type { GraphNode, GraphRefType, NodeFormData, NodeOptionFirestone, GraphLink, GraphData };

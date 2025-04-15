@@ -2,13 +2,10 @@ import database from "@src/hooks/fireBase";
 import { collection, getDocs } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import useUIStore from "@src/store/useCounterStore";
-import { GraphNode, GraphLink } from "@src/context/exportType";
+import { GraphNode, GraphLink, GraphData} from "@src/context/exportType";
 import { tableNameDB } from "@src/context/configGlobal";
 
-type GraphData = {
-  nodes: GraphNode[];
-  links: GraphLink[];
-};
+
 
 const useGraphData = () => {
   /**

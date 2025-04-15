@@ -12,9 +12,9 @@ interface UIState {
   // Función para establecer el estado de carga desde Firestore
   setIsLoadingFirestore: (loading: boolean) => void;
 
-    // Indica si se está subiendo información desde Firestore
+    // Indica si se está subiendo información hacia Firestore
     isUploadFirestore: boolean;
-    // Función para establecer el estado de subida desde Firestore
+    // Función para establecer el estado de subida hacia Firestore
     setIsUploadFirestore: (upload: boolean) => void;
   
 

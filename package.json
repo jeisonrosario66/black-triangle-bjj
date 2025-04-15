@@ -1,7 +1,7 @@
 {
   "name": "black-triangle-bjj",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.2.3",
   "description": "Aplicación para gestión de nodos en 3D",
   "type": "module",
   "scripts": {
@@ -26,6 +26,8 @@
     "r3f-forcegraph": "^1.0.8",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-force-graph-2d": "^1.27.1",
+    "react-force-graph-3d": "^1.26.1",
     "react-hook-form": "^7.54.2",
     "react-native": "^0.78.1",
     "three": "^0.174.0",

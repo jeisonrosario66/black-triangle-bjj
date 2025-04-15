@@ -1,5 +1,3 @@
-import React from "react";
-
 import { Controller, Control, FieldErrors } from "react-hook-form";
 import TextField from "@mui/material/TextField";
 import Box from "@mui/material/Box";
@@ -9,14 +7,13 @@ import FormControlLabel from "@mui/material/FormControlLabel";
 import Typography from "@mui/material/Typography";
 import FormControl from "@mui/material/FormControl";
 import FormLabel from "@mui/material/FormLabel";
-import { Button, MenuItem, Select } from "@mui/material";
-import { NodeOptionFirestone } from "@src/context/exportType";
+import { MenuItem, Select } from "@mui/material";
+import { NodeOptionFirestone, NodeFormData } from "@src/context/exportType";
 import * as style from "@src/styles/styleStepByStep";
-import { NodeFormData } from "@src/context/exportType";
 import LinearProgress from "@mui/material/LinearProgress";
-import { useState } from "react";
 import useUIStore from "@src/store/useCounterStore";
-
+import React from "react";
+import Graph2D from "@src/components/Graph2D";
 type Step1Props = {
   control: Control<any>;
   errors: FieldErrors<any>;
@@ -30,7 +27,8 @@ type Step2Props = {
 };
 
 type StepFinalProps = {
-  dataNodes: NodeFormData;
+  newNodeData: NodeFormData;
+  selectedSourceNodeData: NodeOptionFirestone;
 };
 const Step1: React.FC<Step1Props> = ({ control, errors }) => {
   return (
@@ -107,7 +105,7 @@ const Step2: React.FC<Step2Props> = ({
     <Box sx={style.containerBoxStep}>
       <FormLabel>Seleccionar nodo origen</FormLabel>
       <Controller
-        name="nodeSource"
+        name="nodeSourceIndex"
         control={control}
         render={({ field }) => (
           <FormControl error={!!errors.nodeSource}>
@@ -141,17 +139,29 @@ const Step2: React.FC<Step2Props> = ({
   );
 };
 
-const StepFinal: React.FC<StepFinalProps> = ({ dataNodes }) => {
+const StepFinal: React.FC<StepFinalProps> = ({
+  newNodeData: dataNodes,
+  selectedSourceNodeData: selectedSourceNode,
+}) => {
+
   const isUploadFirestore = !useUIStore((state) => state.isUploadFirestore);
+  const graphStepFinalData = {
+    nodes: [
+      { id: dataNodes.index, name: dataNodes.name },
+      { id: selectedSourceNode.id, name: selectedSourceNode.name},
+    ],
+    links: [{ source: dataNodes.nodeSourceIndex, target: dataNodes.index }],
+  };
+
   return (
     <Box sx={style.stepFinalContainer}>
       <Box sx={style.progress(isUploadFirestore)}>
-        <LinearProgress sx={{ width: "35%" }} />
-        <LinearProgress sx={{ width: "12%" }} />
-        <LinearProgress sx={{ width: "17%" }} />
+        <LinearProgress sx={{ width: "60%" }} />
+        <LinearProgress sx={{ width: "25%" }} />
+        <LinearProgress sx={{ width: "32%" }} />
         <LinearProgress sx={{ width: "20%" }} />
-        <LinearProgress sx={{ width: "20%" }} />
-        <LinearProgress sx={{ width: "40%" }} />
+        <LinearProgress sx={{ width: "50%" }} />
+        <LinearProgress sx={{ width: "54%" }} />
       </Box>
       <Box sx={style.result(isUploadFirestore)}>
         <div>
@@ -167,7 +177,7 @@ const StepFinal: React.FC<StepFinalProps> = ({ dataNodes }) => {
           </p>
           <p>
             <strong>Nodo Origen:</strong>{" "}
-            {dataNodes.name + " {" + dataNodes.nodeSource + "}"}
+            {" {" + dataNodes.nodeSourceIndex + "}"}
           </p>
           <p>
             <strong>Fecha de subida:</strong>{" "}
@@ -175,6 +185,7 @@ const StepFinal: React.FC<StepFinalProps> = ({ dataNodes }) => {
           </p>
         </div>
       </Box>
+      <Graph2D graphStepFinalData={graphStepFinalData}  isUploadFirestore={isUploadFirestore}/>
     </Box>
   );
 };
