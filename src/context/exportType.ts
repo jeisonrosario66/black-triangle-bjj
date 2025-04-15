@@ -21,7 +21,7 @@ type NodeFormData = {
 };
 
 type NodeOptionFirestone = {
-  id?: number;
+  id?:number| string;
   index?: number;
   name?: string;
   position?: string;

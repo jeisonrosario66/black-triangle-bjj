@@ -5,6 +5,7 @@ import {
   NodeOptionFirestone
 
 } from "@src/context/exportType";
+import { tableNameDB } from "@src/context/configGlobal";
 import useUIStore from "@src/store/useCounterStore";
 
 const getData = async (dbName: string) => {
@@ -18,13 +19,18 @@ const getData = async (dbName: string) => {
     const data: NodeOptionFirestone[] = querySnapshot.docs.map((doc) => {
       const docData = doc.data();
       return {
-        id: doc.id,
+        id: docData.index,
         index: docData.index,
         name: docData.name,
         position: docData.position,
       };
     });
     debugLog("debug", "Documentos obtenidos desde firestone: ", data);
+    // Si no existe ningun registro, crea el primero necesario para el funcionamiento de select
+    if (data.length == 0){
+      addData(tableNameDB.nodes, tableNameDB.links, 1, "Escoja Nodo de origen", "", 1,"")
+      getData(tableNameDB.nodes)
+    }
     return data;
   } catch (error) {
     console.error("Error obteniendo documentos desde Firestore:", error);
