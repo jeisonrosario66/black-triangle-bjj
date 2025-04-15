@@ -148,7 +148,7 @@ const StepFinal: React.FC<StepFinalProps> = ({
   const graphStepFinalData = {
     nodes: [
       { id: dataNodes.index, name: dataNodes.name },
-      { id: selectedSourceNode.id, name: selectedSourceNode.name},
+      { id: dataNodes.nodeSourceIndex, name: selectedSourceNode.name},
     ],
     links: [{ source: dataNodes.nodeSourceIndex, target: dataNodes.index }],
   };
