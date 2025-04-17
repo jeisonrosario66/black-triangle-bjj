@@ -6,11 +6,13 @@ const themeApp = createTheme({
       background: {
         paper: '#fff',
         form:"#f3f3f3",
-        formInput:"#fff",
+        formInput:"#000",
       },
       text: {
-        primary: '#173A5E',
+        titleBig: "#173A5E",
+        primary: '#fff',
         secondary: '#46505A',
+        white:"#fff"
       },
       action: {
         progress: '#001E3C',
@@ -20,6 +22,19 @@ const themeApp = createTheme({
       success: {
         dark: '#009688',
       },
+      canvas: {
+        canvasBackgraundColor:"#002",
+      },
+      buttons: {
+        buttonHomeScreen: "#f1f1f1",
+      },
+      formStyles: {
+        containerBackgroundColor: "#f0f0f0",
+        cardBackgroundColor: "#f9f9f9",
+        cardBoxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+        buttonForm: "#001E3C",
+        borderColor: "#ccc"
+      }
     },
   });
 

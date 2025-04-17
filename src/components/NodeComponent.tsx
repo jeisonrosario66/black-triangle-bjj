@@ -8,7 +8,7 @@ import { GraphRefType, GraphNode } from "@src/context/exportType";
 import { CameraControls } from "@react-three/drei";
 import { positionColor } from "@src/context/configGlobal";
 import SpriteText from "three-spritetext";
-import {debugLog} from "@src/utils/debugLog"
+import { debugLog } from "@src/utils/debugLog";
 type NodeComponentProps = {
   cameraControlsRef: React.RefObject<CameraControls>;
 };
@@ -16,14 +16,13 @@ type NodeComponentProps = {
 const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
   const graphRef = useRef<GraphRefType>(undefined); // Referencia para el grafo 3D
   useFrame(() => graphRef.current?.tickFrame()); // Actualizar el grafo en cada frame
-  
   // Llama a la función para obtener los datos del grafo
-  const gData = useGraphData(); 
+  const gData = useGraphData();
 
   const handleNodeClick = useCallback(
     /**
      * @summary: Manejar el evento de clic sobre un nodo
-     * @param node 
+     * @param node
      */
     (node: GraphNode) => {
       // Si el nodo es null o no existe, la función simplemente retorna, evitando errores
@@ -34,7 +33,7 @@ const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
       if (!cameraControlsRef.current) {
         console.error("cameraControlsRef no está inicializado.");
       }
-      debugLog("info","Node clicked:", node);
+      debugLog("info", "Node clicked:", node);
       // nodePosition: Vector con la posición del nodo
       const nodePosition = new THREE.Vector3(
         node.x || 0,
@@ -51,14 +50,20 @@ const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
     <ForceGraph3D
       ref={graphRef}
       graphData={gData}
+      linkWidth={2}
+      linkCurvature={0.05}
+      linkDirectionalParticles={4}
+      linkColor={"#000"}
+      linkDirectionalParticleWidth={2}
       onNodeClick={handleNodeClick}
-
-      nodeAutoColorBy={(node) => (node.position ? positionColor[node.position] : "gray")}
+      nodeAutoColorBy={(node) =>
+        node.position ? positionColor[node.position] : "gray"
+      }
       nodeThreeObject={(node: GraphNode) => {
         const group = new THREE.Group();
         const nodeColor = positionColor[node.position || "default"] || "gray"; // Default a gris si no se encuentra el grupo
 
-        const sphereGeometry = new THREE.SphereGeometry(5,5);
+        const sphereGeometry = new THREE.SphereGeometry(5, 5);
         const sphereMaterial = new THREE.MeshStandardMaterial({
           color: nodeColor, // Asigna el color basado en el grupo
         });

@@ -1,4 +1,4 @@
-import database from "@src/hooks/fireBase";
+import {database} from "@src/hooks/fireBase";
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { debugLog } from "@src/utils/debugLog";
 import {

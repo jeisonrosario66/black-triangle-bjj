@@ -14,6 +14,7 @@ import LinearProgress from "@mui/material/LinearProgress";
 import useUIStore from "@src/store/useCounterStore";
 import React from "react";
 import Graph2D from "@src/components/Graph2D";
+import Header from "@src/components/addNode/Header";
 type Step1Props = {
   control: Control<any>;
   errors: FieldErrors<any>;
@@ -33,6 +34,7 @@ type StepFinalProps = {
 const Step1: React.FC<Step1Props> = ({ control, errors }) => {
   return (
     <Box sx={style.containerBoxStep}>
+      <Header />
       {/* Campo "name" */}
       <Controller
         name="name"
@@ -57,7 +59,7 @@ const Step1: React.FC<Step1Props> = ({ control, errors }) => {
         name="position"
         control={control}
         render={({ field }) => (
-          <FormControl style={style.formPosition}>
+          <FormControl sx={style.formPosition}>
             <FormLabel style={style.formLabel}>Tipo de nodo</FormLabel>
             <RadioGroup {...field}>
               <FormControlLabel
@@ -76,10 +78,21 @@ const Step1: React.FC<Step1Props> = ({ control, errors }) => {
                 label="Sumisión"
               />
               <FormControlLabel
+                value="switch"
+                control={<Radio />}
+                label="Raspado"
+              />
+              <FormControlLabel
                 value="transition"
                 control={<Radio />}
                 label="Transición"
               />
+                <FormControlLabel
+                value="control"
+                control={<Radio />}
+                label="Control"
+              />
+
             </RadioGroup>
             {errors.position && (
               <Typography color="error" variant="caption">
@@ -103,6 +116,7 @@ const Step2: React.FC<Step2Props> = ({
 }) => {
   return (
     <Box sx={style.containerBoxStep}>
+      <Header />
       <FormLabel>Seleccionar nodo origen</FormLabel>
       <Controller
         name="nodeSourceIndex"
@@ -143,18 +157,18 @@ const StepFinal: React.FC<StepFinalProps> = ({
   newNodeData: dataNodes,
   selectedSourceNodeData: selectedSourceNode,
 }) => {
-
   const isUploadFirestore = !useUIStore((state) => state.isUploadFirestore);
   const graphStepFinalData = {
     nodes: [
       { id: dataNodes.index, name: dataNodes.name },
-      { id: dataNodes.nodeSourceIndex, name: selectedSourceNode.name},
+      { id: dataNodes.nodeSourceIndex, name: selectedSourceNode.name },
     ],
     links: [{ source: dataNodes.nodeSourceIndex, target: dataNodes.index }],
   };
 
   return (
     <Box sx={style.stepFinalContainer}>
+      <Header />
       <Box sx={style.progress(isUploadFirestore)}>
         <LinearProgress sx={{ width: "60%" }} />
         <LinearProgress sx={{ width: "25%" }} />
@@ -185,7 +199,10 @@ const StepFinal: React.FC<StepFinalProps> = ({
           </p>
         </div>
       </Box>
-      <Graph2D graphStepFinalData={graphStepFinalData}  isUploadFirestore={isUploadFirestore}/>
+      <Graph2D
+        graphStepFinalData={graphStepFinalData}
+        isUploadFirestore={isUploadFirestore}
+      />
     </Box>
   );
 };

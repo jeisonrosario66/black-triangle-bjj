@@ -6,6 +6,7 @@ body,
   margin: 0;
   padding: 0;
   overflow: hidden; /* 🔴 IMPORTANTE: Evita el scrollbar en toda la página */
+
 }
 
 .appContainer {
@@ -28,11 +29,4 @@ body,
   height: 100%;
   width: 100%;
   overflow: auto;
-  /* top: 5%; */
-  /* overflow-y: auto; /* Evita el scrollbar *//*
-  max-height: 90%;
-  border-radius: "8px" !important;
-  -webkit-box-shadow: 0px 0px 17px 10px rgba(108, 83, 130, 1);
-  -moz-box-shadow: 0px 0px 17px 10px rgba(108, 83, 130, 1);
-  box-shadow: 0px 0px 17px 10px rgba(108, 83, 130, 1); */
 }

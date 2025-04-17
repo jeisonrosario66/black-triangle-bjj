@@ -1,7 +1,7 @@
 {
   "name": "black-triangle-bjj",
   "private": true,
-  "version": "0.2.3",
+  "version": "0.3.0",
   "description": "Aplicación para gestión de nodos en 3D",
   "type": "module",
   "scripts": {

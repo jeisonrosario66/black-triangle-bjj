@@ -1,41 +1,56 @@
-import "@cssModule/App.css";
-import { debugLog } from "@src/utils/debugLog";
-import { Canvas } from "@react-three/fiber";
-import { cameraPropsDev, configGlobal } from "./context/configGlobal";
-import { CameraControls } from "@react-three/drei";
-import GraphScene from "./components/GraphScene";
 import { useRef, useEffect } from "react";
-import NodeForm from "@src/components/addNode/AddNodeWindow";
-import ButtonAddNode from "@src/components/ButtonAddNode";
-import useUIStore from "@src/store/useCounterStore";
+import { Canvas } from "@react-three/fiber";
+import { CameraControls } from "@react-three/drei";
 
+import "@cssModule/App.css";
+
+import { cameraPropsDev, configGlobal } from "./context/configGlobal";
+
+import AccountMenu from "@src/components/AccountMenu";
+import GraphScene from "@src/components/GraphScene";
+import LoginUser from "@src/components/loginUser/LoginUser";
+import NodeForm from "@src/components/addNode/AddNodeWindow";
+import OutlinedAlerts from "@src/components/Alert";
+
+import authListener from "@src/hooks/authListener";
+
+import useUIStore from "@src/store/useCounterStore";
 function App() {
   // Estado global: controla si el formulario de agregar nodo está activo
   const isAddNodeActive = useUIStore((state) => state.isAddNodeActive);
-  const isLoadingFirestore = useUIStore((state) => state.isLoadingFirestore);
-
-  // DEBUG: log de carga de Firestore
-  useEffect(() => {
-    debugLog("debug", "cargando datos firestore... ", isLoadingFirestore);
-  }, [isLoadingFirestore]);
-
+  const isLoginWindowActive = useUIStore((state) => state.isLoginWindowActive);
+  const isUserLogin = useUIStore((state) => state.isUserLogin);
+  const userLoginData = useUIStore((state) => state.userLoginData);
   // Referencia para los controles de la camara (usado por drei)
   const cameraControlsRef = useRef<CameraControls | null>(null);
+  const triggerAlert = useUIStore((state) => state.triggerAlert);
+
+  // Hook para inicializar el listener de autenticación al montar el componente
+  useEffect(() => {
+    authListener();
+  }, []);
+
+  // Hook para mostrar alertas cuando cambia el estado de inicio de sesión
+  useEffect(() => {
+    if (isUserLogin) {
+      triggerAlert(`Sesión iniciada ${userLoginData.displayName}`, "success");
+      useUIStore.setState({ isLoginWindowActive: false });
+    } else {
+      triggerAlert("Sesión Cerrada", "warning");
+    }
+  }, [isUserLogin]);
+
   return (
     <div className="appContainer">
-      {/* Muestra el formulario para agregar nodos si está activo */}
-      {isAddNodeActive ? (
-        <NodeForm />
-      ) : (
-        // Botón para abrir el formulario de nodo
-        <ButtonAddNode />
-      )}
+      {/* Formulario de 
+      nodo o botón de agregar nodo */}
+      {isAddNodeActive ? <NodeForm /> : null}
+      {isLoginWindowActive ? <LoginUser /> : <AccountMenu />}
 
       {/* Contenedor del lienzo 3D */}
       <div className="canvasContainer">
         <Canvas
           // Detiene el renderizado cuando se abre el formulario de nodo
-          frameloop={isAddNodeActive ? "never" : "always"}
           camera={{
             fov: cameraPropsDev.fov,
             near: cameraPropsDev.near,
@@ -56,6 +71,7 @@ function App() {
           />
         </Canvas>
       </div>
+      <OutlinedAlerts />
     </div>
   );
 }

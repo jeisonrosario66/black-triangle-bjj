@@ -1,7 +1,7 @@
 import { GraphMethods } from "r3f-forcegraph";
 
 type GraphRefType =
-  | GraphMethods<{ id: number }, { source: number; target: number }>
+  | GraphMethods<{ id?: number }, { source: number; target: number }>
   | undefined;
 
 type NodeFormData = {

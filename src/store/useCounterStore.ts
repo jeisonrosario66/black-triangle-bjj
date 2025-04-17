@@ -1,22 +1,40 @@
 import { create } from "zustand";
-
+type UserLoginData = {
+  displayName: string | null,
+  email: string | null,
+  photoURL: string | null,
+}
 // Definición del estado de la UI
 interface UIState {
   // Indica si la interfaz de "Agregar Nodo" está activa
   isAddNodeActive: boolean;
-  // Función para establecer el estado de "Agregar Nodo"
   setIsAddNodeActive: (active: boolean) => void;
+
+  // Indica si la interfaz de "Iniciar sesión" está activa
+  isLoginWindowActive: boolean;
+  setIsLoginWindowActive: (active: boolean) => void;
 
   // Indica si se está cargando información desde Firestore
   isLoadingFirestore: boolean;
-  // Función para establecer el estado de carga desde Firestore
   setIsLoadingFirestore: (loading: boolean) => void;
 
-    // Indica si se está subiendo información hacia Firestore
-    isUploadFirestore: boolean;
-    // Función para establecer el estado de subida hacia Firestore
-    setIsUploadFirestore: (upload: boolean) => void;
-  
+  // Indica si se está subiendo información hacia Firestore
+  isUploadFirestore: boolean;
+  setIsUploadFirestore: (upload: boolean) => void;
+
+   // Datos del usuario autenticado
+  userLoginData: UserLoginData;
+  setUserLoginDAta: (data: UserLoginData) => void;
+
+  // Indica si el usuario está autenticado
+  isUserLogin: boolean;
+  setIsUserLogin: (login: boolean) => void;
+
+  // Estado y configuración de alertas
+  showAlert: boolean;
+  alertMessage: string;
+  alertSeverity: "success" | "info" | "warning" | "error";
+  triggerAlert: (message: string, severity?: UIState["alertSeverity"]) => void;
 
 
   // Indica el paso actual en el componente Stepper
@@ -55,11 +73,33 @@ const useUIStore = create<AppState>((set, get) => ({
   isAddNodeActive: false,
   setIsAddNodeActive: (active) => set({ isAddNodeActive: active }),
 
+  isLoginWindowActive: false,
+  setIsLoginWindowActive: (active) => set({ isLoginWindowActive: active }),
+
   isLoadingFirestore: false,
   setIsLoadingFirestore: (loading) => set({ isLoadingFirestore: loading }),
 
   isUploadFirestore: false,
-  setIsUploadFirestore: (upload) => set({isUploadFirestore: upload }),
+  setIsUploadFirestore: (upload) => set({ isUploadFirestore: upload }),
+
+  userLoginData: {
+    displayName: "",
+    email: "",
+    photoURL: ""
+  },
+  setUserLoginDAta: (data) => set({ userLoginData: data }),
+
+  isUserLogin: false,
+  setIsUserLogin: (login) => set({ isUserLogin: login }),
+
+  showAlert: false,
+  alertMessage: "",
+  alertSeverity: "success",
+
+  triggerAlert: (message, severity = "success") => {
+    set({ showAlert: true, alertMessage: message, alertSeverity: severity });
+    setTimeout(() => set({ showAlert: false }), 4000);
+  },
 
   activeStep: 0,
   setActiveStep: (step) => set({ activeStep: step }),

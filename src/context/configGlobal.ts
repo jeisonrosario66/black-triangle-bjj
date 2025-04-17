@@ -12,7 +12,6 @@ const configGlobal = {
   // cameraMinDistance: 10, // Distancia mínima de la cámara
   // nodeClickDistance: 70, // Distancia al nodo despues del click
   // linkClickDistance: 100, // Distancia al link despues del click
-  DataBaseDir: "datasets/data.json", // Directorio de la base de datos
   // iconMenuBackgraundColor: "rgb(189, 189, 189)",
   // itemsMenuColor: "rgb(138, 137, 137)",
   // addNodoPanelColor: "rgb(255, 255, 255)",
@@ -21,24 +20,27 @@ const configGlobal = {
 
 // Colores asignados a los grupos de nodos
 const positionColor: Record<string, string> = {
-  guard: "rgb(0, 0, 255)", // Azul
-  control: "rgb(0, 255, 51)", // Rojo
+  guard: "rgb(73, 255, 33)", // Azul
+  submission:"rgb(255, 0, 0)51)", // Rojo
   pass: "rgb(27, 250, 250)", // Amarillo
+  switch: "rgb(255, 243, 17)", // Amarillo
+  transition: "rgb(198, 122, 28)", // Amarillo
+  control: "rgb(212, 0, 255)", // Amarillo
 };
 
 const cameraPropsDev = {
-  fov: 70, // Ángulo de visión en grados (por defecto, el ángulo vertical) que define cuán amplia es la perspectiva de la cámara. 
+  fov: 90, // Ángulo de visión en grados (por defecto, el ángulo vertical) que define cuán amplia es la perspectiva de la cámara. 
   near: 0.1, // Distancia mínima desde la cámara a la que se renderizan los objetos.
   far: 1000, // Distancia máxima desde la cámara a la que se renderizan los objetos.
   position: [30, 50, 100] as [number, number, number], // Posición de la cámara en el espacio 3D, definida como un arreglo con tres valores [𝑥,𝑦,𝑧]
 
-  dollySpeed: 5,    // Sensibilidad del zoom
+  dollySpeed: 4,    // Sensibilidad del zoom
   minDistance: 20,    // Distancia mínima para la cámara 
-  maxDistance: 170,   // Distancia máxima para la cámara 
+  maxDistance: 270,   // Distancia máxima para la cámara 
 };
 
 const scenePropsDev = {
-  radius: 80, // Radio del fondo estrellado
+  radius: 180, // Radio del fondo estrellado
   depth: 5, // Profundidad del fondo estrellado
   count: 2000, // Número de estrellas
   factor: 7, // Factor de dispersión de las estrellas

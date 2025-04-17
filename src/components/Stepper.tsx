@@ -7,6 +7,7 @@ import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import useUIStore from "@src/store/useCounterStore";
 import { lastStepSubmit } from "@src/utils/lastStepSubmit";
+import themeApp from "@src/styles/stylesThemeApp";
 
 const steps = ["Estas creando un nuevo nodo", "Conecta el nodo"];
 type StepperComponentProps = {
@@ -66,7 +67,9 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
           </Typography>
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
             <Box sx={{ flex: "1 1 auto" }} />
-            <Button disabled={isUploadFirestore} onClick={handleReset}>Volver</Button>
+            <Button disabled={isUploadFirestore} onClick={handleReset}>
+              Volver
+            </Button>
           </Box>
         </React.Fragment>
       ) : (
@@ -77,13 +80,17 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
               color="inherit"
               disabled={activeStep === 0}
               onClick={handleBack}
-              sx={{ mr: 1 }}
+              sx={{ mr: 1, color: themeApp.palette.action.success }}
             >
               Retroceder
             </Button>
             <Box sx={{ flex: "1 1 auto" }} />
             {isStepOptional(activeStep) && (
-              <Button color="inherit" onClick={handleSkip} sx={{ mr: 1 }}>
+              <Button
+                color="inherit"
+                onClick={handleSkip}
+                sx={{ mr: 1, color: themeApp.palette.action.success }}
+              >
                 Saltar
               </Button>
             )}

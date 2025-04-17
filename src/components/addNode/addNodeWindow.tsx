@@ -1,17 +1,26 @@
 import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
-import Box from "@mui/material/Box";
-import { NodeOptionFirestone, NodeFormData } from "@src/context/exportType";
-import Header from "@src/components/addNode/Header";
-import { addData, getIndex, getData } from "@src/services/firebaseService";
-import { tableNameDB } from "@src/context/configGlobal";
-import StepperComponent from "@src/components/Stepper";
-import useUIStore from "@src/store/useCounterStore";
-import { debugLog } from "@src/utils/debugLog";
-import { Step1, Step2, StepFinal } from "@src/components/addNode/StepByStep";
-import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
+import * as yup from "yup";
+
+import Box from "@mui/material/Box";
+import { Padding } from "@mui/icons-material";
+
+import LogoContainer from "@src/components/LogoComponent";
+import StepperComponent from "@src/components/Stepper";
+import { Step1, Step2, StepFinal } from "@src/components/addNode/StepByStep";
+
+import { NodeOptionFirestone, NodeFormData } from "@src/context/exportType";
+import { tableNameDB } from "@src/context/configGlobal";
+
+import { addData, getIndex, getData } from "@src/services/firebaseService";
+
+import useUIStore from "@src/store/useCounterStore";
+
+import { debugLog } from "@src/utils/debugLog";
+
 import { containerAddNodeWindow } from "@src/styles/stylesAddNodeWindow";
+
 const schema = yup.object({
   index: yup.number().required(),
   name: yup
@@ -25,7 +34,7 @@ const schema = yup.object({
 const NodeForm: React.FC = () => {
   /**
    * Componente contenedor de los steps del formulario
-  */
+   */
 
   // finalFormData: Almacena la informacion completa recogida por el formlario
   // Se inicializa con valores default
@@ -95,7 +104,6 @@ const NodeForm: React.FC = () => {
       (node) => node.index === selectedIndex
     );
 
-
     addData(
       tableNameDB.nodes,
       tableNameDB.links,
@@ -141,8 +149,9 @@ const NodeForm: React.FC = () => {
 
   return (
     <Box style={containerAddNodeWindow}>
-      <Header />
-
+      <Box style={{padding: "2rem 0"}}>
+        <LogoContainer />
+      </Box>
       {activeStep === 0 && <Step1 control={control} errors={errors} />}
       {activeStep === 1 && (
         <Step2
@@ -152,7 +161,12 @@ const NodeForm: React.FC = () => {
           isNot1Step2={watch("nodeSourceIndex")}
         />
       )}
-      {activeStep === 2 && <StepFinal newNodeData={finalFormData} selectedSourceNodeData={selectedSourceNodeData} />}
+      {activeStep === 2 && (
+        <StepFinal
+          newNodeData={finalFormData}
+          selectedSourceNodeData={selectedSourceNodeData}
+        />
+      )}
 
       <StepperComponent
         onValidate={handleValidate}

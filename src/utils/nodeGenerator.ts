@@ -1,4 +1,4 @@
-import database from "@src/hooks/fireBase";
+import {database} from "@src/hooks/fireBase";
 import { collection, getDocs } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import useUIStore from "@src/store/useCounterStore";
