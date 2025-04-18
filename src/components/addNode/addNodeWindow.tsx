@@ -4,7 +4,6 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 
 import Box from "@mui/material/Box";
-import { Padding } from "@mui/icons-material";
 
 import LogoContainer from "@src/components/LogoComponent";
 import StepperComponent from "@src/components/Stepper";
@@ -19,7 +18,7 @@ import useUIStore from "@src/store/useCounterStore";
 
 import { debugLog } from "@src/utils/debugLog";
 
-import { containerAddNodeWindow } from "@src/styles/stylesAddNodeWindow";
+import { containerAddNodeWindow } from "@src/styles/nodeView/stylesAddNodeWindow";
 
 const schema = yup.object({
   index: yup.number().required(),
@@ -27,7 +26,7 @@ const schema = yup.object({
     .string()
     .min(3, "El nombre debe tener al menos 3 caracteres")
     .required("El nombre es obligatorio"),
-  position: yup.string().required("La posición es obligatoria"),
+  group: yup.string().required("La posición es obligatoria"),
   nodeSourceIndex: yup.number().required("El nodo origen es obligatorio"), // No tiene Efecto
 });
 
@@ -41,7 +40,7 @@ const NodeForm: React.FC = () => {
   const [finalFormData, setFinalFormData] = useState<NodeFormData>({
     index: 0,
     name: "",
-    position: "",
+    group: "",
     nodeSourceIndex: 1,
   });
   const [selectedSourceNodeData, setfinalNodeSourceData] =
@@ -49,7 +48,7 @@ const NodeForm: React.FC = () => {
       id: 0,
       index: 0,
       name: "",
-      position: "",
+      group: "",
     });
 
   const {
@@ -65,7 +64,7 @@ const NodeForm: React.FC = () => {
     defaultValues: {
       index: 0,
       name: "",
-      position: "",
+      group: "",
       nodeSourceIndex: 1,
     },
   });
@@ -109,7 +108,7 @@ const NodeForm: React.FC = () => {
       tableNameDB.links,
       (dataNodes.index = indexNewNode),
       dataNodes.name,
-      dataNodes.position,
+      dataNodes.group,
       dataNodes.nodeSourceIndex,
       (dataNodes.uploadedDate = today.toLocaleDateString())
     );
@@ -127,7 +126,7 @@ const NodeForm: React.FC = () => {
      * @event: trigger: Permite evaluar los campos del formulario manualmente
      */
     const arrayStepper = [false, false];
-    const isValidStep1 = await trigger(["name", "position"]);
+    const isValidStep1 = await trigger(["name", "group"]);
     const isNot1_Step2 = watch("nodeSourceIndex");
 
     if (isValidStep1) {

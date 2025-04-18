@@ -19,8 +19,8 @@ const configGlobal = {
 };
 
 // Colores asignados a los grupos de nodos
-const positionColor: Record<string, string> = {
-  guard: "rgb(73, 255, 33)", // Azul
+const groupColor: Record<string, string> = {
+  genesis: "rgb(255, 255, 255)", // Azul
   submission:"rgb(255, 0, 0)51)", // Rojo
   pass: "rgb(27, 250, 250)", // Amarillo
   switch: "rgb(255, 243, 17)", // Amarillo
@@ -54,4 +54,4 @@ const tableNameDB = {
 }
 
 
-export { configGlobal, cameraPropsDev, scenePropsDev, tableNameDB, positionColor };
+export { configGlobal, cameraPropsDev, scenePropsDev, tableNameDB, groupColor };

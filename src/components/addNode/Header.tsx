@@ -1,6 +1,7 @@
+import Box from "@mui/material/Box";
+
 import useUIStore from "@src/store/useCounterStore";
 import themeApp from "@src/styles/stylesThemeApp";
-import Box from "@mui/material/Box";
 import ButtonClose from "@src/components/ButtonClose";
 
 const theme = themeApp;
@@ -25,7 +26,7 @@ export default () => {
       >
         <ButtonClose
           buttonFunction={buttonCloseFunction}
-          isUploadFirestore={isUploadFirestore}
+          disabled={isUploadFirestore}
         />
         <h1
           style={{

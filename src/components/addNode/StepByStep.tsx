@@ -54,12 +54,12 @@ const Step1: React.FC<Step1Props> = ({ control, errors }) => {
         )}
       />
 
-      {/* Campo position */}
+      {/* Campo group */}
       <Controller
-        name="position"
+        name="group"
         control={control}
         render={({ field }) => (
-          <FormControl sx={style.formPosition}>
+          <FormControl sx={style.formGroup}>
             <FormLabel style={style.formLabel}>Tipo de nodo</FormLabel>
             <RadioGroup {...field}>
               <FormControlLabel
@@ -87,17 +87,21 @@ const Step1: React.FC<Step1Props> = ({ control, errors }) => {
                 control={<Radio />}
                 label="Transición"
               />
-                <FormControlLabel
+              <FormControlLabel
                 value="control"
                 control={<Radio />}
                 label="Control"
+              />{" "}
+              <FormControlLabel
+                value="tachi_waza"
+                control={<Radio />}
+                label="Tachi Waza"
               />
-
             </RadioGroup>
-            {errors.position && (
+            {errors.group && (
               <Typography color="error" variant="caption">
-                {typeof errors.position?.message === "string"
-                  ? errors.position.message
+                {typeof errors.group?.message === "string"
+                  ? errors.group.message
                   : ""}
               </Typography>
             )}
@@ -187,7 +191,7 @@ const StepFinal: React.FC<StepFinalProps> = ({
             <strong>Nombre:</strong> {dataNodes.name}
           </p>
           <p>
-            <strong>Posición:</strong> {dataNodes.position}
+            <strong>Posición:</strong> {dataNodes.group}
           </p>
           <p>
             <strong>Nodo Origen:</strong>{" "}

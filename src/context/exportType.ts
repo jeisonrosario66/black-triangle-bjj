@@ -10,7 +10,7 @@ type NodeFormData = {
   */
   index: number;
   name: string;
-  position: string;
+  group: string;
   nodeSourceIndex: number;
   // useGi?: string;
   // description?: string;
@@ -21,10 +21,14 @@ type NodeFormData = {
 };
 
 type NodeOptionFirestone = {
-  id?:number| string;
+  id?: number | string;
   index?: number;
   name?: string;
-  position?: string;
+  group?: string;
+  start?: string;
+  end?: string;
+  videoid?: string;
+  
 };
 
 type GraphNode = {
@@ -33,9 +37,11 @@ type GraphNode = {
   y?: number;
   z?: number;
   name?: string;
-  position?: string;
   color?: string;
   group?: string;
+  start?: string;
+  end?: string;
+  videoid?: string;
 };
 
 type GraphLink = {

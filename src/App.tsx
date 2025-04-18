@@ -11,6 +11,7 @@ import GraphScene from "@src/components/GraphScene";
 import LoginUser from "@src/components/loginUser/LoginUser";
 import NodeForm from "@src/components/addNode/AddNodeWindow";
 import OutlinedAlerts from "@src/components/Alert";
+import NodeView from "@src/components/NodeView";
 
 import authListener from "@src/hooks/authListener";
 
@@ -21,6 +22,7 @@ function App() {
   const isLoginWindowActive = useUIStore((state) => state.isLoginWindowActive);
   const isUserLogin = useUIStore((state) => state.isUserLogin);
   const userLoginData = useUIStore((state) => state.userLoginData);
+  const isNodeViewActive = useUIStore((state) => state.isNodeViewActive);
   // Referencia para los controles de la camara (usado por drei)
   const cameraControlsRef = useRef<CameraControls | null>(null);
   const triggerAlert = useUIStore((state) => state.triggerAlert);
@@ -46,6 +48,7 @@ function App() {
       nodo o botón de agregar nodo */}
       {isAddNodeActive ? <NodeForm /> : null}
       {isLoginWindowActive ? <LoginUser /> : <AccountMenu />}
+      {isNodeViewActive && cameraControlsRef.current ? <NodeView controls={cameraControlsRef.current} /> : null}
 
       {/* Contenedor del lienzo 3D */}
       <div className="canvasContainer">

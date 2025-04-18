@@ -22,7 +22,10 @@ const getData = async (dbName: string) => {
         id: docData.index,
         index: docData.index,
         name: docData.name,
-        position: docData.position,
+        group: docData.group,
+        start: docData.start,
+        end: docData.end,
+        videoid: docData.videoid,
       };
     });
     debugLog("debug", "Documentos obtenidos desde firestone: ", data);
@@ -57,7 +60,7 @@ const addData = async (
   dbLinksName: string,
   index: number,
   name: string,
-  position: string,
+  group: string,
   nodeSource: number,
   uploadedDate: string
 ) => {
@@ -74,17 +77,17 @@ const addData = async (
       console.error(" Error: Ya existe un documento con este `name`.");
       return { success: false, message: "El link ya está registrado." };
     }
-    const docNodeRef = await addDoc(collection(database, dbNodesName), {
+    await addDoc(collection(database, dbNodesName), {
       name: name,
       index: index,
-      position: position,
+      group: group,
       uploadedDate: uploadedDate
     });
 
 
     if (nodeSource !== 1) {
       // Filtra para evitar guardar ensalaces cuando el source es igual a 1
-      const docLinkSource = await addDoc(collection(database, dbLinksName), {
+      await addDoc(collection(database, dbLinksName), {
         target: index,
         source: nodeSource,
       });

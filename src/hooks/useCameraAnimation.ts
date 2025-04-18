@@ -1,44 +1,97 @@
 import gsap from "gsap";
 import * as THREE from "three";
 import { CameraControls } from "@react-three/drei";
+import useUIStore from "@src/store/useCounterStore";
 
+/**
+ * Mueve la cámara hacia un nodo con animación y guarda la posición anterior.
+ */
 const animateCameraToNode = (
   controls: CameraControls,
   nodePosition: THREE.Vector3,
   distance: number = 50
-) => {
+): void => {
   if (!controls) return;
 
-  // Obtenemos la posición actual de la cámara
-  const currentPos = new THREE.Vector3();
-  controls.getPosition(currentPos);
+  const fromPos = new THREE.Vector3();
+  controls.getPosition(fromPos);
 
-  // Calculamos la dirección desde el nodo a la cámara
+  const fromTarget = new THREE.Vector3();
+  controls.getTarget(fromTarget);
+
   const direction = new THREE.Vector3()
-    .subVectors(currentPos, nodePosition)
+    .subVectors(fromPos, nodePosition)
     .normalize();
 
-  // Posición final: nos alejamos del nodo a la distancia indicada
-  const finalPos = new THREE.Vector3().copy(nodePosition).addScaledVector(direction, distance);
+  const finalPos = new THREE.Vector3()
+    .copy(nodePosition)
+    .addScaledVector(direction, distance);
 
-  // Usamos gsap para animar tanto la posición como el lookAt de la cámara
-  gsap.to(currentPos, {
+  const animated = { x: fromPos.x, y: fromPos.y, z: fromPos.z };
+
+  gsap.to(animated, {
     x: finalPos.x,
     y: finalPos.y,
     z: finalPos.z,
     duration: 1.5,
     ease: "power2.out",
     onUpdate: () => {
-      // Actualizamos la posición y la dirección de la cámara en cada frame de la animación
       controls.setLookAt(
-        currentPos.x,
-        currentPos.y,
-        currentPos.z, // Posición actual de la cámara
+        animated.x,
+        animated.y,
+        animated.z,
         nodePosition.x,
         nodePosition.y,
-        nodePosition.z, // El nodo al que apuntamos
-        true // Indica si se debe actualizar inmediatamente
+        nodePosition.z,
+        true
       );
+    },
+    onComplete: () => {
+      // Guarda la posición anterior en el store para revertir después
+      useUIStore.setState({
+        isNodeViewActive: true,
+        cameraBackup: {
+          pos: fromPos.toArray(),
+          target: fromTarget.toArray(),
+        },
+      });
+    },
+  });
+};
+
+/**
+ * Devuelve la cámara a su posición y target anterior con animación.
+ */
+export const animateCameraBackFromNode = (
+  controls: CameraControls
+): void => {
+  const { cameraBackup } = useUIStore.getState();
+
+  if (!controls || !cameraBackup) return;
+
+  const [x, y, z] = cameraBackup.pos;
+  const [tx, ty, tz] = cameraBackup.target;
+
+  const currentPos = new THREE.Vector3();
+  controls.getPosition(currentPos);
+
+  const animated = { x: currentPos.x, y: currentPos.y, z: currentPos.z };
+
+  gsap.to(animated, {
+    x,
+    y,
+    z,
+    duration: 1.5,
+    ease: "power2.inOut",
+    onUpdate: () => {
+      controls.setLookAt(animated.x, animated.y, animated.z, tx, ty, tz, true);
+    },
+    onComplete: () => {
+      // Limpia el estado
+      useUIStore.setState({
+        isNodeViewActive: false,
+        cameraBackup: null,
+      });
     },
   });
 };

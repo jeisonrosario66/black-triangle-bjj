@@ -36,7 +36,7 @@ export default function Login() {
       {/* Botón para cerrar la ventana */}
       <ButtonClose
         buttonFunction={buttonCloseFunction}
-        isUploadFirestore={false}
+        disabled={false}
       />
 
       {/* Logo de la aplicación */}

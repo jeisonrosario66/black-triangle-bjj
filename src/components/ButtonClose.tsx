@@ -1,14 +1,20 @@
 import { Button } from "@mui/material";
-import {CloseOutlined} from "@mui/icons-material"
+import { CloseOutlined } from "@mui/icons-material";
+
+import themeApp from "@src/styles/stylesThemeApp";
+
 import React from "react";
-import themeApp from "@src/styles/stylesThemeApp"
+
 const theme = themeApp;
 
 type ButtonCloseProps = {
-    buttonFunction: () => void;
-    isUploadFirestore?: boolean;
+  buttonFunction: () => void;
+  disabled?: boolean;
 };
-const ButtonClose: React.FC<ButtonCloseProps> = ({ buttonFunction, isUploadFirestore}) => {
+const ButtonClose: React.FC<ButtonCloseProps> = ({
+  buttonFunction,
+  disabled: isUploadFirestore,
+}) => {
   return (
     <Button
       size="medium"

@@ -21,7 +21,7 @@ const containerBoxStep: SxProps = {
   },
 };
 
-const formPosition: SxProps = {
+const formGroup: SxProps = {
   backgroundColor: theme.palette.formStyles.cardBackgroundColor,
   padding: "40px",
   border: `2px solid ${theme.palette.formStyles.borderColor}`,
@@ -122,7 +122,7 @@ const graph2DResult = (isUploadFirestore: boolean): SxProps => ({
 
 export {
   containerBoxStep,
-  formPosition,
+  formGroup,
   formLabel,
   formSelect,
   boxFormSelect,
