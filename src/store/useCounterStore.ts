@@ -1,16 +1,6 @@
 import { create } from "zustand";
 import { Vector3Tuple } from "three";
 
-type AppState2 = {
-  isNodeViewActive: boolean;
-  cameraBackup: {
-    pos: Vector3Tuple;
-    target: Vector3Tuple;
-  } | null;
-  setIsNodeViewActive: (value: boolean) => void;
-  setCameraBackup: (pos: Vector3Tuple, target: Vector3Tuple) => void;
-  clearCameraBackup: () => void;
-};
 
 type UserLoginData = {
   displayName: string | null,

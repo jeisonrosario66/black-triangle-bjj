@@ -1,20 +1,26 @@
 import { Controller, Control, FieldErrors } from "react-hook-form";
-import TextField from "@mui/material/TextField";
-import Box from "@mui/material/Box";
-import RadioGroup from "@mui/material/RadioGroup";
-import Radio from "@mui/material/Radio";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Typography from "@mui/material/Typography";
-import FormControl from "@mui/material/FormControl";
-import FormLabel from "@mui/material/FormLabel";
-import { MenuItem, Select } from "@mui/material";
+import {
+  Box,
+  TextField,
+  RadioGroup,
+  Typography,
+  FormControl,
+  FormLabel,
+  MenuItem,
+  Select,
+  Button,
+  Tab,
+  Tabs,
+  LinearProgress,
+} from "@mui/material";
 import { NodeOptionFirestone, NodeFormData } from "@src/context/exportType";
 import * as style from "@src/styles/styleStepByStep";
-import LinearProgress from "@mui/material/LinearProgress";
 import useUIStore from "@src/store/useCounterStore";
 import React from "react";
 import Graph2D from "@src/components/Graph2D";
 import Header from "@src/components/addNode/Header";
+import SelectableButtonGroup from "@src/components/addNode/SelectableButton";
+import TabGroup from "@src/components/addNode/TabGroud"
 type Step1Props = {
   control: Control<any>;
   errors: FieldErrors<any>;
@@ -62,40 +68,9 @@ const Step1: React.FC<Step1Props> = ({ control, errors }) => {
           <FormControl sx={style.formGroup}>
             <FormLabel style={style.formLabel}>Tipo de nodo</FormLabel>
             <RadioGroup {...field}>
-              <FormControlLabel
-                value="guard"
-                control={<Radio />}
-                label="Guardia"
-              />
-              <FormControlLabel
-                value="pass"
-                control={<Radio />}
-                label="Pasaje"
-              />
-              <FormControlLabel
-                value="submission"
-                control={<Radio />}
-                label="Sumisión"
-              />
-              <FormControlLabel
-                value="switch"
-                control={<Radio />}
-                label="Raspado"
-              />
-              <FormControlLabel
-                value="transition"
-                control={<Radio />}
-                label="Transición"
-              />
-              <FormControlLabel
-                value="control"
-                control={<Radio />}
-                label="Control"
-              />{" "}
-              <FormControlLabel
-                value="tachi_waza"
-                control={<Radio />}
-                label="Tachi Waza"
+              <SelectableButtonGroup
+                value={field.value}
+                onChange={field.onChange}
               />
             </RadioGroup>
             {errors.group && (
@@ -118,6 +93,10 @@ const Step2: React.FC<Step2Props> = ({
   nodeOptions,
   isNot1Step2,
 }) => {
+
+
+
+
   return (
     <Box sx={style.containerBoxStep}>
       <Header />
@@ -131,17 +110,7 @@ const Step2: React.FC<Step2Props> = ({
               <Typography>
                 Elige una conexión de origen o presioná en saltar
               </Typography>
-              <Select sx={style.formSelect(isNot1Step2 == 1)} {...field}>
-                {/*  Mapea el estado "nodeOptions" para obtener solo los nombres  */}
-                {nodeOptions
-                  //Filtra los nombre vacios
-                  .filter((node) => node.name && node.name.trim() !== "")
-                  .map((node, index) => (
-                    <MenuItem key={index} value={node.index}>
-                      {`${node.name}: ${node.index}`}
-                    </MenuItem>
-                  ))}
-              </Select>
+              <TabGroup/>
             </Box>
             {errors.nodeSource && (
               <Typography color="error" variant="caption">
@@ -171,7 +140,7 @@ const StepFinal: React.FC<StepFinalProps> = ({
   };
 
   return (
-    <Box sx={style.stepFinalContainer}>
+    <Box sx={style.containerBoxStep}>
       <Header />
       <Box sx={style.progress(isUploadFirestore)}>
         <LinearProgress sx={{ width: "60%" }} />

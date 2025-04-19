@@ -29,11 +29,11 @@ const themeApp = createTheme({
         buttonHomeScreen: "#f1f1f1",
       },
       formStyles: {
-        containerBackgroundColor: "#f0f0f0",
+        containerBackgroundColor: "#d1d1d1",
         cardBackgroundColor: "#f9f9f9",
-        cardBoxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+        cardBoxShadow: "0 10px 30px rgba(0, 0, 0, 0.99)",
         buttonForm: "#001E3C",
-        borderColor: "#ccc"
+        borderColor: "rgb(109, 109, 109)",
       }
     },
   });

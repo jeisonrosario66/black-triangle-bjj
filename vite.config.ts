@@ -1,13 +1,13 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
-
+import svgr from "vite-plugin-svgr";
 
 // Configuración de Vite para el proyecto React
 // Permite conexiones desde la red y configura alias para simplificar imports
 // https://vite.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [react(), svgr()],
   base: "/black-triangle-bjj/",
   server: {
     host: true, // Permite conexiones desde la red

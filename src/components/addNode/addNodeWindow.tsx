@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
+import themeApp from "@src/styles/stylesThemeApp";
 
-import Box from "@mui/material/Box";
+import { Box, Divider } from "@mui/material";
 
 import LogoContainer from "@src/components/LogoComponent";
 import StepperComponent from "@src/components/Stepper";
@@ -19,6 +20,7 @@ import useUIStore from "@src/store/useCounterStore";
 import { debugLog } from "@src/utils/debugLog";
 
 import { containerAddNodeWindow } from "@src/styles/nodeView/stylesAddNodeWindow";
+const theme = themeApp;
 
 const schema = yup.object({
   index: yup.number().required(),
@@ -26,7 +28,7 @@ const schema = yup.object({
     .string()
     .min(3, "El nombre debe tener al menos 3 caracteres")
     .required("El nombre es obligatorio"),
-  group: yup.string().required("La posición es obligatoria"),
+  group: yup.string().required("El tipo de nodo es obligatorio"),
   nodeSourceIndex: yup.number().required("El nodo origen es obligatorio"), // No tiene Efecto
 });
 
@@ -148,9 +150,15 @@ const NodeForm: React.FC = () => {
 
   return (
     <Box style={containerAddNodeWindow}>
-      <Box style={{padding: "2rem 0"}}>
+      <Box
+        style={{
+          padding: "2rem 0 ",
+          backgroundColor: theme.palette.formStyles.containerBackgroundColor,
+        }}
+      >
         <LogoContainer />
       </Box>
+      <Divider sx={{ width: "90%", mx: "auto" }} />
       {activeStep === 0 && <Step1 control={control} errors={errors} />}
       {activeStep === 1 && (
         <Step2

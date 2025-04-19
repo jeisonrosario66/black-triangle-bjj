@@ -8,8 +8,9 @@ import Typography from "@mui/material/Typography";
 import useUIStore from "@src/store/useCounterStore";
 import { lastStepSubmit } from "@src/utils/lastStepSubmit";
 import themeApp from "@src/styles/stylesThemeApp";
+import * as style from "@src/styles/stylesStepper";
 
-const steps = ["Estas creando un nuevo nodo", "Conecta el nodo"];
+const steps = ["Estas creando un nuevo nodo", "Carga un recurso","Conecta el nodo"];
 type StepperComponentProps = {
   onValidate?: () => void;
   onHandleSubmit: () => void;
@@ -57,14 +58,12 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
   };
 
   return (
-    <Box
-      sx={{ paddingLeft: "1rem", paddingRight: "1rem", marginBottom: "1rem" }}
-    >
+    <Box sx={style.containerStepper}>
       {activeStep === steps.length ? (
         <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>
-            Todos los pasos completados
-          </Typography>
+            {/* <Typography sx={{ mt: 2, mb: 1 }}>
+              Todos los pasos completados
+            </Typography> */}
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
             <Box sx={{ flex: "1 1 auto" }} />
             <Button disabled={isUploadFirestore} onClick={handleReset}>
@@ -74,7 +73,7 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
         </React.Fragment>
       ) : (
         <React.Fragment>
-          <Typography sx={{ mt: 2, mb: 1 }}>Paso {activeStep + 1}</Typography>
+          {/* <Typography sx={{ mt: 2, mb: 1 }}>Paso {activeStep + 1}</Typography> */}
           <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
             <Button
               color="inherit"

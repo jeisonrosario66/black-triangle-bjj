@@ -28,17 +28,17 @@ export default () => {
           buttonFunction={buttonCloseFunction}
           disabled={isUploadFirestore}
         />
-        <h1
+        <h2
           style={{
             color:
-              activeStep == 2
+              activeStep == 2 
                 ? theme.palette.action.success
                 : theme.palette.text.secondary,
             textAlign: "center",
           }}
         >
           {activeStep == 2 ? titleFinal : title}
-        </h1>
+        </h2>
       </Box>
     </>
   );

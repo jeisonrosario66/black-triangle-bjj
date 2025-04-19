@@ -20,12 +20,13 @@ const configGlobal = {
 
 // Colores asignados a los grupos de nodos
 const groupColor: Record<string, string> = {
-  genesis: "rgb(255, 255, 255)", // Azul
-  submission:"rgb(255, 0, 0)51)", // Rojo
-  pass: "rgb(27, 250, 250)", // Amarillo
-  switch: "rgb(255, 243, 17)", // Amarillo
-  transition: "rgb(198, 122, 28)", // Amarillo
-  control: "rgb(212, 0, 255)", // Amarillo
+  genesis: "rgb(255, 255, 255)", 
+  submission:"rgb(255, 0, 0)51)", 
+  pass: "rgb(27, 250, 250)", 
+  switch: "rgb(255, 243, 17)", 
+  transition: "rgb(198, 122, 28)", 
+  control: "rgb(212, 0, 255)", 
+  tachi_waza: "rgb(125, 132, 255)", 
 };
 
 const cameraPropsDev = {
