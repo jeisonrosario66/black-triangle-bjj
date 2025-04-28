@@ -5,6 +5,7 @@ import {
   Paper,
   Tooltip,
   LinearProgress,
+  Typography,
   Box,
 } from "@mui/material";
 import Replay5Icon from "@mui/icons-material/Replay5";
@@ -12,13 +13,17 @@ import Forward5Icon from "@mui/icons-material/Forward5";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 import { YouTubePlayer } from "react-youtube";
+
+import { PlayerControlsData } from "@src/context/exportType";
+
 import * as style from "@src/styles/nodeView/stylesPlayerControls";
 
-// Definición de las propiedades que recibe el componente
 type PlayerControlsProps = {
   player: YouTubePlayer | null; // Instancia del reproductor de YouTube
-  start: number; // Tiempo de inicio del video
-  end: number; // Tiempo de fin del video
+  start: number;
+  end: number;
+  isAddNode?: boolean;
+  onSendDataTimeNewNode?: (data: PlayerControlsData) => void;
 };
 
 /**
@@ -30,12 +35,25 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
   player,
   start,
   end,
+  isAddNode,
+  onSendDataTimeNewNode,
 }) => {
-  // Estado para determinar si el video está reproduciéndose
   const [isPlaying, setIsPlaying] = useState(false);
-
-  // Estado para el progreso del video en porcentaje
   const [progress, setProgress] = useState(0);
+  const [endTimeLocal, setEndTimeLocal] = useState<string>("");
+  const [startTimeLocal, setStartTimeLocal] = useState<string>("");
+  const formatTimeFull = (seconds: number) => {
+    const hrs = Math.floor(seconds / 3600);
+    const mins = Math.floor((seconds % 3600) / 60);
+    const secs = Math.floor(seconds % 60);
+
+    const parts = [];
+    if (hrs > 0) parts.push(hrs.toString());
+    parts.push(mins.toString().padStart(2, "0"));
+    parts.push(secs.toString().padStart(2, "0"));
+
+    return parts.join(":");
+  };
 
   /**
    * Hook `useEffect` para actualizar el estado del reproductor y el progreso del video.
@@ -45,16 +63,15 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
     if (!player) return;
 
     const interval = setInterval(() => {
-      const state = player.getPlayerState(); // Obtiene el estado del reproductor
-      const currentTime = player.getCurrentTime(); // Obtiene el tiempo actual del video
+      const state = player.getPlayerState();
+      const currentTime = player.getCurrentTime();
 
-      setIsPlaying(state === 1); // 1 indica que el video está reproduciéndose
+      setIsPlaying(state === 1);
       const clampedTime = Math.min(Math.max(currentTime, start), end); // Restringe el tiempo al rango [start, end]
       const duration = end - start; // Duración del fragmento
       const percent = ((clampedTime - start) / duration) * 100; // Calcula el progreso en porcentaje
       setProgress(percent);
 
-      // Pausa el video si alcanza el final del fragmento
       if (currentTime >= end) {
         player.pauseVideo();
       }
@@ -116,51 +133,98 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
       >
         <LinearProgress
           variant="determinate"
-          value={progress} // Progreso actual del video
+          value={progress}
           sx={style.progressBar}
         />
       </Box>
+      <Typography>
+        {player ? formatTimeFull(player.getCurrentTime()) : "0:00"} /{" "}
+        {formatTimeFull(end)}
+      </Typography>
 
       {/* Controles del reproductor */}
       <Paper elevation={3} sx={style.containerPlayerControls}>
-        <Stack direction="row" spacing={10} alignItems="center">
-          {/* Botón para retroceder 1 segundo */}
-          <Tooltip title="Retroceder 1s">
-            <IconButton
-              sx={style.iconsPlayer}
-              color="primary"
-              onClick={() => seekBy(-1)}
-            >
-              <Replay5Icon fontSize="large" />
-            </IconButton>
-          </Tooltip>
+        <Box sx={style.gridPlayerControls(isAddNode)}>
+          {/* Fila principal de botones normales */}
+          <Stack direction="row" spacing={10} alignItems="center">
+            {/* Botón para retroceder 5 segundos */}
+            <Tooltip title="Retroceder 5s">
+              <IconButton
+                sx={style.iconsPlayer}
+                color="primary"
+                onClick={() => seekBy(-5)}
+              >
+                <Replay5Icon fontSize="large" />
+              </IconButton>
+            </Tooltip>
 
-          {/* Botón para reproducir o pausar */}
-          <Tooltip title={isPlaying ? "Pausar" : "Reproducir"}>
-            <IconButton
-              color="primary"
-              onClick={togglePlayPause}
-              sx={style.iconsPlayer}
-            >
-              {isPlaying ? (
-                <PauseIcon fontSize="large" />
-              ) : (
-                <PlayArrowIcon fontSize="large" />
-              )}
-            </IconButton>
-          </Tooltip>
+            {/* Botón para reproducir o pausar */}
+            <Tooltip title={isPlaying ? "Pausar" : "Reproducir"}>
+              <IconButton
+                color="primary"
+                onClick={togglePlayPause}
+                sx={style.iconsPlayer}
+              >
+                {isPlaying ? (
+                  <PauseIcon fontSize="large" />
+                ) : (
+                  <PlayArrowIcon fontSize="large" />
+                )}
+              </IconButton>
+            </Tooltip>
 
-          {/* Botón para avanzar 1 segundo */}
-          <Tooltip title="Avanzar 1s">
-            <IconButton
-              sx={style.iconsPlayer}
-              color="primary"
-              onClick={() => seekBy(1)}
-            >
-              <Forward5Icon fontSize="large" />
-            </IconButton>
-          </Tooltip>
-        </Stack>
+            {/* Botón para avanzar 5 segundos */}
+            <Tooltip title="Avanzar 5s">
+              <IconButton
+                sx={style.iconsPlayer}
+                color="primary"
+                onClick={() => seekBy(5)}
+              >
+                <Forward5Icon fontSize="large" />
+              </IconButton>
+            </Tooltip>
+          </Stack>
+
+          {/* Segunda fila de botones condicionales */}
+          {isAddNode && (
+            <Box sx={style.buttonAditional}>
+              <Tooltip title="Tiempo inicio">
+                <IconButton
+                  sx={style.iconsPlayer}
+                  color="primary"
+                  onClick={() => {
+                    const t = Math.floor(player.getCurrentTime()).toString();
+                    setStartTimeLocal(t);
+                    onSendDataTimeNewNode?.({
+                      start: t,
+                      videoid: player.getVideoData().video_id,
+                    });
+                  }}
+                >
+                  <Typography>
+                    Inicio: {formatTimeFull(Number(startTimeLocal))}
+                  </Typography>
+                </IconButton>
+              </Tooltip>
+
+              <Tooltip title="Tiempo final">
+                <IconButton
+                  sx={style.iconsPlayer}
+                  color="primary"
+                  onClick={() => {
+                    const t = Math.ceil(player.getCurrentTime()).toString();
+                    setEndTimeLocal(t);
+                    onSendDataTimeNewNode?.({ end: t });
+                  }}
+                >
+                  <Typography>
+                    Fin: {formatTimeFull(Number(endTimeLocal))}
+                  </Typography>
+                </IconButton>
+              </Tooltip>
+            </Box>
+          )}
+        </Box>
       </Paper>
     </Box>
   );

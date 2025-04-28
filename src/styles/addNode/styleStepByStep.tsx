@@ -18,9 +18,7 @@ const containerBoxStep: SxProps = {
   "& .MuiInputBase-root": {
     backgroundColor: theme.palette.formStyles.cardBackgroundColor,
   },
-  "& input": {
-  },
-
+  "& input": {},
 };
 
 const formGroup: SxProps = {
@@ -39,7 +37,7 @@ const formLabel: React.CSSProperties = {
   fontSize: "1.5rem",
   fontWeight: "600",
   marginBottom: "2rem",
-  textAlign:"center",
+  textAlign: "center",
 };
 
 const formSelect = (isNot1Step2: boolean): SxProps => ({
@@ -60,7 +58,9 @@ const formSelect = (isNot1Step2: boolean): SxProps => ({
 const boxFormSelect = (isNot1Step2: boolean): SxProps => ({
   display: "flex",
   flexDirection: "column-reverse",
-width:"100vw",
+  justifyContent: "space-around",
+
+  width: "100vw",
   "& .MuiTypography-root": {
     fontSize: "0.75rem",
     textAlign: "center",
@@ -133,13 +133,3 @@ export {
   graph2DResult,
   graph2DProgress,
 };
-
-// MenuItem → "MuiMenuItem-root"
-
-// Select → "MuiSelect-root"
-
-// Typography → "MuiTypography-root"
-
-// Button → "MuiButton-root"
-
-// OutlinedInput → "MuiOutlinedInput-notchedOutline" /

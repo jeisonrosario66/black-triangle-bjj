@@ -1,6 +1,6 @@
 import React from "react";
 import themeApp from "@src/styles/stylesThemeApp";
-
+import { OptionTechniqueCard } from "@src/context/index"
 const theme = themeApp;
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
@@ -300,45 +300,50 @@ export const TransitionIcon: React.FC<IconProps> = ({ color }) => {
   );
 };
 
-interface Option {
-  value: string;
-  label: string;
-  icon?: React.ReactNode;
-}
-  export const optionsMenu: Option[] = [
-    {
-      value: "guard",
-      label: "Guardia",
-      icon: <GuardIcon color={theme.palette.text.secondary} />,
-    },
-    {
-      value: "pass",
-      label: "Pase",
-      icon: <PassIcon color={theme.palette.text.secondary} />,
-    },
-    {
-      value: "submission",
-      label: "Sumisión",
-      icon: <SubmissionIcon color={theme.palette.text.secondary} />,
-    },
-    {
-      value: "switch",
-      label: "Raspado",
-      icon: <SwitchIcon color={theme.palette.text.secondary} />,
-    },
-    {
-      value: "transition",
-      label: "Transición",
-      icon: <TransitionIcon color={theme.palette.text.secondary} />,
-    },
-    {
-      value: "control",
-      label: "Control",
-      icon: <ControlIcon color={theme.palette.text.secondary} />,
-    },
-    {
-      value: "tachi_waza",
-      label: "Tachi Waza",
-      icon: <TachiWazaIcon color={theme.palette.text.secondary} />,
-    },
-  ];
+export const optionsMenu: OptionTechniqueCard[] = [
+  {
+    value: "guard",
+    label: "Guardia",
+    icon: <GuardIcon color={theme.palette.text.secondary} />,
+  },
+  {
+    value: "pass",
+    label: "Pase",
+    icon: <PassIcon color={theme.palette.text.secondary} />,
+  },
+  {
+    value: "submission",
+    label: "Sumisión",
+    icon: <SubmissionIcon color={theme.palette.text.secondary} />,
+  },
+  {
+    value: "switch",
+    label: "Raspado",
+    icon: <SwitchIcon color={theme.palette.text.secondary} />,
+  },
+  {
+    value: "transition",
+    label: "Transición",
+    icon: <TransitionIcon color={theme.palette.text.secondary} />,
+  },
+  {
+    value: "control",
+    label: "Control",
+    icon: <ControlIcon color={theme.palette.text.secondary} />,
+  },
+  {
+    value: "tachi_waza",
+    label: "Tachi Waza",
+    icon: <TachiWazaIcon color={theme.palette.text.secondary} />,
+  },
+  {
+    value: "defence",
+    label: "Defensa",
+    icon: <TachiWazaIcon color={theme.palette.text.secondary} />,
+  },
+  {
+  value: "genesis",
+  label: "Genesis",
+  icon: <TachiWazaIcon color={theme.palette.text.secondary} />,
+},
+];

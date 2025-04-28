@@ -25,5 +25,5 @@
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },
-  "include": ["src","src/context", "src/components/addNode/IconsGroup.tsx"]
+  "include": ["src"]
 }

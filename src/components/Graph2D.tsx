@@ -2,7 +2,7 @@ import React, { useRef, useEffect } from "react";
 import ForceGraph2D from "react-force-graph-2d";
 import { GraphData } from "@src/context/exportType";
 import Box from "@mui/material/Box";
-import * as style from "@src/styles/styleStepByStep";
+import * as style from "@src/styles/addNode/styleStepByStep";
 import CircularProgress from '@mui/material/CircularProgress';
 
 type Graph2DProps = {

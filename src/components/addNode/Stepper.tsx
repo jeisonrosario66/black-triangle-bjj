@@ -6,11 +6,11 @@ import StepLabel from "@mui/material/StepLabel";
 import Button from "@mui/material/Button";
 import Typography from "@mui/material/Typography";
 import useUIStore from "@src/store/useCounterStore";
-import { lastStepSubmit } from "@src/utils/lastStepSubmit";
+import { lastStepSubmit } from "@src/utils/index";
 import themeApp from "@src/styles/stylesThemeApp";
-import * as style from "@src/styles/stylesStepper";
+import * as style from "@src/styles/addNode/stylesStepper";
 
-const steps = ["Estas creando un nuevo nodo", "Carga un recurso","Conecta el nodo"];
+const steps = ["Estas creando un nuevo nodo","Conecta el nodo", "Carga un recurso al nodo"];
 type StepperComponentProps = {
   onValidate?: () => void;
   onHandleSubmit: () => void;
@@ -36,9 +36,9 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
     // Validar el paso actual antes de avanzar
     const isValid = onValidate ? await onValidate() : true; // Llama a la función de validación si existe
     const isValidThisStep = Array.isArray(isValid)
-      ? isValid[activeStep]
-      : isValid;
-
+    ? isValid[activeStep]
+    : isValid;
+    
     if (!isValidThisStep) {
       return; // Si no es válido, no avanza al siguiente paso
     }

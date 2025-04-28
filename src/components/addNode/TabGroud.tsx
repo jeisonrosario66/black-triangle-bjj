@@ -1,10 +1,19 @@
-import React, { useEffect, useState } from "react";
-import { optionsMenu } from "@src/components/addNode/IconsGroup";
-import { Tabs, Tab, Box, Typography } from "@mui/material";
-import { getData } from "@src/services/firebaseService";
-import { NodeOptionFirestone } from "@src/context/exportType";
-import { tableNameDB } from "@src/context/configGlobal";
-import { debugLog } from "@src/utils/debugLog";
+import React, { useEffect, useState, useMemo } from "react";
+import {
+  Tabs,
+  Tab,
+  Box,
+  Typography,
+  ToggleButton,
+  ToggleButtonGroup,
+} from "@mui/material";
+
+import { getData } from "@src/services/index";
+import { optionsMenu } from "@src/components/index";
+import { NodeOptionFirestone, tableNameDB } from "@src/context/index";
+import { debugLog } from "@src/utils/index";
+
+import * as style from "@src/styles/addNode/styleTabGroup";
 
 interface TabPanelProps {
   children?: React.ReactNode;
@@ -22,7 +31,7 @@ function CustomTabPanel(props: TabPanelProps) {
   return (
     <div
       role="tabpanel"
-      hidden={value !== index} // Oculta si no es el tab activo
+      hidden={value !== index}
       id={`simple-tabpanel-${index}`}
       aria-labelledby={`simple-tab-${index}`}
       {...other}
@@ -46,12 +55,19 @@ function a11yProps(index: number) {
  * Componente principal que gestiona las pestañas verticales
  * y muestra datos filtrados por categoría (grupo).
  */
-export default function BasicTabs() {
-  const [value, setValue] = useState(0); // Índice del tab activo
-  const [tabData, setTabData] = useState<NodeOptionFirestone[]>([]); // Todos los nodos
+export default function BasicTabs({
+  onSelectionChange,
+}: {
+  onSelectionChange: (value: string | null) => void;
+}) {
+  const [value, setValue] = useState(0);
+  const [tabData, setTabData] = useState<NodeOptionFirestone[]>([]);
   const [loading, setLoading] = useState(false); // Estado de carga
-
-  const currentOption = optionsMenu[value]; // Opción actualmente seleccionada
+  const [selectedValue, setSelectedValue] = useState<string | null>(null);
+  const handleSelectionChange = (newVal: string | null) => {
+    setSelectedValue(newVal);
+    onSelectionChange(newVal);
+  };
 
   /**
    * Carga todos los nodos desde Firestore al montar el componente.
@@ -77,42 +93,45 @@ export default function BasicTabs() {
   /**
    * Filtra los nodos según el grupo (valor asociado al tab).
    */
-  const getFilteredData = (groupName: string) => {
-    try {
-      const filtered = tabData
-        .filter(({ group }) => group === groupName)
-        .map(({ id, name, group }) => ({ id, name, group })); // Simplifica los datos
-      debugLog("info", "Query to group:", filtered);
-      return filtered;
-    } catch (error) {
-      debugLog("error", "Error filtrando grupo:", groupName, error);
-      return [];
-    }
-  };
+  const getFilteredData = useMemo(
+    () => (groupName: string) => {
+      try {
+        const filtered = tabData
+          .filter(({ group }) => group === groupName)
+          .map(({ id, name, group }) => ({ id, name, group })); // Simplifica los datos
+        return filtered;
+      } catch (error) {
+        debugLog("error", "Error filtrando grupo:", groupName, error);
+        return [];
+      }
+    },
+    [tabData]
+  );
 
   /**
    * Manejador de cambio de pestaña.
    */
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    console.log("evento", event);
     setValue(newValue);
   };
 
   return (
-    <Box sx={{ width: "100%", display: "flex" }}>
+    <Box sx={style.tabGroupContainer}>
       {/* Menú lateral con Tabs */}
       <Tabs
         value={value}
         onChange={handleChange}
         aria-label="tabs"
         orientation="vertical"
-        sx={{ borderRight: 1, borderColor: "divider" }}
+        sx={style.tabs}
       >
         {optionsMenu.map((item, index) => (
           <Tab
-            key={index}
+            key={item.value}
             label={item.label}
             {...a11yProps(index)}
-            sx={{ padding: "0" }}
+            sx={style.tab}
           />
         ))}
       </Tabs>
@@ -125,7 +144,31 @@ export default function BasicTabs() {
           ) : (
             <>
               {getFilteredData(item.value).length > 0 ? (
-                <pre>{JSON.stringify(getFilteredData(item.value), null, 2)}</pre>
+                <ToggleButtonGroup
+                  value={selectedValue}
+                  exclusive
+                  onChange={(_, newVal) => handleSelectionChange(newVal)}
+                  orientation="vertical"
+                  fullWidth
+                >
+                  {getFilteredData(item.value).map((data) => (
+                    <ToggleButton
+                      key={data.id}
+                      value={data.id ?? ""}
+                      aria-label={data.name}
+                      sx={style.toggleButton}
+                    >
+                      {item.icon &&
+                        React.cloneElement(
+                          item.icon as React.ReactElement<any>,
+                          {
+                            sx: style.itemICon(data.id ?? "", selectedValue),
+                          }
+                        )}
+                      {data.name}
+                    </ToggleButton>
+                  ))}
+                </ToggleButtonGroup>
               ) : (
                 <Typography>No hay datos para esta categoría.</Typography>
               )}

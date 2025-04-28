@@ -1,26 +1,27 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
-import themeApp from "@src/styles/stylesThemeApp";
-
 import { Box, Divider } from "@mui/material";
 
-import LogoContainer from "@src/components/LogoComponent";
-import StepperComponent from "@src/components/Stepper";
-import { Step1, Step2, StepFinal } from "@src/components/addNode/StepByStep";
+import {
+  Step1,
+  Step2,
+  Step3,
+  StepFinal,
+  StepperComponent,
+  LogoContainer,
+} from "@src/components/index";
+import {
+  NodeOptionFirestone,
+  NodeFormData,
+  tableNameDB,
+} from "@src/context/index";
+import { addData, getIndex, getData } from "@src/services/index";
+import { useUIStore } from "@src/store/index";
+import { debugLog } from "@src/utils/index";
 
-import { NodeOptionFirestone, NodeFormData } from "@src/context/exportType";
-import { tableNameDB } from "@src/context/configGlobal";
-
-import { addData, getIndex, getData } from "@src/services/firebaseService";
-
-import useUIStore from "@src/store/useCounterStore";
-
-import { debugLog } from "@src/utils/debugLog";
-
-import { containerAddNodeWindow } from "@src/styles/nodeView/stylesAddNodeWindow";
-const theme = themeApp;
+import * as style from "@src/styles/addNode/stylesAddNodeWindow";
 
 const schema = yup.object({
   index: yup.number().required(),
@@ -32,11 +33,10 @@ const schema = yup.object({
   nodeSourceIndex: yup.number().required("El nodo origen es obligatorio"), // No tiene Efecto
 });
 
+/**
+ * Componente contenedor de los steps del formulario
+ */
 const NodeForm: React.FC = () => {
-  /**
-   * Componente contenedor de los steps del formulario
-   */
-
   // finalFormData: Almacena la informacion completa recogida por el formlario
   // Se inicializa con valores default
   const [finalFormData, setFinalFormData] = useState<NodeFormData>({
@@ -44,6 +44,9 @@ const NodeForm: React.FC = () => {
     name: "",
     group: "",
     nodeSourceIndex: 1,
+    videoid: "",
+    start: "",
+    end: "",
   });
   const [selectedSourceNodeData, setfinalNodeSourceData] =
     useState<NodeOptionFirestone>({
@@ -58,7 +61,8 @@ const NodeForm: React.FC = () => {
     trigger,
     watch,
     reset,
-    handleSubmit, // envuelve "onSubmit para ser enviado sina argumentos"
+    setValue,
+    handleSubmit, // envuelve "onSubmit para ser enviado sin argumentos"
     formState: { errors },
   } = useForm<NodeFormData>({
     resolver: yupResolver(schema),
@@ -68,13 +72,17 @@ const NodeForm: React.FC = () => {
       name: "",
       group: "",
       nodeSourceIndex: 1,
+      videoid: "",
+      start: "",
+      end: "",
     },
   });
 
   const activeStep = useUIStore((state) => state.activeStep);
   const [nodeOptions, setNodeOptions] = useState<NodeOptionFirestone[]>([]);
+
   // Llama getNameNodes una sola vez al montar el componente
-  React.useEffect(() => {
+  useEffect(() => {
     const getDataNodes = async () => {
       try {
         const dataNodes = await getData(tableNameDB.nodes);
@@ -94,7 +102,6 @@ const NodeForm: React.FC = () => {
     // Obtendra el index del ultimo nodo almacenado y aumentara en 1 para un nuevo registro
     const indexNewNode = (await getIndex(tableNameDB.nodes)) + 1;
 
-    // Obtiene la fecha altual al guardar en el registro
     const date = new Date();
     const today = new Date(date);
 
@@ -112,22 +119,25 @@ const NodeForm: React.FC = () => {
       dataNodes.name,
       dataNodes.group,
       dataNodes.nodeSourceIndex,
+      dataNodes.videoid || "",
+      dataNodes.start || "",
+      dataNodes.end || "",
       (dataNodes.uploadedDate = today.toLocaleDateString())
     );
+
     // guarda los datos para mostrarlos en StepFinal
     setFinalFormData({ ...dataNodes });
     setfinalNodeSourceData({ ...selectedSourceNode });
     debugLog("debug", "Informacion enviada a firestone: ", dataNodes);
-
     reset();
   };
 
+  /**
+   * @summary : Valida el ingreso de los datos requeridos en cada paso del stepper
+   * @event: trigger: Permite evaluar los campos del formulario manualmente
+   */
   const handleValidate = async () => {
-    /**
-     * @summary : Valida el ingreso de los datos requeridos en cada paso del stepper
-     * @event: trigger: Permite evaluar los campos del formulario manualmente
-     */
-    const arrayStepper = [false, false];
+    const arrayStepper = [false, false, true];
     const isValidStep1 = await trigger(["name", "group"]);
     const isNot1_Step2 = watch("nodeSourceIndex");
 
@@ -149,12 +159,9 @@ const NodeForm: React.FC = () => {
   };
 
   return (
-    <Box style={containerAddNodeWindow}>
+    <Box sx={style.containerAddNodeWindow}>
       <Box
-        style={{
-          padding: "2rem 0 ",
-          backgroundColor: theme.palette.formStyles.containerBackgroundColor,
-        }}
+        sx={style.logoContainer}
       >
         <LogoContainer />
       </Box>
@@ -168,7 +175,9 @@ const NodeForm: React.FC = () => {
           isNot1Step2={watch("nodeSourceIndex")}
         />
       )}
-      {activeStep === 2 && (
+      {activeStep === 2 && <Step3 control={control} setValue={setValue} />}
+
+      {activeStep === 3 && (
         <StepFinal
           newNodeData={finalFormData}
           selectedSourceNodeData={selectedSourceNodeData}
