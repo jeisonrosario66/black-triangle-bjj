@@ -6,7 +6,7 @@ import useUIStore from "@src/store/useCounterStore";
 /**
  * Mueve la cámara hacia un nodo con animación y guarda la posición anterior.
  */
-const animateCameraToNode = (
+export const animateCameraToNode = (
   controls: CameraControls,
   nodePosition: THREE.Vector3,
   distance: number = 50
@@ -95,5 +95,3 @@ export const animateCameraBackFromNode = (
     },
   });
 };
-
-export default animateCameraToNode;

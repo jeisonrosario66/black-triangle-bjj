@@ -2,22 +2,23 @@ import { useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { CameraControls } from "@react-three/drei";
 
-import "@cssModule/App.css";
-
 import { cameraPropsDev, configGlobal } from "./context/configGlobal";
 
-import AccountMenu from "@src/components/AccountMenu";
-import GraphScene from "@src/components/GraphScene";
-import LoginUser from "@src/components/loginUser/LoginUser";
-import NodeForm from "@src/components/addNode/AddNodeWindow";
-import OutlinedAlerts from "@src/components/Alert";
-import NodeView from "@src/components/NodeView";
+import {
+  GraphScene,
+  AccountMenu,
+  LoginUser,
+  NodeForm,
+  OutlinedAlerts,
+  NodeView,
+} from "@src/components/index";
+import { authListener } from "@src/hooks/index";
+import { useUIStore } from "@src/store/index";
 
-import authListener from "@src/hooks/authListener";
+import "@cssModule/App.css";
 
-import useUIStore from "@src/store/useCounterStore";
 function App() {
-  // Estado global: controla si el formulario de agregar nodo está activo
+  // Estado global
   const isAddNodeActive = useUIStore((state) => state.isAddNodeActive);
   const isLoginWindowActive = useUIStore((state) => state.isLoginWindowActive);
   const isUserLogin = useUIStore((state) => state.isUserLogin);
@@ -44,11 +45,11 @@ function App() {
 
   return (
     <div className="appContainer">
-      {/* Formulario de 
-      nodo o botón de agregar nodo */}
       {isAddNodeActive ? <NodeForm /> : null}
       {isLoginWindowActive ? <LoginUser /> : <AccountMenu />}
-      {isNodeViewActive && cameraControlsRef.current ? <NodeView controls={cameraControlsRef.current} /> : null}
+      {isNodeViewActive && cameraControlsRef.current ? (
+        <NodeView controls={cameraControlsRef.current} isAddNode={false} />
+      ) : null}
 
       {/* Contenedor del lienzo 3D */}
       <div className="canvasContainer">

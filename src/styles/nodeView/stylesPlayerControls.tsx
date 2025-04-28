@@ -24,14 +24,31 @@ export const progressBar: SxProps = {
   },
 };
 
-export const containerPlayerControls: SxProps = {
-  p: 1,
-  borderRadius: "12px",
-  backgroundColor: theme.palette.formStyles.cardBackgroundColor,
-};
-
 export const iconsPlayer: SxProps = {
   bgcolor: "white",
   border: `1px solid ${theme.palette.formStyles.borderColor}`,
   "&:hover": { bgcolor: "#e0e0e0" },
+};
+
+export const containerPlayerControls: SxProps = {
+  width: "100%",
+  padding: "1rem",
+  backgroundColor: theme.palette.formStyles.cardBackgroundColor,
+};
+
+export const gridPlayerControls: (isAddNode: boolean | undefined) => SxProps = (
+  isAddNode
+) => ({
+  display: "grid",
+  gridTemplateRows: isAddNode ? "auto auto" : "auto",
+  rowGap: 2,
+  justifyItems: "center",
+  alignItems: "center",
+});
+
+export const buttonAditional: SxProps = {
+  display: "grid",
+  gridAutoFlow: "column",
+  columnGap: 5,
+  marginTop: 2,
 };

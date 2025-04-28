@@ -1,17 +1,21 @@
-import { Card, Box } from "@mui/material";
 import React, { useState } from "react";
-import YouTube, { YouTubePlayer } from "react-youtube";
-import useUIStore from "@src/store/useCounterStore";
-import ButtonClose from "@src/components/ButtonClose";
-import PlayerControls from "@src/components/nodeView/PlayerControls";
 import { CameraControls } from "@react-three/drei";
-import { animateCameraBackFromNode } from "@src/hooks/useCameraAnimation";
+import { Card, Box } from "@mui/material";
+import YouTube, { YouTubePlayer } from "react-youtube";
+import { Control, UseFormSetValue } from "react-hook-form";
+
+import { useUIStore } from "@src/store/index";
+import { ButtonClose, PlayerControls } from "@src/components/index";
+import { animateCameraBackFromNode } from "@src/hooks/index";
+import { NodeFormData, PlayerControlsData } from "@src/context/exportType";
 
 import * as styles from "@src/styles/stylesNodeView";
 
-// Definición de las propiedades que recibe el componente
 type NodeViewProps = {
-  controls: CameraControls; // Controles de la cámara para animaciones
+  controls?: CameraControls;
+  isAddNode: boolean;
+  setValue?: UseFormSetValue<NodeFormData>;
+  control?: Control<any>;
 };
 
 /**
@@ -19,17 +23,27 @@ type NodeViewProps = {
  * Este componente muestra un video de YouTube incrustado y controles personalizados para reproducirlo.
  * También permite cerrar la vista y regresar la cámara a su posición original.
  */
-const NodeView: React.FC<NodeViewProps> = ({ controls }) => {
+const NodeView: React.FC<NodeViewProps> = ({
+  controls,
+  isAddNode,
+  setValue,
+}) => {
   // Obtiene los datos del nodo activo desde el estado global
   const nodeViewData = useUIStore((state) => state.nodeViewData);
-
   // Estado local para almacenar la instancia del reproductor de YouTube
   const [player, setPlayer] = useState<YouTubePlayer | null>(null);
 
-  // Extrae los datos del video desde el estado global
-  const videoId = nodeViewData.videoid; // ID del video de YouTube
-  const start = nodeViewData.start; // Tiempo de inicio del video
-  const end = nodeViewData.end; // Tiempo de fin del video
+  const recuperarDatosDetiempo = (data: PlayerControlsData) => {
+    // Actualiza el valor en el form
+    if (setValue) {
+      if (data.videoid) setValue("videoid", data.videoid);
+      if (data.start) setValue("start", data.start);
+      if (data.end) setValue("end", data.end);
+    }
+  };
+  const videoId = nodeViewData.videoid;
+  const start = nodeViewData.start;
+  const end = nodeViewData.end;
 
   // Limpia el ID del video en caso de que sea un enlace de "shorts"
   const cleanVideoId = videoId?.replace("shorts/", "") || "";
@@ -48,7 +62,9 @@ const NodeView: React.FC<NodeViewProps> = ({ controls }) => {
    * Regresa la cámara a su posición original y desactiva la vista del nodo.
    */
   const buttonCloseFunction = () => {
-    animateCameraBackFromNode(controls); // Anima la cámara de regreso
+    if (controls) {
+      animateCameraBackFromNode(controls); // Anima la cámara de regreso
+    }
     useUIStore.setState({ isNodeViewActive: false }); // Desactiva la vista del nodo
   };
 
@@ -58,7 +74,7 @@ const NodeView: React.FC<NodeViewProps> = ({ controls }) => {
       start, // Tiempo de inicio del video
       ...(end && { end }), // Tiempo de fin del video (si está definido)
       autoplay: 1, // Reproducción automática
-      mute: 1, // Silencia el video
+      mute: 0, // Silencia el video
       controls: 0, // Oculta los controles del reproductor
       modestbranding: 1, // Oculta parcialmente el branding de YouTube
       rel: 0, // No muestra videos relacionados al final
@@ -67,49 +83,34 @@ const NodeView: React.FC<NodeViewProps> = ({ controls }) => {
       fs: 0, // Oculta el botón de pantalla completa
       disablekb: 1, // Desactiva los atajos de teclado
       cc_load_policy: 0, // No fuerza los subtítulos
-      color: "white", // Color de la barra de progreso
       hl: "es", // Idioma del reproductor (español)
     },
   };
 
   return (
-    <Card sx={styles.containerNodeView}>
-      {/* Botón para cerrar la vista del nodo */}
+    <Card sx={styles.containerNodeView(isAddNode)}>
       <ButtonClose buttonFunction={buttonCloseFunction} />
 
       {/* Contenedor del reproductor de YouTube */}
       <Box sx={styles.containerYoutubeView}>
         <YouTube
-          style={{ width: "100%", height: "100%" }}
-          videoId={cleanVideoId} // ID del video a reproducir
-          opts={opts} // Opciones del reproductor
-          onReady={onPlayerReady} // Evento cuando el reproductor está listo
+          style={{ height: "100%" }}
+          videoId={cleanVideoId}
+          opts={opts}
+          onReady={onPlayerReady}
         />
       </Box>
 
       {/* Controles personalizados para el reproductor */}
       <PlayerControls
         player={player} // Instancia del reproductor
-        start={parseInt(start || "0")} // Tiempo de inicio
-        end={parseInt(end || "0")} // Tiempo de fin
+        start={parseInt(start || "0")}
+        end={parseInt(end || "0")}
+        isAddNode={isAddNode}
+        onSendDataTimeNewNode={recuperarDatosDetiempo}
       />
     </Card>
   );
 };
 
 export default NodeView;
-
-/**
- * Notas sobre la configuración del reproductor de YouTube:
- * - `autoplay=1`: Reproduce automáticamente al cargar.
- * - `mute=1`: Silencia el video (requerido para autoplay en navegadores modernos).
- * - `controls=0`: Oculta los controles del reproductor.
- * - `modestbranding=1`: Oculta parcialmente el branding de YouTube.
- * - `rel=0`: No muestra videos relacionados al final (solo del mismo canal).
- * - `loop=1`: Repite el video cuando termina.
- * - `playsinline=1`: Reproduce inline en dispositivos móviles (evita pantalla completa).
- * - `fs=0`: Oculta el botón de pantalla completa.
- * - `disablekb=1`: Desactiva atajos de teclado (por ejemplo, barra espaciadora).
- * - `color=white`: Cambia el color de la barra de progreso (red o white).
- * - `hl=es`: Idioma del reproductor (en este caso, español).
- */

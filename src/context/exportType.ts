@@ -1,26 +1,24 @@
 import { GraphMethods } from "r3f-forcegraph";
 
-type GraphRefType =
+export type GraphRefType =
   | GraphMethods<{ id?: number }, { source: number; target: number }>
   | undefined;
 
-type NodeFormData = {
+export type NodeFormData = {
   /**
-  * Se definen los datos que recogera el formulario
-  */
+   * Se definen los datos que recogera el formulario
+   */
   index: number;
   name: string;
   group: string;
   nodeSourceIndex: number;
-  // useGi?: string;
-  // description?: string;
-  // linkVideo?: string;
-  // autor?: string;
-  // uploadedBy?: string;
   uploadedDate?: string;
+  videoid?: string;
+  end?: string;
+  start?: string;
 };
 
-type NodeOptionFirestone = {
+export type NodeOptionFirestone = {
   id?: number | string;
   index?: number;
   name?: string;
@@ -28,10 +26,9 @@ type NodeOptionFirestone = {
   start?: string;
   end?: string;
   videoid?: string;
-  
 };
 
-type GraphNode = {
+export type GraphNode = {
   id?: number;
   x?: number;
   y?: number;
@@ -44,14 +41,27 @@ type GraphNode = {
   videoid?: string;
 };
 
-type GraphLink = {
+export type GraphLink = {
   source: number;
   target: number;
 };
 
-type GraphData = {
+export type GraphData = {
   nodes: GraphNode[];
   links: GraphLink[];
 };
 
-export type { GraphNode, GraphRefType, NodeFormData, NodeOptionFirestone, GraphLink, GraphData };
+export type OptionTechniqueCard = {
+  value: string;
+  label: string;
+  icon?: React.ReactNode;
+  id?: number | string;
+  name?: string;
+  group?: string;
+}
+
+export type PlayerControlsData = {
+  start?: string;
+  end?: string;
+  videoid?: string;
+}

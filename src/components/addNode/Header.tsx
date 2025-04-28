@@ -1,18 +1,20 @@
 import Box from "@mui/material/Box";
+import React from "react";
+import { useUIStore } from "@src/store/index";
+import { ButtonClose } from "@src/components/index";
 
-import useUIStore from "@src/store/useCounterStore";
 import themeApp from "@src/styles/stylesThemeApp";
-import ButtonClose from "@src/components/ButtonClose";
-
 const theme = themeApp;
 const buttonCloseFunction = () => {
   useUIStore.setState({ isAddNodeActive: false });
   useUIStore.setState({ activeStep: 0 });
 };
-const title = "Agregando nodo";
-const titleFinal = "Nodo Agregado";
 
-export default () => {
+type HeaderProps = {
+  title: string;
+};
+
+const Header: React.FC<HeaderProps> = ({ title }) => {
   const activeStep = useUIStore((state) => state.activeStep);
   const isUploadFirestore = useUIStore((state) => state.isUploadFirestore);
 
@@ -28,7 +30,7 @@ export default () => {
           buttonFunction={buttonCloseFunction}
           disabled={isUploadFirestore}
         />
-        <h1
+        <h2
           style={{
             color:
               activeStep == 2
@@ -37,9 +39,11 @@ export default () => {
             textAlign: "center",
           }}
         >
-          {activeStep == 2 ? titleFinal : title}
-        </h1>
+          {title}
+        </h2>
       </Box>
     </>
   );
 };
+
+export default Header;

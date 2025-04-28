@@ -1,19 +1,33 @@
-import {database} from "@src/hooks/fireBase";
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
-import { debugLog } from "@src/utils/debugLog";
-import {
-  NodeOptionFirestone
 
-} from "@src/context/exportType";
-import { tableNameDB } from "@src/context/configGlobal";
-import useUIStore from "@src/store/useCounterStore";
+import { debugLog } from "@src/utils/index";
+import { database } from "@src/hooks/index";
+import { NodeOptionFirestone, tableNameDB } from "@src/context/index";
+import { useUIStore } from "@src/store/index";
 
-const getData = async (dbName: string) => {
-  /**
-   * Consulta una colección de Firestore y devuelve una lista de nodos tipados.
-   * @param dbName - Nombre de la colección en Firestore.
-   * @returns Lista de nodos formateados como NodeOptionFirestone[].
-   */
+export const getDataWhere = async (dbName: string, rowName: string) => {
+  try {
+    const query = await getData(dbName);
+    const filteredNodes = query
+      ?.filter(({ group }) => group === rowName)
+      .map(({ id, name, group }) => ({
+        id,
+        name,
+        group,
+      }));
+    debugLog("info", "Query to group: ", filteredNodes);
+    return filteredNodes;
+  } catch (error) {
+    debugLog("error", "Query: ", rowName, error);
+  }
+};
+
+/**
+ * Consulta una colección de Firestore y devuelve una lista de nodos tipados.
+ * @param dbName - Nombre de la colección en Firestore.
+ * @returns Lista de nodos formateados como NodeOptionFirestone[].
+ */
+export const getData = async (dbName: string) => {
   try {
     const querySnapshot = await getDocs(collection(database, dbName));
     const data: NodeOptionFirestone[] = querySnapshot.docs.map((doc) => {
@@ -30,9 +44,20 @@ const getData = async (dbName: string) => {
     });
     debugLog("debug", "Documentos obtenidos desde firestone: ", data);
     // Si no existe ningun registro, crea el primero necesario para el funcionamiento de select
-    if (data.length == 0){
-      addData(tableNameDB.nodes, tableNameDB.links, 1, "Escoja Nodo de origen", "", 1,"")
-      getData(tableNameDB.nodes)
+    if (data.length == 0) {
+      addData(
+        tableNameDB.nodes,
+        tableNameDB.links,
+        1,
+        "Escoja Nodo de origen",
+        "",
+        1,
+        "",
+        "",
+        "",
+        ""
+      );
+      getData(tableNameDB.nodes);
     }
     return data;
   } catch (error) {
@@ -40,7 +65,7 @@ const getData = async (dbName: string) => {
   }
 };
 
-const getIndex = async (dbName: string) => {
+export const getIndex = async (dbName: string) => {
   // Funcion: obtiene el dato ["index"] de mayor valor en el registro
   try {
     const querySnapshot = await getDocs(collection(database, dbName));
@@ -55,35 +80,40 @@ const getIndex = async (dbName: string) => {
   }
 };
 
-const addData = async (
+export const addData = async (
   dbNodesName: string,
   dbLinksName: string,
   index: number,
   name: string,
   group: string,
   nodeSource: number,
+  videoid: string,
+  start: string,
+  end: string,
   uploadedDate: string
 ) => {
   try {
     const nodesRef = collection(database, dbNodesName);
-
+    const nameLowerCase = name.toLowerCase();
     // 1. Crear una consulta para buscar si `name` ya existe
-    const q = query(nodesRef, where("name", "==", name));
+    const q = query(nodesRef, where("name", "==", nameLowerCase));
 
     // 2. Ejecutar la consulta con `getDocs`
     const querySnapshot = await getDocs(q);
     // 3. Si el documento ya existe, cancelar la operación
     if (!querySnapshot.empty) {
       console.error(" Error: Ya existe un documento con este `name`.");
-      return { success: false, message: "El link ya está registrado." };
+      return;
     }
     await addDoc(collection(database, dbNodesName), {
-      name: name,
+      name: nameLowerCase,
       index: index,
       group: group,
-      uploadedDate: uploadedDate
+      uploadedDate: uploadedDate,
+      videoid: videoid,
+      start: start,
+      end: end,
     });
-
 
     if (nodeSource !== 1) {
       // Filtra para evitar guardar ensalaces cuando el source es igual a 1
@@ -93,13 +123,15 @@ const addData = async (
       });
     }
     // Modifica el estado global para indicar que se estan cargando datos a firestore
-    useUIStore.setState({ isUploadFirestore: false })
-    debugLog("info", "Nodo agregado:", name, index);
-    debugLog("info", "Link  agregado: Source:", nodeSource !== 1 ? nodeSource : "Nodo sin conexción {1}");
+    debugLog("info", "Nodo agregado:", nameLowerCase, index);
+    debugLog(
+      "info",
+      "Link  agregado: Source:",
+      nodeSource !== 1 ? nodeSource : "Nodo sin conexción {1}"
+    );
   } catch (error) {
     console.error("Error al agregar documento:", error);
+  } finally {
+    useUIStore.setState({ isUploadFirestore: false });
   }
 };
-
-
-export { addData, getData, getIndex };

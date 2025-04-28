@@ -10,15 +10,15 @@ const containerBoxStep: SxProps = {
   flexDirection: "column",
   height: "100%",
   alignItems: "center",
-  backgroundColor: theme.palette.background.form,
-  borderTop: `1px solid ${theme.palette.formStyles.borderColor}`,
-  borderBottom: `1px solid ${theme.palette.formStyles.borderColor}`,
+  backgroundColor: theme.palette.formStyles.containerBackgroundColor,
+
   "& .MuiFormLabel-root": {
     marginBottom: "3rem",
   },
   "& .MuiInputBase-root": {
     backgroundColor: theme.palette.formStyles.cardBackgroundColor,
   },
+  "& input": {},
 };
 
 const formGroup: SxProps = {
@@ -37,6 +37,7 @@ const formLabel: React.CSSProperties = {
   fontSize: "1.5rem",
   fontWeight: "600",
   marginBottom: "2rem",
+  textAlign: "center",
 };
 
 const formSelect = (isNot1Step2: boolean): SxProps => ({
@@ -57,7 +58,9 @@ const formSelect = (isNot1Step2: boolean): SxProps => ({
 const boxFormSelect = (isNot1Step2: boolean): SxProps => ({
   display: "flex",
   flexDirection: "column-reverse",
+  justifyContent: "space-around",
 
+  width: "100vw",
   "& .MuiTypography-root": {
     fontSize: "0.75rem",
     textAlign: "center",
@@ -72,10 +75,8 @@ const boxFormSelect = (isNot1Step2: boolean): SxProps => ({
 const stepFinalContainer: SxProps = {
   display: "flex",
   fontSize: "15px",
-  borderTop: `1px solid ${theme.palette.formStyles.borderColor}`,
-  borderBottom: `1px solid ${theme.palette.formStyles.borderColor}`,
   flexDirection: "column",
-  background: "#f3f3f3",
+  background: theme.palette.formStyles.containerBackgroundColor,
   width: "100%",
   height: "100%",
 };
@@ -132,13 +133,3 @@ export {
   graph2DResult,
   graph2DProgress,
 };
-
-// MenuItem → "MuiMenuItem-root"
-
-// Select → "MuiSelect-root"
-
-// Typography → "MuiTypography-root"
-
-// Button → "MuiButton-root"
-
-// OutlinedInput → "MuiOutlinedInput-notchedOutline" /

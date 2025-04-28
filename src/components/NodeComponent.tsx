@@ -1,19 +1,14 @@
-import ForceGraph3D from "r3f-forcegraph";
-import * as THREE from "three";
-import animateCameraToNode from "@src/hooks/useCameraAnimation";
 import React, { useRef, useCallback } from "react";
 import { useFrame } from "@react-three/fiber";
-import useGraphData from "@src/utils/nodeGenerator";
-import {
-  GraphRefType,
-  GraphNode,
-} from "@src/context/exportType";
 import { CameraControls } from "@react-three/drei";
-import { groupColor } from "@src/context/configGlobal";
-import SpriteText from "three-spritetext";
-import { debugLog } from "@src/utils/debugLog";
+import ForceGraph3D from "r3f-forcegraph";
+import * as THREE from "three";
 
-import useUIStore from "@src/store/useCounterStore";
+import { animateCameraToNode } from "@src/hooks/index";
+import { useGraphData, debugLog, createNodeObject} from "@src/utils/index";
+import { GraphRefType, GraphNode, groupColor } from "@src/context/index";
+import { useUIStore } from "@src/store/index";
+
 type NodeComponentProps = {
   cameraControlsRef: React.RefObject<CameraControls>;
 };
@@ -23,31 +18,31 @@ const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
   useFrame(() => graphRef.current?.tickFrame()); // Actualizar el grafo en cada frame
   // Llama a la función para obtener los datos del grafo
   const gData = useGraphData();
+  
   const handleNodeClick = useCallback(
     /**
      * @summary: Manejar el evento de clic sobre un nodo
      * @param node
      */
     (node: GraphNode) => {
-      // Si el nodo es null o no existe, la función simplemente retorna, evitando errores
       if (!node) {
         return;
       }
 
       if (!cameraControlsRef.current) {
         console.error("cameraControlsRef no está inicializado.");
+        return;
       }
       debugLog("info", "Node clicked:", node);
       // nodePosition: Vector con la posición del nodo
       const nodePosition = new THREE.Vector3(
-        node.x || 0,
-        node.y || 0,
-        node.z || 0
+        node.x ?? 0,
+        node.y ?? 0,
+        node.z ?? 0
       );
       // Llamamos a la animación de la cámara
       animateCameraToNode(cameraControlsRef.current, nodePosition, 30);
       useUIStore.setState({ nodeViewData: node });
-
     },
     [cameraControlsRef]
   );
@@ -62,28 +57,7 @@ const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
       linkDirectionalParticleWidth={2}
       onNodeClick={handleNodeClick}
       nodeAutoColorBy={(node) => (node.group ? groupColor[node.group] : "gray")}
-      nodeThreeObject={(node: GraphNode) => {
-        const group = new THREE.Group();
-        const nodeColor = groupColor[node.group || "default"] || "gray"; // Default a gris si no se encuentra el grupo
-
-        const sphereGeometry = new THREE.SphereGeometry(5, 5);
-        const sphereMaterial = new THREE.MeshStandardMaterial({
-          color: nodeColor, // Asigna el color basado en el grupo
-        });
-
-        const sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
-        const sprite = new SpriteText(
-          `${node.name} {${node.id}}` || `Node ${node.id}`
-        );
-        sprite.color = "white";
-        sprite.textHeight = 3;
-        sprite.position.set(0, 5 + 2, 0);
-        sprite.backgroundColor = "#000";
-
-        group.add(sphere);
-        group.add(sprite);
-        return group;
-      }}
+      nodeThreeObject={(node) => createNodeObject(node as GraphNode)}
     />
   );
 };

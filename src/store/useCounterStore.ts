@@ -1,27 +1,16 @@
 import { create } from "zustand";
 import { Vector3Tuple } from "three";
 
-type AppState2 = {
-  isNodeViewActive: boolean;
-  cameraBackup: {
-    pos: Vector3Tuple;
-    target: Vector3Tuple;
-  } | null;
-  setIsNodeViewActive: (value: boolean) => void;
-  setCameraBackup: (pos: Vector3Tuple, target: Vector3Tuple) => void;
-  clearCameraBackup: () => void;
-};
-
 type UserLoginData = {
-  displayName: string | null,
-  email: string | null,
-  photoURL: string | null,
-}
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
+};
 type NodeViewData = {
   videoid?: string;
   start?: string;
   end?: string;
-}
+};
 // Definición del estado de la UI
 interface UIState {
   // Indica si la interfaz de "Agregar Nodo" está activa
@@ -44,8 +33,6 @@ interface UIState {
   userLoginData: UserLoginData;
   setUserLoginDAta: (data: UserLoginData) => void;
 
-
-
   // Indica si el usuario está autenticado
   isUserLogin: boolean;
   setIsUserLogin: (login: boolean) => void;
@@ -57,12 +44,14 @@ interface UIState {
   nodeViewData: NodeViewData;
   setNodeViewData: (data: NodeViewData) => void;
 
+  test_end: string;
+  setTest_end: (text: string) => void;
+
   // Estado y configuración de alertas
   showAlert: boolean;
   alertMessage: string;
   alertSeverity: "success" | "info" | "warning" | "error";
   triggerAlert: (message: string, severity?: UIState["alertSeverity"]) => void;
-
 
   // Indica el paso actual en el componente Stepper
   activeStep: number;
@@ -80,7 +69,6 @@ interface UIState {
   } | null;
   setCameraBackup: (pos: Vector3Tuple, target: Vector3Tuple) => void;
   clearCameraBackup: () => void;
-
 }
 
 // Definición del estado para la validación por pasos
@@ -121,7 +109,7 @@ const useUIStore = create<AppState>((set, get) => ({
   userLoginData: {
     displayName: "",
     email: "",
-    photoURL: ""
+    photoURL: "",
   },
   setUserLoginDAta: (data) => set({ userLoginData: data }),
 
@@ -138,9 +126,12 @@ const useUIStore = create<AppState>((set, get) => ({
   nodeViewData: {
     videoid: "",
     start: "",
-    end: ","
+    end: ",",
   },
   setNodeViewData: (data) => set({ nodeViewData: data }),
+
+  test_end: "",
+  setTest_end: (text) => set({ test_end: text }),
 
   triggerAlert: (message, severity = "success") => {
     set({ showAlert: true, alertMessage: message, alertSeverity: severity });
@@ -199,7 +190,6 @@ const useUIStore = create<AppState>((set, get) => ({
   cameraBackup: null,
   setCameraBackup: (pos, target) => set({ cameraBackup: { pos, target } }),
   clearCameraBackup: () => set({ cameraBackup: null }),
-
 }));
 
 export default useUIStore;
