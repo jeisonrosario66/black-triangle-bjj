@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { CameraControls } from "@react-three/drei";
-import { Card, Box } from "@mui/material";
+import { Card, Box, Typography } from "@mui/material";
 import YouTube, { YouTubePlayer } from "react-youtube";
 import { Control, UseFormSetValue } from "react-hook-form";
 
@@ -90,25 +90,31 @@ const NodeView: React.FC<NodeViewProps> = ({
   return (
     <Card sx={styles.containerNodeView(isAddNode)}>
       <ButtonClose buttonFunction={buttonCloseFunction} />
+      <Box>
+        {/* Contenedor del reproductor de YouTube */}
+        <Box sx={styles.containerYoutubeView}>
+          <YouTube
+            style={{ height: "100%" }}
+            videoId={cleanVideoId}
+            opts={opts}
+            onReady={onPlayerReady}
+          />
+        </Box>
 
-      {/* Contenedor del reproductor de YouTube */}
-      <Box sx={styles.containerYoutubeView}>
-        <YouTube
-          style={{ height: "100%" }}
-          videoId={cleanVideoId}
-          opts={opts}
-          onReady={onPlayerReady}
+        {/* Controles personalizados para el reproductor */}
+        <PlayerControls
+          player={player} // Instancia del reproductor
+          start={parseInt(start || "0")}
+          end={parseInt(end || "0")}
+          isAddNode={isAddNode}
+          onSendDataTimeNewNode={recuperarDatosDetiempo}
         />
       </Box>
-
-      {/* Controles personalizados para el reproductor */}
-      <PlayerControls
-        player={player} // Instancia del reproductor
-        start={parseInt(start || "0")}
-        end={parseInt(end || "0")}
-        isAddNode={isAddNode}
-        onSendDataTimeNewNode={recuperarDatosDetiempo}
-      />
+      <Box>
+        <Typography>{nodeViewData.name}</Typography>
+        <Typography>{nodeViewData.group}</Typography>
+        <Typography>{nodeViewData.id}</Typography>
+      </Box>
     </Card>
   );
 };

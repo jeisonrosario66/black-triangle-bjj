@@ -10,6 +10,11 @@ type NodeViewData = {
   videoid?: string;
   start?: string;
   end?: string;
+  name?: string;
+  color?: string;
+  group?: string;
+  id?: number;
+
 };
 // Definición del estado de la UI
 interface UIState {
@@ -41,11 +46,13 @@ interface UIState {
   isNodeViewActive: boolean;
   setIsNodeViewActive: (nodeView: boolean) => void;
 
+  // Indica si se debe mostrar el overlay de "Gestos de Navegación"
+  overlayDontShowAgain: boolean;
+  setOverlayDontShowAgain: (dontShow: boolean) => void;
+
+  // Datos del nodo activo
   nodeViewData: NodeViewData;
   setNodeViewData: (data: NodeViewData) => void;
-
-  test_end: string;
-  setTest_end: (text: string) => void;
 
   // Estado y configuración de alertas
   showAlert: boolean;
@@ -123,15 +130,15 @@ const useUIStore = create<AppState>((set, get) => ({
   isNodeViewActive: false,
   setIsNodeViewActive: (nodeView) => set({ isNodeViewActive: nodeView }),
 
+  overlayDontShowAgain: false,
+  setOverlayDontShowAgain: (dontShow) => set({ overlayDontShowAgain: dontShow}),
+
   nodeViewData: {
     videoid: "",
     start: "",
     end: ",",
   },
   setNodeViewData: (data) => set({ nodeViewData: data }),
-
-  test_end: "",
-  setTest_end: (text) => set({ test_end: text }),
 
   triggerAlert: (message, severity = "success") => {
     set({ showAlert: true, alertMessage: message, alertSeverity: severity });

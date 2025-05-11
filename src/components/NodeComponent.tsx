@@ -5,7 +5,7 @@ import ForceGraph3D from "r3f-forcegraph";
 import * as THREE from "three";
 
 import { animateCameraToNode } from "@src/hooks/index";
-import { useGraphData, debugLog, createNodeObject} from "@src/utils/index";
+import { useGraphData, debugLog, createNodeObject } from "@src/utils/index";
 import { GraphRefType, GraphNode, groupColor } from "@src/context/index";
 import { useUIStore } from "@src/store/index";
 
@@ -18,12 +18,12 @@ const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
   useFrame(() => graphRef.current?.tickFrame()); // Actualizar el grafo en cada frame
   // Llama a la función para obtener los datos del grafo
   const gData = useGraphData();
-  
+
+  /**
+   * @summary: Manejar el evento de clic sobre un nodo
+   * @param node
+   */
   const handleNodeClick = useCallback(
-    /**
-     * @summary: Manejar el evento de clic sobre un nodo
-     * @param node
-     */
     (node: GraphNode) => {
       if (!node) {
         return;

@@ -13,6 +13,10 @@ export const containerYoutubeView: SxProps = {
   },
 };
 
+export const containerNodeViewNoCondition: SxProps = {
+        
+}
+
 export const containerNodeView = (isAddNode: boolean): SxProps =>
   isAddNode
     ? {
@@ -34,3 +38,4 @@ export const containerNodeView = (isAddNode: boolean): SxProps =>
         boxShadow: "0 0 10px rgb(247, 236, 236)",
         height: "100vh",
       };
+

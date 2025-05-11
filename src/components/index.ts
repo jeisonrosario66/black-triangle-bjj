@@ -7,6 +7,7 @@ export { default as Graph2D } from "@src/components/Graph2D";
 export { default as GraphScene } from "@src/components/GraphScene";
 export { default as LogoContainer } from "@src/components/LogoComponent";
 export { default as NodeComponent } from "@src/components/NodeComponent";
+export { default as NavigationGestures } from "@src/components/NavigationGestures"
 
 // Components/addNode
 export { default as NodeForm } from "@src/components/addNode/AddNodeWindow";
