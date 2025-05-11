@@ -15,4 +15,5 @@ export type {
   GraphData,
   OptionTechniqueCard,
   PlayerControlsData,
+  NodeInsertData,
 } from "@src/context/exportType";

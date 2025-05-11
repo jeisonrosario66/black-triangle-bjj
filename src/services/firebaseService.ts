@@ -2,7 +2,7 @@ import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 
 import { debugLog } from "@src/utils/index";
 import { database } from "@src/hooks/index";
-import { NodeOptionFirestone, tableNameDB } from "@src/context/index";
+import { NodeOptionFirestone, tableNameDB, NodeInsertData} from "@src/context/index";
 import { useUIStore } from "@src/store/index";
 
 export const getDataWhere = async (dbName: string, rowName: string) => {
@@ -45,18 +45,18 @@ export const getData = async (dbName: string) => {
     debugLog("debug", "Documentos obtenidos desde firestone: ", data);
     // Si no existe ningun registro, crea el primero necesario para el funcionamiento de select
     if (data.length == 0) {
-      addData(
-        tableNameDB.nodes,
-        tableNameDB.links,
-        1,
-        "Escoja Nodo de origen",
-        "",
-        1,
-        "",
-        "",
-        "",
-        ""
-      );
+      addData({
+        dbNodesName: tableNameDB.nodes,
+        dbLinksName: tableNameDB.links,
+        index: 1,
+        name: "Escoja Nodo de origen",
+        group: "",
+        nodeSource: 1,
+        videoid: "",
+        start: "",
+        end: "",
+        uploadedDate: ""
+      });
       getData(tableNameDB.nodes);
     }
     return data;
@@ -72,7 +72,6 @@ export const getIndex = async (dbName: string) => {
     const values = querySnapshot.docs.map((doc) => doc.data()["index"]);
     const maxValue = Math.max(...values.filter((v) => typeof v === "number"));
 
-    //   console.log(`Valor más alto en index:`, maxValue);
     return maxValue;
   } catch (error) {
     console.error("Error obteniendo el valor index: ", error);
@@ -80,54 +79,54 @@ export const getIndex = async (dbName: string) => {
   }
 };
 
-export const addData = async (
-  dbNodesName: string,
-  dbLinksName: string,
-  index: number,
-  name: string,
-  group: string,
-  nodeSource: number,
-  videoid: string,
-  start: string,
-  end: string,
-  uploadedDate: string
-) => {
+export const addData = async (data: NodeInsertData) => {
+  const {
+    dbNodesName,
+    dbLinksName,
+    index,
+    name,
+    group,
+    nodeSource,
+    videoid,
+    start,
+    end,
+    uploadedDate,
+  } = data;
+
   try {
     const nodesRef = collection(database, dbNodesName);
     const nameLowerCase = name.toLowerCase();
-    // 1. Crear una consulta para buscar si `name` ya existe
-    const q = query(nodesRef, where("name", "==", nameLowerCase));
 
-    // 2. Ejecutar la consulta con `getDocs`
+    const q = query(nodesRef, where("name", "==", nameLowerCase));
     const querySnapshot = await getDocs(q);
-    // 3. Si el documento ya existe, cancelar la operación
+
     if (!querySnapshot.empty) {
       console.error(" Error: Ya existe un documento con este `name`.");
       return;
     }
+
     await addDoc(collection(database, dbNodesName), {
       name: nameLowerCase,
-      index: index,
-      group: group,
-      uploadedDate: uploadedDate,
-      videoid: videoid,
-      start: start,
-      end: end,
+      index,
+      group,
+      uploadedDate,
+      videoid,
+      start,
+      end,
     });
 
     if (nodeSource !== 1) {
-      // Filtra para evitar guardar ensalaces cuando el source es igual a 1
       await addDoc(collection(database, dbLinksName), {
         target: index,
         source: nodeSource,
       });
     }
-    // Modifica el estado global para indicar que se estan cargando datos a firestore
+
     debugLog("info", "Nodo agregado:", nameLowerCase, index);
     debugLog(
       "info",
-      "Link  agregado: Source:",
-      nodeSource !== 1 ? nodeSource : "Nodo sin conexción {1}"
+      "Link agregado: Source:",
+      nodeSource !== 1 ? nodeSource : "Nodo sin conexión {1}"
     );
   } catch (error) {
     console.error("Error al agregar documento:", error);
@@ -135,3 +134,4 @@ export const addData = async (
     useUIStore.setState({ isUploadFirestore: false });
   }
 };
+

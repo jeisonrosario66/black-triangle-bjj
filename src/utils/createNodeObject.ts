@@ -4,7 +4,7 @@ import { groupColor, GraphNode } from "@src/context";
 
 function createNodeObject(node: GraphNode) {
   const group = new THREE.Group();
-  const nodeColor = groupColor[node.group || "default"] || "gray";
+  const nodeColor = groupColor[node.group ?? "default"] ?? "gray";
 
   const sphere = new THREE.Mesh(
     new THREE.SphereGeometry(5, 5),

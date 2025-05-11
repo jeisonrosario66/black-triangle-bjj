@@ -114,8 +114,8 @@ export default function AccountMenu() {
           <MenuItem onClick={handleClose}>
             <ListItemIcon>
               <Avatar
-                alt={userLoginData.displayName || "User"}
-                src={userLoginData.photoURL || undefined}
+                alt={userLoginData.displayName ?? "User"}
+                src={userLoginData.photoURL ?? undefined}
               />
             </ListItemIcon>
             {userLoginData.displayName}

@@ -63,8 +63,10 @@ const Graph2D: React.FC<Graph2DProps> = ({ graphStepFinalData, isUploadFirestore
         ctx.save();
 
         // Traslada el contexto al punto (x, y) del nodo
-        ctx.translate(node.x!, node.y!);
-
+        if (typeof node.x === "number" && typeof node.y === "number") {
+          ctx.translate(node.x, node.y);
+        }
+        
         // Dibuja el círculo del nodo
         ctx.beginPath();
         ctx.arc(0, 0, r, 0, 2 * Math.PI, false); // Círculo centrado

@@ -1,6 +1,4 @@
 import { SxProps } from "@mui/system";
-// import themeApp from "@src/styles/stylesThemeApp";
-// const theme = themeApp;
 
 export const containerYoutubeView: SxProps = {
   pointerEvents: "none",
@@ -13,10 +11,6 @@ export const containerYoutubeView: SxProps = {
   },
 };
 
-export const containerNodeViewNoCondition: SxProps = {
-        
-}
-
 export const containerNodeView = (isAddNode: boolean): SxProps =>
   isAddNode
     ? {
@@ -25,7 +19,6 @@ export const containerNodeView = (isAddNode: boolean): SxProps =>
         zIndex: "20",
         position: "absolute",
         boxShadow: "0 0 10px rgb(247, 236, 236)",
-        // backgroundColor: "green",
         width: "100%",
         top: "0",
         height: "100vh",

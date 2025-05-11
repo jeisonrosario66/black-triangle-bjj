@@ -11,6 +11,7 @@ import {
   Stack,
   Checkbox,
   FormControlLabel,
+  Box,
 } from "@mui/material";
 import { TransitionProps } from "@mui/material/transitions";
 import { getPlatform } from "@src/utils/index";
@@ -36,7 +37,6 @@ const NavigationGestures: React.FC = () => {
   // Al montar el componente, lee la preferencia guardada en localStorage
   useEffect(() => {
     const hide = localStorage.getItem("hideNavigationGestures");
-    console.log("hideNavigationGestures : ", hide);
     if (hide === "true") {
       setOpen(false); 
       useUIStore.setState({ overlayDontShowAgain: true });
@@ -55,7 +55,6 @@ const NavigationGestures: React.FC = () => {
   // Maneja el cambio del checkbox y guarda/remueve la preferencia en localStorage
   const handleCheckboxChange = (e: any) => {
     const checked = e.target.checked;
-    console.log("Checkbox changed: ", checked);
     setValueCheckBox(checked);
     if (checked) {
       localStorage.setItem("hideNavigationGestures", "true");
@@ -65,7 +64,7 @@ const NavigationGestures: React.FC = () => {
   };
 
   return (
-    <React.Fragment>
+    <Box>
       <Dialog
         open={open}
         slots={{ transition: Transition }}
@@ -174,7 +173,7 @@ const NavigationGestures: React.FC = () => {
           <Button onClick={handleClose}>Cerrar</Button>
         </DialogActions>
       </Dialog>
-    </React.Fragment>
+    </Box>
   );
 };
 

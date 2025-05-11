@@ -20,8 +20,14 @@ function getCallerLocation(): string {
   // stack[1] = "    at debugLog (path/to/debugLog.ts:XX:YY)"
   // stack[2] = "    at llamadaDesdeAqui (path/to/miArchivo.ts:XX:YY)"
   const callerLine = stack[3] || stack[2]; // depende del navegador/node.js
-  const match =
-    callerLine?.match(/\(([^)]+)\)/) || callerLine?.match(/at (.+)/);
+  const regex1 = /\(([^)]+)\)/;
+  const regex2 = /at (.+)/;
+
+  let match = regex1.exec(callerLine || "");
+  if (!match) {
+    match = regex2.exec(callerLine || "");
+  }
+
   return match ? match[1] : "ubicación desconocida";
 }
 

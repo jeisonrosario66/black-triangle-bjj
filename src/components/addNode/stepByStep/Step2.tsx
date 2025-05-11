@@ -11,7 +11,6 @@ import {
   FormLabel,
 } from "@mui/material";
 
-import { NodeOptionFirestone } from "@src/context/index";
 import {
   Header,
   TabGroup,
@@ -22,7 +21,6 @@ import * as style from "@src/styles/addNode/styleStepByStep";
 type Step2Props = {
   control: Control<any>;
   errors: FieldErrors<any>;
-  nodeOptions: NodeOptionFirestone[];
   isNot1Step2: number;
 };
 
@@ -30,7 +28,6 @@ type Step2Props = {
 const Step2: React.FC<Step2Props> = ({
   control,
   errors,
-  // nodeOptions,
   isNot1Step2,
 }) => {
   return (

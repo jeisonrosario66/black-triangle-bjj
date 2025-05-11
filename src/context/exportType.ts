@@ -18,6 +18,20 @@ export type NodeFormData = {
   start?: string;
 };
 
+export type NodeInsertData = {
+  dbNodesName: string;
+  dbLinksName: string;
+  index: number;
+  name: string;
+  group: string;
+  nodeSource: number;
+  videoid: string;
+  start: string;
+  end: string;
+  uploadedDate: string;
+};
+
+
 export type NodeOptionFirestone = {
   id?: number | string;
   index?: number;

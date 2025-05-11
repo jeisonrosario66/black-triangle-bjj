@@ -3,8 +3,9 @@ import axios from "axios";
 const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY;
 
 const formatYouTubeDuration = (duration: string): string[] => {
-  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
-
+  const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
+  const match = regex.exec(duration);
+   
   if (!match) return ["00:00", "0"];
 
   const hours = parseInt(match[1] || "0", 10);

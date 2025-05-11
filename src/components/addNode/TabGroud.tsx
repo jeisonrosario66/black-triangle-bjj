@@ -15,11 +15,11 @@ import { debugLog } from "@src/utils/index";
 
 import * as style from "@src/styles/addNode/styleTabGroup";
 
-interface TabPanelProps {
+type TabPanelProps = Readonly<{
   children?: React.ReactNode;
   index: number;
   value: number;
-}
+}>;
 
 /**
  * Componente reutilizable para renderizar el contenido de cada pestaña.
@@ -138,7 +138,7 @@ export default function BasicTabs({
 
       {/* Panel dinámico según el tab activo */}
       {optionsMenu.map((item, index) => (
-        <CustomTabPanel key={index} value={value} index={index}>
+        <CustomTabPanel key={item.value} value={value} index={index}>
           {loading ? (
             <Typography>Cargando datos...</Typography>
           ) : (

@@ -48,7 +48,7 @@ const NodeForm: React.FC = () => {
     start: "",
     end: "",
   });
-  const [selectedSourceNodeData, setfinalNodeSourceData] =
+  const [finalNodeSourceData, setFinalNodeSourceData] =
     useState<NodeOptionFirestone>({
       id: 0,
       index: 0,
@@ -112,23 +112,26 @@ const NodeForm: React.FC = () => {
       (node) => node.index === selectedIndex
     );
 
-    addData(
-      tableNameDB.nodes,
-      tableNameDB.links,
-      (dataNodes.index = indexNewNode),
-      dataNodes.name,
-      dataNodes.group,
-      dataNodes.nodeSourceIndex,
-      dataNodes.videoid || "",
-      dataNodes.start || "",
-      dataNodes.end || "",
-      (dataNodes.uploadedDate = today.toLocaleDateString())
-    );
+    dataNodes.index = indexNewNode;
+    dataNodes.uploadedDate = today.toLocaleDateString();
+  
+    addData({
+      dbNodesName: tableNameDB.nodes,
+      dbLinksName: tableNameDB.links,
+      index: dataNodes.index,
+      name: dataNodes.name,
+      group: dataNodes.group,
+      nodeSource: dataNodes.nodeSourceIndex,
+      videoid: dataNodes.videoid ?? "",
+      start: dataNodes.start ?? "",
+      end: dataNodes.end ?? "",
+      uploadedDate: dataNodes.uploadedDate,
+    });
 
     // guarda los datos para mostrarlos en StepFinal
     setFinalFormData({ ...dataNodes });
-    setfinalNodeSourceData({ ...selectedSourceNode });
-    debugLog("debug", "Informacion enviada a firestone: ", dataNodes);
+    setFinalNodeSourceData({ ...selectedSourceNode });
+    debugLog("debug", "Informacion enviada a firestore: ", dataNodes);
     reset();
   };
 
@@ -171,16 +174,15 @@ const NodeForm: React.FC = () => {
         <Step2
           control={control}
           errors={errors}
-          nodeOptions={nodeOptions}
           isNot1Step2={watch("nodeSourceIndex")}
         />
       )}
-      {activeStep === 2 && <Step3 control={control} setValue={setValue} />}
+      {activeStep === 2 && <Step3 setValue={setValue} />}
 
       {activeStep === 3 && (
         <StepFinal
           newNodeData={finalFormData}
-          selectedSourceNodeData={selectedSourceNodeData}
+          selectedSourceNodeData={finalNodeSourceData}
         />
       )}
 

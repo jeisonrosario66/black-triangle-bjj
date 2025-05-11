@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Control, UseFormSetValue } from "react-hook-form";
+import { UseFormSetValue } from "react-hook-form";
 import {
   Box,
   TextField,
@@ -18,12 +18,11 @@ import { handleSearch } from "@src/utils/index";
 import * as style from "@src/styles/addNode/stepByStep/styleStep3";
 
 type Step3Props = {
-  control: Control<any>;
   setValue: UseFormSetValue<NodeFormData>;
 };
 
-const Step3: React.FC<Step3Props> = ({ control, setValue }) => {
-  const [querySearchYT, setSearchYT] = useState("");
+const Step3: React.FC<Step3Props> = ({ setValue }) => {
+  const [searchYT, setSearchYT] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const isNodeViewActive = useUIStore((state) => state.isNodeViewActive);
 
@@ -43,7 +42,7 @@ const Step3: React.FC<Step3Props> = ({ control, setValue }) => {
     <Box sx={style.containerBoxStep}>
       {/* Video seleccionado */}
       {isNodeViewActive && (
-        <NodeView isAddNode={true} control={control} setValue={setValue} />
+        <NodeView isAddNode={true} setValue={setValue} />
       )}
       <Header title="Buscar Video en YouTube" />
 
@@ -51,12 +50,12 @@ const Step3: React.FC<Step3Props> = ({ control, setValue }) => {
         <TextField
           fullWidth
           label="Buscar"
-          value={querySearchYT}
+          value={searchYT}
           onChange={(e) => setSearchYT(e.target.value)}
         />
         <Button
           variant="contained"
-          onClick={() => handleSearch(querySearchYT, setResults)}
+          onClick={() => handleSearch(searchYT, setResults)}
         >
           Buscar
         </Button>

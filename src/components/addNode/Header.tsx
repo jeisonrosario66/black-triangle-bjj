@@ -19,30 +19,28 @@ const Header: React.FC<HeaderProps> = ({ title }) => {
   const isUploadFirestore = useUIStore((state) => state.isUploadFirestore);
 
   return (
-    <>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
+    <Box
+      sx={{
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      <ButtonClose
+        buttonFunction={buttonCloseFunction}
+        disabled={isUploadFirestore}
+      />
+      <h2
+        style={{
+          color:
+            activeStep == 2
+              ? theme.palette.action.success
+              : theme.palette.text.secondary,
+          textAlign: "center",
         }}
       >
-        <ButtonClose
-          buttonFunction={buttonCloseFunction}
-          disabled={isUploadFirestore}
-        />
-        <h2
-          style={{
-            color:
-              activeStep == 2
-                ? theme.palette.action.success
-                : theme.palette.text.secondary,
-            textAlign: "center",
-          }}
-        >
-          {title}
-        </h2>
-      </Box>
-    </>
+        {title}
+      </h2>
+    </Box>
   );
 };
 

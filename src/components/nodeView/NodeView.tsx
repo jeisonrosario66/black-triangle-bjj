@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { CameraControls } from "@react-three/drei";
 import { Card, Box, Typography } from "@mui/material";
 import YouTube, { YouTubePlayer } from "react-youtube";
-import { Control, UseFormSetValue } from "react-hook-form";
+import { UseFormSetValue } from "react-hook-form";
 
 import { useUIStore } from "@src/store/index";
 import { ButtonClose, PlayerControls } from "@src/components/index";
@@ -15,7 +15,6 @@ type NodeViewProps = {
   controls?: CameraControls;
   isAddNode: boolean;
   setValue?: UseFormSetValue<NodeFormData>;
-  control?: Control<any>;
 };
 
 /**
@@ -46,7 +45,7 @@ const NodeView: React.FC<NodeViewProps> = ({
   const end = nodeViewData.end;
 
   // Limpia el ID del video en caso de que sea un enlace de "shorts"
-  const cleanVideoId = videoId?.replace("shorts/", "") || "";
+  const cleanVideoId = videoId?.replace("shorts/", "") ?? "";
 
   /**
    * Función que se ejecuta cuando el reproductor de YouTube está listo.
@@ -104,8 +103,8 @@ const NodeView: React.FC<NodeViewProps> = ({
         {/* Controles personalizados para el reproductor */}
         <PlayerControls
           player={player} // Instancia del reproductor
-          start={parseInt(start || "0")}
-          end={parseInt(end || "0")}
+          start={parseInt(start ?? "0")}
+          end={parseInt(end ?? "0")}
           isAddNode={isAddNode}
           onSendDataTimeNewNode={recuperarDatosDetiempo}
         />
