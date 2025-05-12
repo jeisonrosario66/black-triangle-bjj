@@ -7,6 +7,7 @@ import {
   ToggleButton,
   ToggleButtonGroup,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 import { getData } from "@src/services/index";
 import { optionsMenu } from "@src/components/index";
@@ -14,6 +15,8 @@ import { NodeOptionFirestone, tableNameDB } from "@src/context/index";
 import { debugLog } from "@src/utils/index";
 
 import * as style from "@src/styles/addNode/styleTabGroup";
+
+const textHardcoded = "components.addNode.tabGround.";
 
 type TabPanelProps = Readonly<{
   children?: React.ReactNode;
@@ -115,6 +118,7 @@ export default function BasicTabs({
     console.log("evento", event);
     setValue(newValue);
   };
+  const { t } = useTranslation();
 
   return (
     <Box sx={style.tabGroupContainer}>
@@ -140,7 +144,7 @@ export default function BasicTabs({
       {optionsMenu.map((item, index) => (
         <CustomTabPanel key={item.value} value={value} index={index}>
           {loading ? (
-            <Typography>Cargando datos...</Typography>
+            <Typography>{t(textHardcoded+"loadingData")}</Typography>
           ) : (
             <>
               {getFilteredData(item.value).length > 0 ? (
@@ -170,7 +174,7 @@ export default function BasicTabs({
                   ))}
                 </ToggleButtonGroup>
               ) : (
-                <Typography>No hay datos para esta categoría.</Typography>
+                <Typography>{t(textHardcoded+"notData")}</Typography>
               )}
             </>
           )}

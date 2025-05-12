@@ -1,14 +1,14 @@
 import React from "react";
-import {
-  Box,
-  LinearProgress,
-} from "@mui/material";
-import { useUIStore } from "@src/store/index";
+import { Box, LinearProgress } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
+import { useUIStore } from "@src/store/index";
 import { NodeOptionFirestone, NodeFormData } from "@src/context/index";
 import { Graph2D, Header } from "@src/components/index";
 
 import * as style from "@src/styles/addNode/styleStepByStep";
+
+const textHardcoded = "components.addNode.stepFinal.";
 
 type StepFinalProps = {
   newNodeData: NodeFormData;
@@ -19,6 +19,7 @@ const StepFinal: React.FC<StepFinalProps> = ({
   newNodeData: dataNodes,
   selectedSourceNodeData: selectedSourceNode,
 }) => {
+  const { t } = useTranslation();
   const isUploadFirestore = !useUIStore((state) => state.isUploadFirestore);
   const graphStepFinalData = {
     nodes: [
@@ -41,22 +42,22 @@ const StepFinal: React.FC<StepFinalProps> = ({
       </Box>
       <Box sx={style.result(isUploadFirestore)}>
         <div>
-          <h3>Resumen del Nodo</h3>
+          <h3>{t(textHardcoded+"text1")}:</h3>
           <p>
-            <strong>Índice:</strong> {dataNodes.index}
+            <strong>{t(textHardcoded+"text2")}:</strong> {dataNodes.index}
           </p>
           <p>
-            <strong>Nombre:</strong> {dataNodes.name}
+            <strong>{t(textHardcoded+"text3")}:</strong> {dataNodes.name}
           </p>
           <p>
-            <strong>Posición:</strong> {dataNodes.group}
+            <strong>{t(textHardcoded+"text4")}:</strong> {dataNodes.group}
           </p>
           <p>
-            <strong>Nodo Origen:</strong>{" "}
+            <strong>{t(textHardcoded+"text5")}:</strong>{" "}
             {" {" + dataNodes.nodeSourceIndex + "}"}
           </p>
           <p>
-            <strong>Fecha de subida:</strong>{" "}
+            <strong>{t(textHardcoded+"text6")}:</strong>{" "}
             {dataNodes.uploadedDate ?? "Sin fecha aún"}
           </p>
         </div>

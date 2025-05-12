@@ -1,6 +1,6 @@
 import themeApp from "@src/styles/stylesThemeApp";
 const colorButton = themeApp.palette.buttons.buttonHomeScreen
-const buttonStyle: React.CSSProperties = {
+export const buttonStyle: React.CSSProperties = {
   position: 'absolute',
   top: "30px",
   left: "30px",
@@ -11,5 +11,3 @@ const buttonStyle: React.CSSProperties = {
   width: "150px",
   height: "60px",
 };
-
-export default buttonStyle

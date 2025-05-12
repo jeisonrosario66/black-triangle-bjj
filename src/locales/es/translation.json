@@ -1,0 +1,92 @@
+{
+  "components": {
+    "accoundMenu": {
+      "title": "Menu Usuario",
+      "triggerAlert": "Sesisssón Cerrada",
+
+      "optionsMenu": {
+        "login": "Iniciar sesión",
+        "addNode": "Agregar Nodo",
+        "configuration": "Configuración",
+        "logOut": "Cerrar sesión"
+      }
+    },
+    "configWindow": {
+      "title": "Configuración",
+      "languageLabel": "Idioma",
+      "es": "Español",
+      "en": "Ingles",
+      "buttonClose": "Cerrar y Guardar"
+    },
+    "buttonAddNode": {
+      "title": "Agregar Nodos"
+    },
+    "navigationgestures": {
+      "touch": {
+        "title": "Usa gestos táctiles para navegar la escena",
+        "text1": "Deslizar con un dedo: Orbitar",
+        "text2": "Deslizar con dos dedos: Desplazar vista",
+        "text3": "Pellizcar con dos dedos Acercar/Alejar (Zoom)"
+      },
+      "desk": {
+        "title": "Usa el mouse para navegar la escena",
+        "text1": "Clic izquierdo + arrastrar: Orbitar",
+        "text2": "Clic derecho + arrastrar: Desplazar vista",
+        "text3": "Rueda del mouse (scroll): Acercar/Alejar"
+      },
+      "checkBoxLabel": "No volver a mostrar esto",
+      "buttonClose": "Cerrar"
+    },
+    "loginUser": {
+      "loginGoogle": "Iniciar sesión con Google"
+    },
+    "addNode": {
+      "stepper": {
+        "button1": "Volver",
+        "button2": "Retroceder",
+        "button3": "Saltar",
+        "optional": "Opcional",
+        "next": "Siguiente",
+        "finish": "Finalizar",
+        "step1": "Estas creando un nuevo nodo",
+        "step2": "Conecta el nodo",
+        "step3": "Carga un recurso al nodo"
+      },
+      "tabGround": {
+        "loadingData": "Cargando datos...",
+        "notData": "No hay datos para esta categoría."
+      },
+      "step1": {
+        "title": "Nombre del nodo",
+        "formLabel": "Tipo de nodo"
+      },
+      "step2": {
+        "title": "Seleccionar nodo origen",
+        "subText1":"Elige una conexión de origen o presioná en saltar"
+      },
+      "step3": {
+        "title": "Buscar Video en YouTube",
+        "subText1": "Buscar", 
+        "subText2": "vistas - hace"
+      },
+      "stepFinal": {
+        "text1": "Resumen del Nodo",
+        "text2": "Índice",
+        "text3": "Nombre",
+        "text4": "Posición",
+        "text5": "Nodo Origen",
+        "text6": "Fecha de subida"
+      }
+    },
+    "nodeView": {
+      "button1": "Retroceder 5s",
+      "button2": "Avanzar 5s",
+      "button3": "Pausar",
+      "button4": "Reproducir",
+      "button5": "Tiempo inicio",
+      "button6": "Tiempo final",
+      "start": "Inicio",
+      "end": "Fin"
+    }
+  }
+}

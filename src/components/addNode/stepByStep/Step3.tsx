@@ -9,6 +9,7 @@ import {
   CardContent,
   CardMedia,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 import { useUIStore } from "@src/store/index";
 import { NodeFormData } from "@src/context/index";
@@ -17,11 +18,15 @@ import { handleSearch } from "@src/utils/index";
 
 import * as style from "@src/styles/addNode/stepByStep/styleStep3";
 
+const textHardcoded = "components.addNode.step3.";
+
 type Step3Props = {
   setValue: UseFormSetValue<NodeFormData>;
 };
 
 const Step3: React.FC<Step3Props> = ({ setValue }) => {
+  const { t } = useTranslation();
+
   const [searchYT, setSearchYT] = useState("");
   const [results, setResults] = useState<any[]>([]);
   const isNodeViewActive = useUIStore((state) => state.isNodeViewActive);
@@ -37,19 +42,17 @@ const Step3: React.FC<Step3Props> = ({ setValue }) => {
     useUIStore.setState({ isNodeViewActive: true });
     useUIStore.setState({ nodeViewData: data });
   };
+
   return (
-    
     <Box sx={style.containerBoxStep}>
       {/* Video seleccionado */}
-      {isNodeViewActive && (
-        <NodeView isAddNode={true} setValue={setValue} />
-      )}
-      <Header title="Buscar Video en YouTube" />
+      {isNodeViewActive && <NodeView isAddNode={true} setValue={setValue} />}
+      <Header title={t(textHardcoded+"title")} />
 
       <Box sx={style.barSearch}>
         <TextField
           fullWidth
-          label="Buscar"
+          label={t(textHardcoded+"subText1")}
           value={searchYT}
           onChange={(e) => setSearchYT(e.target.value)}
         />
@@ -57,7 +60,7 @@ const Step3: React.FC<Step3Props> = ({ setValue }) => {
           variant="contained"
           onClick={() => handleSearch(searchYT, setResults)}
         >
-          Buscar
+          {t(textHardcoded+"subText1")}
         </Button>
       </Box>
 
@@ -92,7 +95,7 @@ const Step3: React.FC<Step3Props> = ({ setValue }) => {
                     {video.videoTitle}
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {video.channelTitle} - {video.viewCount} vistas - hace{" "}
+                    {video.channelTitle} - {video.viewCount} {t(textHardcoded+"subText2")}{" "}
                     {video.publishedAt}
                   </Typography>
                 </Box>

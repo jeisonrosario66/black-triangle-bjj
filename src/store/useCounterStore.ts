@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { Vector3Tuple } from "three";
-
+import { cacheUser } from "@src/context/index"
 type UserLoginData = {
   displayName: string | null;
   email: string | null;
@@ -14,8 +14,10 @@ type NodeViewData = {
   color?: string;
   group?: string;
   id?: number;
-
 };
+// Verifica si en la cache exite un language escogido, de lo contrario toma el language por default
+// const languageApp = localStorage.getItem(cacheUser.languageUser) ?? cacheUser.languageDefault
+
 // Definición del estado de la UI
 interface UIState {
   // Indica si la interfaz de "Agregar Nodo" está activa
@@ -49,6 +51,14 @@ interface UIState {
   // Indica si se debe mostrar el overlay de "Gestos de Navegación"
   overlayDontShowAgain: boolean;
   setOverlayDontShowAgain: (dontShow: boolean) => void;
+
+  // Indica si la ventana de configuración esta activa
+  isConfigWindowActive: boolean;
+  setIsconfigWindowActive: (configWindow: boolean) => void;
+
+  // Indica el language escogido
+  languageGlobal: string;
+  setLanguageGlobal: (language: string) => void;
 
   // Datos del nodo activo
   nodeViewData: NodeViewData;
@@ -131,7 +141,15 @@ const useUIStore = create<AppState>((set, get) => ({
   setIsNodeViewActive: (nodeView) => set({ isNodeViewActive: nodeView }),
 
   overlayDontShowAgain: false,
-  setOverlayDontShowAgain: (dontShow) => set({ overlayDontShowAgain: dontShow}),
+  setOverlayDontShowAgain: (dontShow) =>
+    set({ overlayDontShowAgain: dontShow }),
+
+  languageGlobal: "",
+  setLanguageGlobal: (language) => set({ languageGlobal: language }),
+
+  isConfigWindowActive: false,
+  setIsconfigWindowActive: (configWindow) =>
+    set({ isConfigWindowActive: configWindow }),
 
   nodeViewData: {
     videoid: "",

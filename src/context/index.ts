@@ -5,6 +5,7 @@ export {
   scenePropsDev,
   tableNameDB,
   groupColor,
+  cacheUser,
 } from "@src/context/configGlobal";
 export type {
   GraphNode,

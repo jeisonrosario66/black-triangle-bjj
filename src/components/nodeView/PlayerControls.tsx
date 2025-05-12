@@ -13,10 +13,13 @@ import Forward5Icon from "@mui/icons-material/Forward5";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import PauseIcon from "@mui/icons-material/Pause";
 import { YouTubePlayer } from "react-youtube";
+import { useTranslation } from "react-i18next";
 
 import { PlayerControlsData } from "@src/context/exportType";
 
 import * as style from "@src/styles/nodeView/stylesPlayerControls";
+
+const textHardcoded = "components.nodeView.";
 
 type PlayerControlsProps = {
   player: YouTubePlayer | null; // Instancia del reproductor de YouTube
@@ -38,6 +41,7 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
   isAddNode,
   onSendDataTimeNewNode,
 }) => {
+  const { t } = useTranslation();
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [endTimeLocal, setEndTimeLocal] = useState<string>("");
@@ -148,7 +152,7 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
           {/* Fila principal de botones normales */}
           <Stack direction="row" spacing={10} alignItems="center">
             {/* Botón para retroceder 5 segundos */}
-            <Tooltip title="Retroceder 5s">
+            <Tooltip title={t(textHardcoded+"button1")}>
               <IconButton
                 sx={style.iconsPlayer}
                 color="primary"
@@ -159,7 +163,7 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
             </Tooltip>
 
             {/* Botón para reproducir o pausar */}
-            <Tooltip title={isPlaying ? "Pausar" : "Reproducir"}>
+            <Tooltip title={isPlaying ? t(textHardcoded+"button3"): t(textHardcoded+"button4")}>
               <IconButton
                 color="primary"
                 onClick={togglePlayPause}
@@ -174,7 +178,7 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
             </Tooltip>
 
             {/* Botón para avanzar 5 segundos */}
-            <Tooltip title="Avanzar 5s">
+            <Tooltip title={t(textHardcoded+"button2")}>
               <IconButton
                 sx={style.iconsPlayer}
                 color="primary"
@@ -188,7 +192,7 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
           {/* Segunda fila de botones condicionales */}
           {isAddNode && (
             <Box sx={style.buttonAditional}>
-              <Tooltip title="Tiempo inicio">
+              <Tooltip title={t(textHardcoded+"button5")}>
                 <IconButton
                   sx={style.iconsPlayer}
                   color="primary"
@@ -202,12 +206,12 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
                   }}
                 >
                   <Typography>
-                    Inicio: {formatTimeFull(Number(startTimeLocal))}
+                  {t(textHardcoded+"start")}: {formatTimeFull(Number(startTimeLocal))}
                   </Typography>
                 </IconButton>
               </Tooltip>
 
-              <Tooltip title="Tiempo final">
+              <Tooltip title={t(textHardcoded+"button6")}>
                 <IconButton
                   sx={style.iconsPlayer}
                   color="primary"
@@ -218,7 +222,7 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
                   }}
                 >
                   <Typography>
-                    Fin: {formatTimeFull(Number(endTimeLocal))}
+                  {t(textHardcoded+"end")}: {formatTimeFull(Number(endTimeLocal))}
                   </Typography>
                 </IconButton>
               </Tooltip>

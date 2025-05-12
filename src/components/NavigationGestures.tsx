@@ -16,6 +16,8 @@ import {
 import { TransitionProps } from "@mui/material/transitions";
 import { getPlatform } from "@src/utils/index";
 import { useUIStore } from "@src/store/index";
+import { cacheUser } from "@src/context/index";
+import { useTranslation } from "react-i18next";
 
 // Permite que el diálogo se deslice desde abajo al abrirse
 const Transition = React.forwardRef(function Transition(
@@ -26,19 +28,21 @@ const Transition = React.forwardRef(function Transition(
 ) {
   return <Slide direction="up" ref={ref} {...props} />;
 });
-
-const touch: string = "Usa gestos táctiles para navegar la escena";
-const desk: string = "Usa el mouse para navegar la escena";
+const textHardcoded = "components.navigationgestures.";
 
 const NavigationGestures: React.FC = () => {
+  const { t } = useTranslation();
+  const touch: string = t(textHardcoded + "touch.title");
+  const desk: string = t(textHardcoded + "desk.title");
+
   const [open, setOpen] = React.useState(true);
   const [valueCheckBox, setValueCheckBox] = React.useState(false);
-  
+
   // Al montar el componente, lee la preferencia guardada en localStorage
   useEffect(() => {
-    const hide = localStorage.getItem("hideNavigationGestures");
+    const hide = localStorage.getItem(cacheUser.navigationsGestures);
     if (hide === "true") {
-      setOpen(false); 
+      setOpen(false);
       useUIStore.setState({ overlayDontShowAgain: true });
     } else {
       setOpen(true);
@@ -46,7 +50,7 @@ const NavigationGestures: React.FC = () => {
     }
   }, []);
 
-   // Cierra el diálogo y guarda la preferencia en Zustand
+  // Cierra el diálogo y guarda la preferencia en Zustand
   const handleClose = () => {
     useUIStore.setState({ overlayDontShowAgain: valueCheckBox });
     setOpen(false);
@@ -57,9 +61,9 @@ const NavigationGestures: React.FC = () => {
     const checked = e.target.checked;
     setValueCheckBox(checked);
     if (checked) {
-      localStorage.setItem("hideNavigationGestures", "true");
+      localStorage.setItem(cacheUser.navigationsGestures, "true");
     } else {
-      localStorage.removeItem("hideNavigationGestures");
+      localStorage.removeItem(cacheUser.navigationsGestures);
     }
   };
 
@@ -92,7 +96,7 @@ const NavigationGestures: React.FC = () => {
                     style={{ width: 30 }}
                   />
                   <Typography variant="h6">
-                    Deslizar con un dedo: Orbitar
+                    {t(textHardcoded + "touch.text1")}
                   </Typography>
                 </Stack>
 
@@ -103,7 +107,7 @@ const NavigationGestures: React.FC = () => {
                     style={{ width: 30 }}
                   />
                   <Typography variant="h6">
-                    Deslizar con dos dedos: Desplazar vista
+                    {t(textHardcoded + "touch.text2")}
                   </Typography>
                 </Stack>
 
@@ -114,7 +118,7 @@ const NavigationGestures: React.FC = () => {
                     style={{ width: 30 }}
                   />
                   <Typography variant="h6">
-                    Pellizcar con dos dedos Acercar/Alejar (Zoom)
+                    {t(textHardcoded + "touch.text3")}
                   </Typography>
                 </Stack>
               </>
@@ -130,6 +134,7 @@ const NavigationGestures: React.FC = () => {
                   <img src="gestures/360.svg" alt="360" style={{ width: 30 }} />
                   <Typography variant="h6">
                     Clic izquierdo + arrastrar: Orbitar
+                    {t(textHardcoded + "desk.text1")}
                   </Typography>
                 </Stack>
 
@@ -142,7 +147,7 @@ const NavigationGestures: React.FC = () => {
                   <Typography variant="h6">+</Typography>
                   <img src="gestures/360.svg" alt="360" style={{ width: 30 }} />
                   <Typography variant="h6">
-                    Clic derecho + arrastrar: Desplazar vista
+                    {t(textHardcoded + "desk.text2")}
                   </Typography>
                 </Stack>
 
@@ -153,14 +158,14 @@ const NavigationGestures: React.FC = () => {
                     style={{ width: 30 }}
                   />
                   <Typography variant="h6">
-                    Rueda del mouse (scroll): Acercar/Alejar
+                    {t(textHardcoded + "desk.text3")}
                   </Typography>
                 </Stack>
               </>
             )}
           </DialogContentText>
         </DialogContent>
-        <DialogActions sx={{ justifyContent: "space-between"}}>
+        <DialogActions sx={{ justifyContent: "space-between" }}>
           <FormControlLabel
             control={
               <Checkbox
@@ -168,9 +173,9 @@ const NavigationGestures: React.FC = () => {
                 onChange={handleCheckboxChange}
               />
             }
-            label="No volver a mostrar esto"
+            label={t(textHardcoded+"checkBoxLabel")}
           />
-          <Button onClick={handleClose}>Cerrar</Button>
+          <Button onClick={handleClose}>{t(textHardcoded+"buttonClose")}</Button>
         </DialogActions>
       </Dialog>
     </Box>

@@ -1,15 +1,18 @@
-// Importaciones externas
 import { signInWithPopup } from "firebase/auth";
 import { Box, Card, Typography, Button, Divider } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
-// Importaciones internas
+import { ButtonClose, LogoContainer } from "@src/components/index";
+import { auth, provider } from "@src/hooks/index";
+import { useUIStore } from "@src/store/index";
+
 import * as style from "@src/styles/loginUser/styleLoginUser";
-import LogoContainer from "@src/components/LogoComponent";
-import ButtonClose from "@src/components/ButtonClose";
-import { auth, provider } from "@src/hooks/fireBase";
-import useUIStore from "@src/store/useCounterStore";
+
+const textHardcoded = "components.loginUser.";
 
 export default function Login() {
+  const { t } = useTranslation();
+  
   // Referencias a Firebase Auth y el proveedor de Google
   const provideFirebase = provider;
   const authFirebase = auth;
@@ -23,9 +26,7 @@ export default function Login() {
   const handleGoogleSignIn = async () => {
     try {
       // Abre el popup de inicio de sesión con Google
-      const result = await signInWithPopup(authFirebase, provideFirebase);
-      const user = result.user; // Información del usuario autenticado
-      console.log("Usuario autenticado:", user);
+      await signInWithPopup(authFirebase, provideFirebase);
     } catch (error) {
       console.error("Error al iniciar sesión con Google:", error);
     }
@@ -34,10 +35,7 @@ export default function Login() {
   return (
     <Box sx={style.containerLogin}>
       {/* Botón para cerrar la ventana */}
-      <ButtonClose
-        buttonFunction={buttonCloseFunction}
-        disabled={false}
-      />
+      <ButtonClose buttonFunction={buttonCloseFunction} disabled={false} />
 
       {/* Logo de la aplicación */}
       <LogoContainer />
@@ -54,11 +52,10 @@ export default function Login() {
             variant="middle"
           />
 
-          {/* Botón para iniciar sesión con Google */}
           <Button onClick={handleGoogleSignIn} sx={style.googleButton}>
             <img src="./google-logo.png" alt="Google" />
             <Typography sx={style.googleText}>
-              Iniciar sesión con Google
+              {t(textHardcoded+"loginGoogle")}
             </Typography>
           </Button>
         </Box>

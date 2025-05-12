@@ -1,0 +1,57 @@
+{
+  "components": {
+    "accoundMenu": {
+      "title": "User Menu",
+      "triggerAlert": "Session Closed",
+      "optionsMenu": {
+        "login": "Log in",
+        "addNode": "Add Node",
+        "configuration": "Configuration",
+        "logOut": "Log out"
+      }
+    },
+    "configWindow": {
+      "title": "Configuration",
+      "languageLabel": "Language",
+      "es": "Spanish",
+      "en": "English",
+      "buttonClose": "Close and Save"
+    },
+    "buttonAddNode": {
+      "title": "Add Nodes"
+    },
+    "navigationgestures": {
+      "touch": {
+        "title": "Use touch gestures to navigate the scene",
+        "text1": "Swipe with one finger: Orbit",
+        "text2": "Swipe with two fingers: Pan view",
+        "text3": "Pinch with two fingers: Zoom in/out"
+      },
+      "desk": {
+        "title": "Use mouse to navigate the scene",
+        "text1": "Left click + drag: Orbit",
+        "text2": "Right click + drag: Pan view",
+        "text3": "Mouse wheel (scroll): Zoom in/out"
+      },
+      "checkBoxLabel": "Don't show this again",
+      "buttonClose": "Close"
+    },
+    "addNode": {
+      "stepper": {
+        "button1": "Back",
+        "button2": "Previous",
+        "button3": "Skip",
+        "optional": "Optional",
+        "next": "Next",
+        "finish": "Finish",
+        "step1": "You are creating a new node",
+        "step2": "Connect the node",
+        "step3": "Upload a resource to the node"
+      },
+      "tabGround": {
+        "loadingData": "Loading data...",
+        "notData": "No data available for this category."
+      }
+    }
+  }
+}

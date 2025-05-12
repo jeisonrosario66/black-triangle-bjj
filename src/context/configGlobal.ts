@@ -43,3 +43,9 @@ export const tableNameDB = {
   nodes: "nodos",
   links: "links",
 };
+
+export const cacheUser = {
+  languageDefault: "es",
+  languageUser: "languageApp",
+  navigationsGestures: "hideNavigationGestures",
+}

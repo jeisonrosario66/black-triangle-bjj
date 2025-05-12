@@ -1,7 +1,6 @@
 // components 
 export { default as AccountMenu } from "@src/components/AccountMenu";
 export { default as OutlinedAlerts } from "@src/components/Alert";
-export { default as ButtonAddNode } from "@src/components/ButtonAddNode";
 export { default as ButtonClose } from "@src/components/ButtonClose";
 export { default as Graph2D } from "@src/components/Graph2D";
 export { default as GraphScene } from "@src/components/GraphScene";
@@ -38,3 +37,6 @@ export { default as LoginUser } from "@src/components/loginUser/LoginUser";
 // Components/nodeView
 export { default as NodeView } from "@src/components/nodeView/NodeView";
 export { default as PlayerControls } from "@src/components/nodeView/PlayerControls";
+
+// Components/configWindow
+export { default as ConfigWindow } from "@src/components/configWindow/ConfigWindow";

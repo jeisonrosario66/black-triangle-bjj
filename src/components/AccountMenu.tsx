@@ -1,23 +1,27 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import Avatar from "@mui/material/Avatar";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import Divider from "@mui/material/Divider";
-import IconButton from "@mui/material/IconButton";
+import React from "react";
+import {
+  Box,
+  Avatar,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  Divider,
+  IconButton,
+  Tooltip,
+} from "@mui/material";
+import { Settings, Logout } from "@mui/icons-material";
 import HubIcon from "@mui/icons-material/hub";
-import Tooltip from "@mui/material/Tooltip";
 import LoginIcon from "@mui/icons-material/Login";
-import Settings from "@mui/icons-material/Settings";
-import Logout from "@mui/icons-material/Logout";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import { useTranslation } from "react-i18next";
 
+import { useUIStore } from "@src/store/index";
 import * as style from "@src/styles/stylesAccountMenu";
-import useUIStore from "@src/store/useCounterStore";
-import handleLogout from "@src/hooks/logOut";
+
+const textHardcoded = "components.accoundMenu.";
 
 export default function AccountMenu() {
+  const { t } = useTranslation();
   // Estado global para verificar si el usuario está logueado
   const isUserLogin = useUIStore((state) => state.isUserLogin);
   const userLoginData = useUIStore((state) => state.userLoginData);
@@ -52,11 +56,15 @@ export default function AccountMenu() {
       : triggerAlert("Sesión Cerrada", "warning");
   };
 
+  const handleConfigWindow = () => {
+    useUIStore.setState({ isConfigWindowActive: true });
+  };
+
   return (
     <React.Fragment>
       {/* Botón del menú de usuario */}
       <Box sx={style.containerAccountMenu}>
-        <Tooltip title="Menu Usuario">
+        <Tooltip title={t(textHardcoded + "title")}>
           <IconButton
             onClick={handleClick}
             size="small"
@@ -126,7 +134,7 @@ export default function AccountMenu() {
             <ListItemIcon>
               <LoginIcon fontSize="small" />
             </ListItemIcon>
-            Iniciar sesión
+            {t(textHardcoded + "optionsMenu.login")}
           </MenuItem>
         )}
 
@@ -137,25 +145,26 @@ export default function AccountMenu() {
           <ListItemIcon>
             <HubIcon fontSize="small" />
           </ListItemIcon>
-          Agregar Nodo
+          {t(textHardcoded + "optionsMenu.addNode")}
         </MenuItem>
 
         <Divider />
 
         {/* Opción para configuración */}
-        <MenuItem onClick={handleClose}>
+        <MenuItem onClick={handleConfigWindow}>
           <ListItemIcon>
             <Settings fontSize="small" />
           </ListItemIcon>
-          Configuración
+          {t(textHardcoded + "optionsMenu.configuration")}
         </MenuItem>
 
         {/* Opción para cerrar sesión */}
-        <MenuItem onClick={handleLogout}>
+        <MenuItem onClick={handleClose}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>
-          Cerrar sesión
+
+          {t(textHardcoded + "optionsMenu.logOut")}
         </MenuItem>
       </Menu>
     </React.Fragment>

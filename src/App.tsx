@@ -2,8 +2,6 @@ import { useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { CameraControls } from "@react-three/drei";
 
-import { cameraPropsDev, configGlobal } from "./context/configGlobal";
-
 import {
   GraphScene,
   AccountMenu,
@@ -12,11 +10,14 @@ import {
   OutlinedAlerts,
   NodeView,
   NavigationGestures,
+  ConfigWindow,
 } from "@src/components/index";
 import { authListener } from "@src/hooks/index";
 import { useUIStore } from "@src/store/index";
+import { cameraPropsDev, configGlobal, cacheUser } from "@src/context/index";
 
 import * as style from "@src/styles/stylesApp";
+import { useTranslation } from "react-i18next";
 
 function App() {
   // Estado global
@@ -28,11 +29,26 @@ function App() {
   const overlayDontShowAgain = useUIStore(
     (state) => state.overlayDontShowAgain
   );
+  const isConfigWindowActive = useUIStore(
+    (state) => state.isConfigWindowActive
+  );
+  const { i18n } = useTranslation();
+
   // Referencia para los controles de la camara (usado por drei)
   const cameraControlsRef = useRef<CameraControls | null>(null);
   const triggerAlert = useUIStore((state) => state.triggerAlert);
 
   // Hook para inicializar el listener de autenticación al montar el componente
+  
+  useEffect(() => {
+    authListener();
+    const savedLanguage =
+    localStorage.getItem(cacheUser.languageUser) ?? cacheUser.languageDefault;
+    i18n.changeLanguage(savedLanguage);
+    console.log("useeffect: " ,savedLanguage)
+    useUIStore.setState({ languageGlobal: savedLanguage });
+  }, [isConfigWindowActive]);
+  
   useEffect(() => {
     authListener();
   }, []);
@@ -56,6 +72,7 @@ function App() {
         {isNodeViewActive && cameraControlsRef.current && !isAddNodeActive ? (
           <NodeView controls={cameraControlsRef.current} isAddNode={false} />
         ) : null}
+        {isConfigWindowActive ? <ConfigWindow /> : null}
 
         {/* Contenedor del lienzo 3D */}
         <div style={style.canvasContainer}>

@@ -1,22 +1,13 @@
 import React from "react";
-import {
-  Controller,
-  Control,
-  FieldErrors,
-} from "react-hook-form";
-import {
-  Box,
-  Typography,
-  FormControl,
-  FormLabel,
-} from "@mui/material";
+import { Controller, Control, FieldErrors } from "react-hook-form";
+import { Box, Typography, FormControl, FormLabel } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
-import {
-  Header,
-  TabGroup,
-} from "@src/components/index";
+import { Header, TabGroup } from "@src/components/index";
 
 import * as style from "@src/styles/addNode/styleStepByStep";
+
+const textHardcoded = "components.addNode.step2.";
 
 type Step2Props = {
   control: Control<any>;
@@ -24,16 +15,13 @@ type Step2Props = {
   isNot1Step2: number;
 };
 
+const Step2: React.FC<Step2Props> = ({ control, errors, isNot1Step2 }) => {
+  const { t } = useTranslation();
 
-const Step2: React.FC<Step2Props> = ({
-  control,
-  errors,
-  isNot1Step2,
-}) => {
   return (
     <Box sx={style.containerBoxStep}>
       <Header title={"Agregar nuevo nodo"} />
-      <FormLabel>Seleccionar nodo origen</FormLabel>
+      <FormLabel>{t(textHardcoded+"title")}</FormLabel>
       <Controller
         name="nodeSourceIndex"
         control={control}
@@ -41,7 +29,7 @@ const Step2: React.FC<Step2Props> = ({
           <FormControl error={!!errors.nodeSource}>
             <Box sx={style.boxFormSelect(isNot1Step2 == 1)}>
               <Typography>
-                Elige una conexión de origen o presioná en saltar
+                {t(textHardcoded+"subText1")}
               </Typography>
               {/* <TabGroup/> */}
               <TabGroup
