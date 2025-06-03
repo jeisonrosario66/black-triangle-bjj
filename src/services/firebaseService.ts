@@ -1,33 +1,22 @@
-import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
+import { addDoc, collection, getDocs } from "firebase/firestore";
 
 import { debugLog } from "@src/utils/index";
 import { database } from "@src/hooks/index";
-import { NodeOptionFirestone, tableNameDB, NodeInsertData} from "@src/context/index";
+import {
+  NodeOptionFirestone,
+  GroupOptionFirestone,
+  tableNameDB,
+  NodeInsertData,
+  cacheUser,
+} from "@src/context/index";
 import { useUIStore } from "@src/store/index";
-
-export const getDataWhere = async (dbName: string, rowName: string) => {
-  try {
-    const query = await getData(dbName);
-    const filteredNodes = query
-      ?.filter(({ group }) => group === rowName)
-      .map(({ id, name, group }) => ({
-        id,
-        name,
-        group,
-      }));
-    debugLog("info", "Query to group: ", filteredNodes);
-    return filteredNodes;
-  } catch (error) {
-    debugLog("error", "Query: ", rowName, error);
-  }
-};
 
 /**
  * Consulta una colección de Firestore y devuelve una lista de nodos tipados.
  * @param dbName - Nombre de la colección en Firestore.
  * @returns Lista de nodos formateados como NodeOptionFirestone[].
  */
-export const getData = async (dbName: string) => {
+export const getDataNodes = async (dbName: string) => {
   try {
     const querySnapshot = await getDocs(collection(database, dbName));
     const data: NodeOptionFirestone[] = querySnapshot.docs.map((doc) => {
@@ -35,7 +24,10 @@ export const getData = async (dbName: string) => {
       return {
         id: docData.index,
         index: docData.index,
-        name: docData.name,
+        name:
+          localStorage.getItem(cacheUser.languageUser) === "es"
+            ? docData.name_es
+            : docData.name_en,
         group: docData.group,
         start: docData.start,
         end: docData.end,
@@ -49,15 +41,16 @@ export const getData = async (dbName: string) => {
         dbNodesName: tableNameDB.nodes,
         dbLinksName: tableNameDB.links,
         index: 1,
-        name: "Escoja Nodo de origen",
+        name_es: "default",
+        name_en: "default",
         group: "",
         nodeSource: 1,
         videoid: "",
         start: "",
         end: "",
-        uploadedDate: ""
+        uploadedDate: "",
       });
-      getData(tableNameDB.nodes);
+      getDataNodes(tableNameDB.nodes);
     }
     return data;
   } catch (error) {
@@ -84,7 +77,8 @@ export const addData = async (data: NodeInsertData) => {
     dbNodesName,
     dbLinksName,
     index,
-    name,
+    name_es,
+    name_en,
     group,
     nodeSource,
     videoid,
@@ -94,19 +88,9 @@ export const addData = async (data: NodeInsertData) => {
   } = data;
 
   try {
-    const nodesRef = collection(database, dbNodesName);
-    const nameLowerCase = name.toLowerCase();
-
-    const q = query(nodesRef, where("name", "==", nameLowerCase));
-    const querySnapshot = await getDocs(q);
-
-    if (!querySnapshot.empty) {
-      console.error(" Error: Ya existe un documento con este `name`.");
-      return;
-    }
-
     await addDoc(collection(database, dbNodesName), {
-      name: nameLowerCase,
+      name_es: name_es.trim().toLowerCase(),
+      name_en: name_en.trim().toLowerCase(),
       index,
       group,
       uploadedDate,
@@ -122,7 +106,7 @@ export const addData = async (data: NodeInsertData) => {
       });
     }
 
-    debugLog("info", "Nodo agregado:", nameLowerCase, index);
+    debugLog("info", "Nodo agregado:", name_es, name_en, index);
     debugLog(
       "info",
       "Link agregado: Source:",
@@ -135,3 +119,22 @@ export const addData = async (data: NodeInsertData) => {
   }
 };
 
+export const getDataGroup = async (dbName: string) => {
+  const language = localStorage.getItem(cacheUser.languageUser);
+  try {
+    const querySnapshot = await getDocs(collection(database, dbName));
+    const data: GroupOptionFirestone[] = querySnapshot.docs.map((doc) => {
+      const docData = doc.data();
+      return {
+        label: docData.label,
+        title: language === "es" ? docData.title_es : docData.title_en,
+        description:
+          language === "es" ? docData.description_es : docData.description_en,
+      };
+    });
+    debugLog("debug", "Group obtenidos desde firestone: ", data);
+    return data;
+  } catch (error) {
+    console.error("Error obteniendo documentos desde Firestore:", error);
+  }
+};

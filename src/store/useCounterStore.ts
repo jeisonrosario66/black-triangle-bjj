@@ -1,6 +1,5 @@
 import { create } from "zustand";
 import { Vector3Tuple } from "three";
-import { cacheUser } from "@src/context/index"
 type UserLoginData = {
   displayName: string | null;
   email: string | null;

@@ -8,15 +8,15 @@ export const configGlobal = {
 
 // Colores asignados a los grupos de nodos
 export const groupColor: Record<string, string> = {
-  genesis: "rgb(255, 255, 255)",
+  system: "rgb(251, 180, 180)",
   submission: "rgb(255, 0, 0)",
   pass: "rgb(27, 250, 250)",
   switch: "rgb(255, 243, 17)",
   transition: "rgb(198, 122, 28)",
   control: "rgb(22, 123, 230)",
-  tachi_waza: "rgb(125, 132, 255)",
+  takedown: "rgb(26, 236, 255)",
   defence: "rgb(0, 255, 0)",
-  guard: "rgb(234, 4, 255)",
+  guard: "rgb(234, 4, 255)" ,
 };
 
 export const cameraPropsDev = {
@@ -40,8 +40,9 @@ export const scenePropsDev = {
 };
 
 export const tableNameDB = {
-  nodes: "nodos",
-  links: "links",
+  nodes: "headlock nodes",
+  links: "headlock links",
+  group: "taxonomy"
 };
 
 export const cacheUser = {

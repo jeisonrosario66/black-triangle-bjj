@@ -18,7 +18,7 @@ import { useTranslation } from "react-i18next";
 import { useUIStore } from "@src/store/index";
 import * as style from "@src/styles/stylesAccountMenu";
 
-const textHardcoded = "components.accoundMenu.";
+const textHardcoded = "components.accountMenu.";
 
 export default function AccountMenu() {
   const { t } = useTranslation();

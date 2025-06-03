@@ -22,7 +22,8 @@ export type NodeInsertData = {
   dbNodesName: string;
   dbLinksName: string;
   index: number;
-  name: string;
+  name_es: string;
+  name_en: string;
   group: string;
   nodeSource: number;
   videoid: string;
@@ -30,7 +31,6 @@ export type NodeInsertData = {
   end: string;
   uploadedDate: string;
 };
-
 
 export type NodeOptionFirestone = {
   id?: number | string;
@@ -42,6 +42,11 @@ export type NodeOptionFirestone = {
   videoid?: string;
 };
 
+export type GroupOptionFirestone = {
+  label: string;
+  title: string;
+  description: string;
+};
 export type GraphNode = {
   id?: number;
   x?: number;
@@ -72,10 +77,10 @@ export type OptionTechniqueCard = {
   id?: number | string;
   name?: string;
   group?: string;
-}
+};
 
 export type PlayerControlsData = {
   start?: string;
   end?: string;
   videoid?: string;
-}
+};

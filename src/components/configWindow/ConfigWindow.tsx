@@ -54,7 +54,7 @@ const ConfigWindow: React.FC = () => {
         zIndex: "10",
       }}
     >
-      <ButtonClose buttonFunction={buttonCloseFunction} />
+      <ButtonClose buttonFunction={buttonCloseFunction} isPositionAbsolute={true}/>
 
       <Typography variant="h4" sx={{ fontWeight: "600", marginBottom: "2rem" }}>
         {t(textHardcoded+"title")}

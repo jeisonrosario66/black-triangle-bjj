@@ -31,7 +31,7 @@ const StepFinal: React.FC<StepFinalProps> = ({
 
   return (
     <Box sx={style.containerBoxStep}>
-      <Header title={"paso final"} />
+      <Header />
       <Box sx={style.progress(isUploadFirestore)}>
         <LinearProgress sx={{ width: "60%" }} />
         <LinearProgress sx={{ width: "25%" }} />

@@ -3,14 +3,15 @@ import { useForm, SubmitHandler } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import * as yup from "yup";
 import { Box, Divider } from "@mui/material";
+import { useTranslation } from "react-i18next";
 
 import {
   Step1,
   Step2,
   Step3,
+  Step4,
   StepFinal,
   StepperComponent,
-  LogoContainer,
 } from "@src/components/index";
 import {
   NodeOptionFirestone,
@@ -23,20 +24,22 @@ import { debugLog } from "@src/utils/index";
 
 import * as style from "@src/styles/addNode/stylesAddNodeWindow";
 
-const schema = yup.object({
-  index: yup.number().required(),
-  name: yup
-    .string()
-    .min(3, "El nombre debe tener al menos 3 caracteres")
-    .required("El nombre es obligatorio"),
-  group: yup.string().required("El tipo de nodo es obligatorio"),
-  nodeSourceIndex: yup.number().required("El nodo origen es obligatorio"), // No tiene Efecto
-});
+const textHardcoded = "components.addNode.addNodeWindow.";
 
 /**
  * Componente contenedor de los steps del formulario
  */
 const NodeForm: React.FC = () => {
+  const { t } = useTranslation();
+  const schema = yup.object({
+    index: yup.number().required(),
+    name: yup
+      .string()
+      .min(4, t(textHardcoded + "textRequired1"))
+      .required(t(textHardcoded + "textRequired2")),
+    group: yup.string().required(t(textHardcoded + "textRequired3")),
+    nodeSourceIndex: yup.number().required(t(textHardcoded + "textRequired4")), // No tiene Efecto
+  });
   // finalFormData: Almacena la informacion completa recogida por el formlario
   // Se inicializa con valores default
   const [finalFormData, setFinalFormData] = useState<NodeFormData>({
@@ -114,12 +117,14 @@ const NodeForm: React.FC = () => {
 
     dataNodes.index = indexNewNode;
     dataNodes.uploadedDate = today.toLocaleDateString();
-  
+    const nodeNames = dataNodes.name.split(",");
+
     addData({
       dbNodesName: tableNameDB.nodes,
       dbLinksName: tableNameDB.links,
       index: dataNodes.index,
-      name: dataNodes.name,
+      name_es: nodeNames[0],
+      name_en: nodeNames[1],
       group: dataNodes.group,
       nodeSource: dataNodes.nodeSourceIndex,
       videoid: dataNodes.videoid ?? "",
@@ -140,18 +145,28 @@ const NodeForm: React.FC = () => {
    * @event: trigger: Permite evaluar los campos del formulario manualmente
    */
   const handleValidate = async () => {
-    const arrayStepper = [false, false, true];
-    const isValidStep1 = await trigger(["name", "group"]);
-    const isNot1_Step2 = watch("nodeSourceIndex");
+    const arrayStepper = [false, false, false, false];
+    const isValidStep1 = await trigger(["name"]);
+    const isValidStep2 = await trigger(["group"]);
+    const isValidStep3_videoid = watch("videoid");
+    const isValidStep3_start = watch("start");
+    const isValidStep3_end = watch("end");
+    const isValidStep4 = watch("nodeSourceIndex");
 
     if (isValidStep1) {
       arrayStepper[0] = true;
     }
-    // isNot1_Step2: Representa la primera opcion en el input "nodeSourceIndex"
+    if (isValidStep2) {
+      arrayStepper[1] = true;
+    }
+    if (isValidStep3_videoid && isValidStep3_start && isValidStep3_end) {
+      arrayStepper[2] = true;
+    }
+    // isValidStep4: Representa la primera opcion en el input "nodeSourceIndex"
     // si este es igual 1, entonces no pasara la verificacion
     // 1 sera el defaulValue en el input
-    if (isNot1_Step2 !== 1) {
-      arrayStepper[1] = true;
+    if (isValidStep4 !== 1) {
+      arrayStepper[3] = true;
     } else {
       debugLog(
         "warn",
@@ -163,32 +178,23 @@ const NodeForm: React.FC = () => {
 
   return (
     <Box sx={style.containerAddNodeWindow}>
-      <Box
-        sx={style.logoContainer}
-      >
-        <LogoContainer />
-      </Box>
       <Divider sx={{ width: "90%", mx: "auto" }} />
       {activeStep === 0 && <Step1 control={control} errors={errors} />}
-      {activeStep === 1 && (
-        <Step2
-          control={control}
-          errors={errors}
-          isNot1Step2={watch("nodeSourceIndex")}
-        />
+      {activeStep === 1 && <Step2 control={control} errors={errors} />}
+      {activeStep === 2 && (
+        <Step3 setValue={setValue} videoIdSeleted={watch("videoid")} />
       )}
-      {activeStep === 2 && <Step3 setValue={setValue} />}
-
-      {activeStep === 3 && (
+      {activeStep === 3 && <Step4 control={control} errors={errors} />}{" "}
+      {activeStep === 4 && (
         <StepFinal
           newNodeData={finalFormData}
           selectedSourceNodeData={finalNodeSourceData}
         />
       )}
-
       <StepperComponent
         onValidate={handleValidate}
         onHandleSubmit={handleSubmit(onSubmit)}
+        reset={reset}
       />
     </Box>
   );

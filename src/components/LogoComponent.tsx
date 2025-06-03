@@ -1,4 +1,4 @@
-import { Box, Typography} from "@mui/material";
+import { Box, Typography } from "@mui/material";
 
 import * as style from "@src/styles/styleLogoContainer";
 
@@ -13,7 +13,6 @@ export default function logoContainer() {
       <Typography sx={style.title}>
         BLACK <br /> TRIANGLE BJJ
       </Typography>
-      
     </Box>
   );
 }

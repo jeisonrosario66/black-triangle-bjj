@@ -19,6 +19,8 @@ import { cameraPropsDev, configGlobal, cacheUser } from "@src/context/index";
 import * as style from "@src/styles/stylesApp";
 import { useTranslation } from "react-i18next";
 
+const textHardcoded = "components.app.";
+
 function App() {
   // Estado global
   const isAddNodeActive = useUIStore((state) => state.isAddNodeActive);
@@ -32,8 +34,7 @@ function App() {
   const isConfigWindowActive = useUIStore(
     (state) => state.isConfigWindowActive
   );
-  const { i18n } = useTranslation();
-
+  const { t, i18n } = useTranslation();
   // Referencia para los controles de la camara (usado por drei)
   const cameraControlsRef = useRef<CameraControls | null>(null);
   const triggerAlert = useUIStore((state) => state.triggerAlert);
@@ -45,7 +46,6 @@ function App() {
     const savedLanguage =
     localStorage.getItem(cacheUser.languageUser) ?? cacheUser.languageDefault;
     i18n.changeLanguage(savedLanguage);
-    console.log("useeffect: " ,savedLanguage)
     useUIStore.setState({ languageGlobal: savedLanguage });
   }, [isConfigWindowActive]);
   
@@ -56,10 +56,10 @@ function App() {
   // Hook para mostrar alertas cuando cambia el estado de inicio de sesión
   useEffect(() => {
     if (isUserLogin) {
-      triggerAlert(`Sesión iniciada ${userLoginData.displayName}`, "success");
+      triggerAlert(`${t(textHardcoded + "login")} ${userLoginData.displayName}`, "success");
       useUIStore.setState({ isLoginWindowActive: false });
     } else {
-      triggerAlert("Sesión Cerrada", "warning");
+      triggerAlert(`${t(textHardcoded + "closed")}`, "warning");
     }
   }, [isUserLogin]);
 

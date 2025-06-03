@@ -4,7 +4,6 @@ import themeApp from "@src/styles/stylesThemeApp";
 const theme = themeApp;
 
 export const containerBoxStep: SxProps = {
-    
   display: "flex",
   flexDirection: "column",
   gap: 2,
@@ -14,8 +13,13 @@ export const containerBoxStep: SxProps = {
 };
 
 export const barSearch: SxProps = {
+  background: "red",
+  height: "30px",
+  position: "absolute",
+  width: "100%",
+  top: "0",
   display: "flex",
-  gap: 1,
+  flexDirection: "row",
 };
 
 export const resultSearchContainer: SxProps = {
@@ -35,13 +39,11 @@ export const resultSearchContainer: SxProps = {
   },
   "& .MuiCardContent-root .MuiTypography-subtitle2": {
     fontSize: "0.8em",
-  fontFamily: "Poppins",
-
+    fontFamily: "Poppins",
   },
   "& .MuiCardContent-root .MuiTypography-body2": {
     fontSize: "0.6em",
-  fontFamily: "Poppins",
-
+    fontFamily: "Poppins",
   },
   "& .MuiCardContent-root .MuiCardMedia-root": {
     width: "2em",
@@ -53,11 +55,12 @@ export const resultSearchContainer: SxProps = {
   },
 };
 
-export const resultSearchCard: SxProps = {
+export const resultSearchCard = (videoSeleted: boolean): SxProps => ({
   display: "flex",
   flexDirection: "column",
   cursor: "pointer",
-};
+  border: videoSeleted ? "2px solid red" : "none",
+});
 
 export const videoDuration: SxProps = {
   textAlign: "right",

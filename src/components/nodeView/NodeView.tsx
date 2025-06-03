@@ -15,6 +15,7 @@ type NodeViewProps = {
   controls?: CameraControls;
   isAddNode: boolean;
   setValue?: UseFormSetValue<NodeFormData>;
+  isPositionAbsolute?: boolean;
 };
 
 /**
@@ -26,6 +27,7 @@ const NodeView: React.FC<NodeViewProps> = ({
   controls,
   isAddNode,
   setValue,
+  isPositionAbsolute,
 }) => {
   // Obtiene los datos del nodo activo desde el estado global
   const nodeViewData = useUIStore((state) => state.nodeViewData);
@@ -41,7 +43,6 @@ const NodeView: React.FC<NodeViewProps> = ({
     }
   };
   const videoId = nodeViewData.videoid;
-  const start = nodeViewData.start;
   const end = nodeViewData.end;
 
   // Limpia el ID del video en caso de que sea un enlace de "shorts"
@@ -70,25 +71,28 @@ const NodeView: React.FC<NodeViewProps> = ({
   // Configuración de las opciones del reproductor de YouTube
   const opts = {
     playerVars: {
-      start, // Tiempo de inicio del video
-      ...(end && { end }), // Tiempo de fin del video (si está definido)
-      autoplay: 1, // Reproducción automática
-      mute: 0, // Silencia el video
-      controls: 0, // Oculta los controles del reproductor
-      modestbranding: 1, // Oculta parcialmente el branding de YouTube
-      rel: 0, // No muestra videos relacionados al final
-      loop: 1, // Repite el video
-      playsinline: 1, // Reproduce en línea en dispositivos móviles
-      fs: 0, // Oculta el botón de pantalla completa
-      disablekb: 1, // Desactiva los atajos de teclado
-      cc_load_policy: 0, // No fuerza los subtítulos
-      hl: "es", // Idioma del reproductor (español)
+      // start, // Tiempo de inicio del video
+      // ...(end && { end }), // Tiempo de fin del video (si está definido)
+      // autoplay: 1, // Reproducción automática
+      // mute: 0, // Silencia el video
+      // controls: 0, // Oculta los controles del reproductor
+      // modestbranding: 1, // Oculta parcialmente el branding de YouTube
+      // rel: 0, // No muestra videos relacionados al final
+      // loop: 1, // Repite el video
+      // playsinline: 1, // Reproduce en línea en dispositivos móviles
+      // fs: 0, // Oculta el botón de pantalla completa
+      // disablekb: 1, // Desactiva los atajos de teclado
+      // cc_load_policy: 0, // No fuerza los subtítulos
+      // hl: "es", // Idioma del reproductor (español)
     },
   };
 
   return (
     <Card sx={styles.containerNodeView(isAddNode)}>
-      <ButtonClose buttonFunction={buttonCloseFunction} />
+      <ButtonClose
+        buttonFunction={buttonCloseFunction}
+        isPositionAbsolute={isPositionAbsolute}
+      />
       <Box>
         {/* Contenedor del reproductor de YouTube */}
         <Box sx={styles.containerYoutubeView}>
@@ -103,7 +107,6 @@ const NodeView: React.FC<NodeViewProps> = ({
         {/* Controles personalizados para el reproductor */}
         <PlayerControls
           player={player} // Instancia del reproductor
-          start={parseInt(start ?? "0")}
           end={parseInt(end ?? "0")}
           isAddNode={isAddNode}
           onSendDataTimeNewNode={recuperarDatosDetiempo}

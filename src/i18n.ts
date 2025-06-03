@@ -23,7 +23,7 @@ i18n
   .init({
     resources,                     // Define los recursos de traducción
     fallbackLng: cacheUser.languageDefault,  // Idioma por defecto si no hay traducción
-    debug: true,                   // Activa logs para depuración
+    debug: false,                   // Activa logs para depuración
     interpolation: {
       escapeValue: false,          // React ya maneja el escape de texto
     },

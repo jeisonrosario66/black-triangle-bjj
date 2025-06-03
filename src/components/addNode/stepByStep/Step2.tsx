@@ -1,10 +1,19 @@
 import React from "react";
 import { Controller, Control, FieldErrors } from "react-hook-form";
-import { Box, Typography, FormControl, FormLabel } from "@mui/material";
+import {
+  Box,
+  Typography,
+  FormControl,
+  RadioGroup,
+  FormLabel,
+} from "@mui/material";
 import { useTranslation } from "react-i18next";
 
-import { Header, TabGroup } from "@src/components/index";
-
+import {
+  Header,
+  SelectableButtonGroup,
+  LabelStep,
+} from "@src/components/index";
 import * as style from "@src/styles/addNode/styleStepByStep";
 
 const textHardcoded = "components.addNode.step2.";
@@ -12,38 +21,41 @@ const textHardcoded = "components.addNode.step2.";
 type Step2Props = {
   control: Control<any>;
   errors: FieldErrors<any>;
-  isNot1Step2: number;
 };
 
-const Step2: React.FC<Step2Props> = ({ control, errors, isNot1Step2 }) => {
+const Step2: React.FC<Step2Props> = ({ control, errors }) => {
   const { t } = useTranslation();
 
   return (
-    <Box sx={style.containerBoxStep}>
-      <Header title={"Agregar nuevo nodo"} />
-      <FormLabel>{t(textHardcoded+"title")}</FormLabel>
+    <Box sx={{ height: "100%", margin: "0 0  50px 0", textAlign: "center" }}>
+      <Header />
+      <LabelStep
+        textLabel={t(textHardcoded + "step2Title")}
+        toolTipInfo={t(textHardcoded + "toolTipInfo")}
+      />
+
       <Controller
-        name="nodeSourceIndex"
+        name="group"
         control={control}
         render={({ field }) => (
-          <FormControl error={!!errors.nodeSource}>
-            <Box sx={style.boxFormSelect(isNot1Step2 == 1)}>
-              <Typography>
-                {t(textHardcoded+"subText1")}
-              </Typography>
-              {/* <TabGroup/> */}
-              <TabGroup
-                onSelectionChange={(val) => {
-                  field.onChange(val); // Actualiza el valor en el form
-                }}
+          <FormControl sx={style.formGroup}>
+            <FormLabel style={style.formLabel}>
+              {t(textHardcoded + "formLabel")}
+            </FormLabel>
+            <RadioGroup {...field}>
+              <SelectableButtonGroup
+                value={field.value}
+                onChange={field.onChange}
               />
-
-              {/* <TabGroup onSelectionChange={handleTabGroupSelection} /> */}
-            </Box>
-            {errors.nodeSource && (
-              <Typography color="error" variant="caption">
-                {typeof errors.nodeSource?.message === "string"
-                  ? errors.nodeSource.message
+            </RadioGroup>
+            {errors.group && (
+              <Typography
+                color="error"
+                variant="caption"
+                sx={{ textAlign: "center", marginTop: "20px" }}
+              >
+                {typeof errors.group?.message === "string"
+                  ? errors.group.message
                   : ""}
               </Typography>
             )}

@@ -24,8 +24,7 @@ export const globalStyles = (
         width: "100vw",
         height: "100vh",
 
-        fontFamily:
-          '"Poppins", system-ui, Avenir, Helvetica, Arial, sans-serif',
+        fontFamily: "Poppins, system-ui, Avenir, Helvetica, Arial, sans-serif",
       },
     }}
   />

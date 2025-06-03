@@ -1,7 +1,6 @@
 import { SxProps } from "@mui/system";
 
 export const containerYoutubeView: SxProps = {
-  pointerEvents: "none",
   width: "100vw",
   height: "70vh",
   top: "0",
@@ -31,4 +30,3 @@ export const containerNodeView = (isAddNode: boolean): SxProps =>
         boxShadow: "0 0 10px rgb(247, 236, 236)",
         height: "100vh",
       };
-

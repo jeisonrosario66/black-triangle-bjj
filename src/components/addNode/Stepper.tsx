@@ -1,15 +1,10 @@
 import * as React from "react";
-import {
-  Typography,
-  StepLabel,
-  Button,
-  Step,
-  Stepper,
-  Box,
-} from "@mui/material/index";
+import { Button, Box, MobileStepper, useTheme } from "@mui/material";
+import KeyboardArrowLeft from "@mui/icons-material/KeyboardArrowLeft";
+import KeyboardArrowRight from "@mui/icons-material/KeyboardArrowRight";
 
 import { useUIStore } from "@src/store/index";
-import { lastStepSubmit } from "@src/utils/index";
+import { lastStepSubmit, debugLog } from "@src/utils/index";
 
 import { useTranslation } from "react-i18next";
 
@@ -21,19 +16,22 @@ const textHardcoded = "components.addNode.stepper.";
 type StepperComponentProps = {
   onValidate?: () => void;
   onHandleSubmit: () => void;
+  reset: () => void;
 };
 
 const StepperComponent: React.FC<StepperComponentProps> = ({
   onValidate,
   onHandleSubmit,
+  reset,
 }) => {
   const { t } = useTranslation();
   const steps = [
     t(textHardcoded + "step1"),
     t(textHardcoded + "step2"),
     t(textHardcoded + "step3"),
+    t(textHardcoded + "step4"),
   ];
-  const isUploadFirestore = useUIStore((state) => state.isUploadFirestore);
+  const lastStep = steps.length;
 
   // Configuracion de stepper
   const activeStep = useUIStore((state) => state.activeStep);
@@ -42,7 +40,7 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
   const prevStep = useUIStore((state) => state.prevStep);
 
   const isStepOptional = (step: number) => {
-    return step === 1;
+    return step === 3;
   };
 
   const handleNext = async () => {
@@ -53,6 +51,7 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
       : isValid;
 
     if (!isValidThisStep) {
+      debugLog("debug", `Step ${activeStep}: Invalido `);
       return; // Si no es válido, no avanza al siguiente paso
     }
     lastStepSubmit(onHandleSubmit, nextStep, activeStep, steps);
@@ -64,73 +63,70 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
 
   const handleReset = () => {
     useUIStore.getState().setActiveStep(0);
+    reset();
   };
 
   const handleSkip = () => {
     lastStepSubmit(onHandleSubmit, nextStep, activeStep, steps);
   };
-
+  const theme = useTheme();
   return (
-    <Box sx={style.containerStepper}>
-      {activeStep === steps.length ? (
-        <React.Fragment>
-          {/* <Typography sx={{ mt: 2, mb: 1 }}>
-              Todos los pasos completados
-            </Typography> */}
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
-            <Box sx={{ flex: "1 1 auto" }} />
-            <Button disabled={isUploadFirestore} onClick={handleReset}>
-              {t(textHardcoded + "button1")}
+    <MobileStepper
+      variant="dots"
+      steps={steps.length}
+      position="static"
+      activeStep={activeStep}
+      sx={style.containerStepper}
+      nextButton={
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            flexDirection: "row-reverse",
+          }}
+        >
+          {activeStep == lastStep ? (
+            <Button size="small" onClick={handleReset}>
+              {t(textHardcoded + "reset")}
+              {theme.direction === "rtl" ? (
+                <KeyboardArrowLeft />
+              ) : (
+                <KeyboardArrowRight />
+              )}
             </Button>
-          </Box>
-        </React.Fragment>
-      ) : (
-        <React.Fragment>
-          {/* <Typography sx={{ mt: 2, mb: 1 }}>Paso {activeStep + 1}</Typography> */}
-          <Box sx={{ display: "flex", flexDirection: "row", pt: 2 }}>
+          ) : (
+            <Button size="small" onClick={handleNext}>
+              {t(textHardcoded + "next")}
+              {theme.direction === "rtl" ? (
+                <KeyboardArrowLeft />
+              ) : (
+                <KeyboardArrowRight />
+              )}
+            </Button>
+          )}
+
+          {isStepOptional(activeStep) && (
             <Button
-              color="inherit"
-              disabled={activeStep === 0}
-              onClick={handleBack}
-              sx={{ mr: 1, color: themeApp.palette.action.success }}
+              size="small"
+              onClick={handleSkip}
+              sx={{ color: themeApp.palette.action.success, ml: 1 }}
             >
-              {t(textHardcoded + "button2")}
+              {t(textHardcoded + "skip")}
             </Button>
-            <Box sx={{ flex: "1 1 auto" }} />
-            {isStepOptional(activeStep) && (
-              <Button
-                color="inherit"
-                onClick={handleSkip}
-                sx={{ mr: 1, color: themeApp.palette.action.success }}
-              >
-                {t(textHardcoded + "button3")}
-              </Button>
-            )}
-            <Button onClick={handleNext}>
-              {activeStep === steps.length - 1 ?  t(textHardcoded + "finish") :  t(textHardcoded + "next")}
-            </Button>
-          </Box>
-        </React.Fragment>
-      )}
-      <Stepper activeStep={activeStep}>
-        {steps.map((label, index) => {
-          const stepProps: { completed?: boolean } = {};
-          const labelProps: {
-            optional?: React.ReactNode;
-          } = {};
-          if (isStepOptional(index)) {
-            labelProps.optional = (
-              <Typography variant="caption">{t(textHardcoded + "optional")}</Typography>
-            );
-          }
-          return (
-            <Step key={label} {...stepProps}>
-              <StepLabel {...labelProps}>{label}</StepLabel>
-            </Step>
-          );
-        })}
-      </Stepper>
-    </Box>
+          )}
+        </Box>
+      }
+      backButton={
+        <Button size="small" onClick={handleBack} disabled={activeStep === 0}>
+          {theme.direction === "rtl" ? (
+            <KeyboardArrowRight />
+          ) : (
+            <KeyboardArrowLeft />
+          )}
+          {t(textHardcoded + "back")}
+        </Button>
+      }
+    />
   );
 };
 

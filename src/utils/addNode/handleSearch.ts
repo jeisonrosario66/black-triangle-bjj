@@ -5,7 +5,7 @@ const apiKey = import.meta.env.VITE_YOUTUBE_API_KEY;
 const formatYouTubeDuration = (duration: string): string[] => {
   const regex = /PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/;
   const match = regex.exec(duration);
-   
+
   if (!match) return ["00:00", "0"];
 
   const hours = parseInt(match[1] || "0", 10);
@@ -14,14 +14,14 @@ const formatYouTubeDuration = (duration: string): string[] => {
 
   const pad = (num: number) => num.toString().padStart(2, "0");
 
-  const timeStringHours = `${hours}:${pad(minutes)}:${pad(seconds)}`; 
-  const timeStringMinutes = `${minutes}:${pad(seconds)}`; 
+  const timeStringHours = `${hours}:${pad(minutes)}:${pad(seconds)}`;
+  const timeStringMinutes = `${minutes}:${pad(seconds)}`;
   const secondsTotal = String(hours * 3600 + minutes * 60 + seconds);
 
   if (hours > 0) {
     return [timeStringHours, secondsTotal];
   } else {
-    return [timeStringMinutes, secondsTotal] 
+    return [timeStringMinutes, secondsTotal];
   }
 };
 
@@ -64,6 +64,48 @@ const formatVideoUploadDate = (publishedAt: string): string => {
     return `${diffInSeconds} segundo${diffInSeconds > 1 ? "s" : ""}`;
   }
 };
+
+const extractVideoId = (urlOrId: string): string | null => {
+  const urlRegex = /(?:youtube\.com\/.*v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const match = urlRegex.exec(urlOrId);
+  if (match) return match[1];
+
+  // Si es exactamente un ID (11 caracteres)
+  if (/^[a-zA-Z0-9_-]{11}$/.test(urlOrId)) return urlOrId;
+
+  return null;
+};
+
+const getVideoDetailsById = async (videoId: string) => {
+  try {
+    const response = await axios.get(
+      "https://www.googleapis.com/youtube/v3/videos",
+      {
+        params: {
+          part: "snippet,contentDetails,statistics",
+          id: videoId,
+          key: apiKey,
+        },
+      }
+    );
+
+    if (response.data.items.length === 0) {
+      throw new Error("Video no encontrado");
+    }
+
+    const video = response.data.items[0];
+    const duration = video.contentDetails.duration;
+    const title = video.snippet.title;
+
+    return {
+      title,
+      durationFormatted: formatYouTubeDuration(duration)[1],
+    };
+  } catch (error) {
+    console.error("Error obteniendo detalles del video:", error);
+  }
+};
+
 // Tipo para representar un resultado de búsqueda de YouTube
 interface YouTubeVideo {
   kind: string;
@@ -92,25 +134,33 @@ const handleSearch = async (
   setResults: React.Dispatch<React.SetStateAction<YouTubeVideo[]>>
 ) => {
   if (!query) return;
+  const videoIdFromUrl = extractVideoId(query);
+
+  // console.log("url: ", videoIdFromUrl);
+  // console.log("query: ", query);
 
   try {
     // Paso 1: Realizar una llamada para obtener la lista de videos
-
-    const searchResponse = await axios.get(
-      `https://www.googleapis.com/youtube/v3/search`,
-      {
-        params: {
-          part: "snippet",
-          q: query,
-          key: apiKey,
-          type: "video",
-          maxResults: 10,
-        },
-      }
-    );
+    let searchResponse;
+    if (videoIdFromUrl === null) {
+      searchResponse = await axios.get(
+        `https://www.googleapis.com/youtube/v3/search`,
+        {
+          params: {
+            part: "snippet",
+            q: query,
+            key: apiKey,
+            type: "video",
+            maxResults: 10,
+          },
+        }
+      );
+    } else {
+      getVideoDetailsById(videoIdFromUrl);
+    }
 
     // Obtener los IDs de los videos
-    const videoIds = searchResponse.data.items.map(
+    const videoIds = searchResponse?.data.items.map(
       (item: any) => item.id.videoId
     );
 
@@ -120,7 +170,7 @@ const handleSearch = async (
       {
         params: {
           part: "snippet,contentDetails,statistics",
-          id: videoIds.join(","),
+          id: videoIdFromUrl ? videoIdFromUrl : videoIds.join(","),
           key: apiKey,
         },
       }
@@ -128,12 +178,10 @@ const handleSearch = async (
 
     // Paso 3: Procesar los resultados para incluir la miniatura del canal y otras informaciones
     const videoDetails = videoDetailsResponse.data.items.map((video: any) => {
-      const durationFormatted = formatYouTubeDuration(
+      const [durationFormatted, secondsTotal] = formatYouTubeDuration(
         video.contentDetails.duration
-      )[0];
-      const secondsTotal = formatYouTubeDuration(
-        video.contentDetails.duration
-      )[1];
+      );
+
       const viewCountFormatted = formatViews(video.statistics.viewCount);
       const publishedAtFormatted = formatVideoUploadDate(
         video.snippet.publishedAt

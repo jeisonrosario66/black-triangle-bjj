@@ -12,17 +12,6 @@ export const containerControls: SxProps = {
   "& .MuiPaper-root": { margin: "1rem 0" },
 };
 
-export const containerProgressBar: SxProps = { px: 2, mb: 1, width: "95%" };
-
-export const progressBar: SxProps = {
-  height: 8,
-  borderRadius: 5,
-  backgroundColor: "#eee",
-  cursor: "pointer",
-  "& .MuiLinearProgress-bar": {
-    backgroundColor: "#1976d2",
-  },
-};
 
 export const iconsPlayer: SxProps = {
   bgcolor: "white",
@@ -51,4 +40,5 @@ export const buttonAditional: SxProps = {
   gridAutoFlow: "column",
   columnGap: 5,
   marginTop: 2,
+  // backgroundColor:"red",
 };

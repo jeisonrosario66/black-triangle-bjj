@@ -1,6 +1,10 @@
 import React from "react";
+
+import { getDataGroup } from "@src/services/index";
+import { tableNameDB } from "@src/context/index";
+import { OptionTechniqueCard } from "@src/context/index";
+
 import themeApp from "@src/styles/stylesThemeApp";
-import { OptionTechniqueCard } from "@src/context/index"
 const theme = themeApp;
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
@@ -17,7 +21,6 @@ export const GuardIcon: React.FC<IconProps> = ({ color }) => {
         viewBox="0 0 186.000000 186.000000"
         preserveAspectRatio="xMidYMid meet"
       >
-        "
         <g
           transform="translate(0.000000,186.000000) scale(0.100000,-0.100000)"
           fill={color}
@@ -300,50 +303,25 @@ export const TransitionIcon: React.FC<IconProps> = ({ color }) => {
   );
 };
 
-export const optionsMenu: OptionTechniqueCard[] = [
-  {
-    value: "guard",
-    label: "Guardia",
-    icon: <GuardIcon color={theme.palette.text.secondary} />,
-  },
-  {
-    value: "pass",
-    label: "Pase",
-    icon: <PassIcon color={theme.palette.text.secondary} />,
-  },
-  {
-    value: "submission",
-    label: "Sumisión",
-    icon: <SubmissionIcon color={theme.palette.text.secondary} />,
-  },
-  {
-    value: "switch",
-    label: "Raspado",
-    icon: <SwitchIcon color={theme.palette.text.secondary} />,
-  },
-  {
-    value: "transition",
-    label: "Transición",
-    icon: <TransitionIcon color={theme.palette.text.secondary} />,
-  },
-  {
-    value: "control",
-    label: "Control",
-    icon: <ControlIcon color={theme.palette.text.secondary} />,
-  },
-  {
-    value: "tachi_waza",
-    label: "Tachi Waza",
-    icon: <TachiWazaIcon color={theme.palette.text.secondary} />,
-  },
-  {
-    value: "defence",
-    label: "Defensa",
-    icon: <TachiWazaIcon color={theme.palette.text.secondary} />,
-  },
-  {
-  value: "genesis",
-  label: "Genesis",
-  icon: <TachiWazaIcon color={theme.palette.text.secondary} />,
-},
-];
+const iconMap: Record<string, React.JSX.Element> = {
+  submission: <SubmissionIcon color={theme.palette.text.secondary} />,
+  takedown: <TachiWazaIcon color={theme.palette.text.secondary} />,
+  guard_pass: <PassIcon color={theme.palette.text.secondary} />,
+  defense_escape: <TransitionIcon color={theme.palette.text.secondary} />,
+  guard: <GuardIcon color={theme.palette.text.secondary} />,
+  control: <ControlIcon color={theme.palette.text.secondary} />,
+  switch: <SwitchIcon color={theme.palette.text.secondary} />,
+};
+export let optionsMenu: OptionTechniqueCard[] = [];
+
+(async () => {
+  const groups = await getDataGroup(tableNameDB.group);
+
+  optionsMenu = (groups ?? []).map(
+    (item: any) => ({
+      value: item.label,
+      label: item.title,
+      icon: iconMap[item.label] || null, // Previene errores si no hay ícono
+    })
+  );
+})();

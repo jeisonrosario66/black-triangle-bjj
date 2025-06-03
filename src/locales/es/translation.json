@@ -1,8 +1,12 @@
 {
   "components": {
-    "accoundMenu": {
+     "app": {
+      "closed": "Sesion cerrada",
+      "login": "Sesion iniada"
+    },
+    "accountMenu": {
       "title": "Menu Usuario",
-      "triggerAlert": "Sesisssón Cerrada",
+      "triggerAlert": "Sesión Cerrada",
 
       "optionsMenu": {
         "login": "Iniciar sesión",
@@ -41,33 +45,47 @@
       "loginGoogle": "Iniciar sesión con Google"
     },
     "addNode": {
+      "addNodeWindow": {
+        "textRequired1": "El nombre debe tener al menos 4 caracteres",
+        "textRequired2": "El nombre es obligatorio",
+        "textRequired3": "El grupo es obligatorio",
+        "textRequired4": "El nodo origen es obligatorio"
+      },
       "stepper": {
-        "button1": "Volver",
-        "button2": "Retroceder",
-        "button3": "Saltar",
+        "back": "Volver",
+        "previous": "Retroceder",
+        "skip": "Saltar",
         "optional": "Opcional",
         "next": "Siguiente",
+        "reset": "Reset",
         "finish": "Finalizar",
         "step1": "Estas creando un nuevo nodo",
         "step2": "Conecta el nodo",
-        "step3": "Carga un recurso al nodo"
+        "step3": "Carga un recurso al nodo",
+        "step4": "step 4",
+        "step5": "step 5"
       },
       "tabGround": {
         "loadingData": "Cargando datos...",
         "notData": "No hay datos para esta categoría."
       },
       "step1": {
-        "title": "Nombre del nodo",
-        "formLabel": "Tipo de nodo"
+        "step1Title": "Crea una nueva conexción",
+        "formLabel": "Nombre del nodo",
+        "toolTipInfo": "Escribe el nombre en español, seguido del nombre en inglés, separados por una coma. Ej: Guardia cerrada, Closed guard"
       },
       "step2": {
-        "title": "Seleccionar nodo origen",
-        "subText1":"Elige una conexión de origen o presioná en saltar"
+        "step2Title": "Grupo para el nuevo nodo",
+        "formLabel": "Grupos",
+        "toolTipInfo": "Selecciona el grupo al que pertenecerá este nuevo nodo"
       },
       "step3": {
         "title": "Buscar Video en YouTube",
-        "subText1": "Buscar", 
+        "subText1": "Buscar",
         "subText2": "vistas - hace"
+      },
+      "step4": {
+        "title": "Conecta el nuevo nodo"
       },
       "stepFinal": {
         "text1": "Resumen del Nodo",
@@ -79,10 +97,8 @@
       }
     },
     "nodeView": {
-      "button1": "Retroceder 5s",
-      "button2": "Avanzar 5s",
-      "button3": "Pausar",
-      "button4": "Reproducir",
+      "button1": "Usar totalidad del video",
+      "button2": "capturar tiempos del video",
       "button5": "Tiempo inicio",
       "button6": "Tiempo final",
       "start": "Inicio",

@@ -12,4 +12,6 @@ export const containerStepper: SxProps = {
     borderTopLeftRadius: "20px",
     borderTopRightRadius: "20px",
     boxShadow: theme.palette.formStyles.cardBoxShadow,
+    width:"400px",
+    margin:"0 auto",
 }

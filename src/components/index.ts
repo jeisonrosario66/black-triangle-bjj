@@ -24,11 +24,13 @@ export {
 export { default as SelectableButtonGroup } from "@src/components/addNode/SelectableButton";
 export { default as StepperComponent } from "@src/components/addNode/Stepper";
 export { default as TabGroup } from "@src/components/addNode/TabGroud";
+export { default as LabelStep } from "@src/components/addNode/LabelStep";
 
 // components/addNode/stepByStep
 export { default as Step1 } from "@src/components/addNode/stepByStep/Step1";
 export { default as Step2 } from "@src/components/addNode/stepByStep/Step2";
 export { default as Step3 } from "@src/components/addNode/stepByStep/Step3";
+export { default as Step4 } from "@src/components/addNode/stepByStep/Step4";
 export { default as StepFinal } from "@src/components/addNode/stepByStep/StepFinal";
 
 // Components/loginUser

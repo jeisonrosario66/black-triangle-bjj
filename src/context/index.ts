@@ -17,4 +17,5 @@ export type {
   OptionTechniqueCard,
   PlayerControlsData,
   NodeInsertData,
+ GroupOptionFirestone 
 } from "@src/context/exportType";

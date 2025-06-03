@@ -22,6 +22,7 @@ Black Triangle BJJ es una aplicación interactiva para la gestión y visualizaci
 │   ├── 📁 hooks           # Hooks personalizados
 │   ├── 📁 services        # Lógica de conexión con Firestore
 │   ├── 📁 utils           # Funciones auxiliares
+│   ├── 📁 locates         # Archivos de traduccion
 │   ├── App.tsx           # Componente principal
 │   └── main.tsx          # Punto de entrada de la aplicación
 ├── [.env.local]         # Variables de entorno (excluidas en Git)
