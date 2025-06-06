@@ -53,7 +53,11 @@ function debugLog(level: LogLevel = "debug", ...args: unknown[]) {
   // Muestra en consola con el estilo aplicado
   const location = getCallerLocation();
 
-  console.log(prefix, style, `[${location}]`, ...args);
+  const match = location.match(/\/src\/[^\s\?]+\.ts(?::\d+:\d+)?/);
+
+  const cleanedPath = match?.[0] || null;
+
+  console.log(prefix, style, `${cleanedPath} ->`, ...args);
 }
 
 export default debugLog;

@@ -136,9 +136,6 @@ const handleSearch = async (
   if (!query) return;
   const videoIdFromUrl = extractVideoId(query);
 
-  // console.log("url: ", videoIdFromUrl);
-  // console.log("query: ", query);
-
   try {
     // Paso 1: Realizar una llamada para obtener la lista de videos
     let searchResponse;

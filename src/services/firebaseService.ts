@@ -34,6 +34,8 @@ export const getDataNodes = async (dbName: string) => {
         videoid: docData.videoid,
       };
     });
+    useUIStore.setState({ documentsFirestore: data})
+    debugLog("info", "Idioma: ",  localStorage.getItem(cacheUser.languageUser));
     debugLog("debug", "Documentos obtenidos desde firestone: ", data);
     // Si no existe ningun registro, crea el primero necesario para el funcionamiento de select
     if (data.length == 0) {

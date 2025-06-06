@@ -1,21 +1,42 @@
 import { create } from "zustand";
 import { Vector3Tuple } from "three";
-type UserLoginData = {
-  displayName: string | null;
-  email: string | null;
-  photoURL: string | null;
-};
-type NodeViewData = {
-  videoid?: string;
-  start?: string;
-  end?: string;
-  name?: string;
-  color?: string;
-  group?: string;
-  id?: number;
-};
+
+import {
+  NodeViewData,
+  UserLoginData,
+  NodeOptionFirestone,
+  DagMode,
+  cacheUser,
+} from "@src/context/index";
+import { cache } from "react";
+
 // Verifica si en la cache exite un language escogido, de lo contrario toma el language por default
 // const languageApp = localStorage.getItem(cacheUser.languageUser) ?? cacheUser.languageDefault
+
+// Definición del estado de datos
+interface GlobalData {
+  // Datos del usuario autenticado
+  userLoginData: UserLoginData;
+  setUserLoginDAta: (data: UserLoginData) => void;
+
+  // Indica el language escogido
+  languageGlobal: string;
+  setLanguageGlobal: (language: string) => void;
+
+  // Datos del nodo activo
+  nodeViewData: NodeViewData;
+  setNodeViewData: (data: NodeViewData) => void;
+
+  // Documentos Firestore
+  documentsFirestore: NodeOptionFirestone[];
+  setDocumentsFirestore: (data: NodeOptionFirestone[]) => void;
+
+  dagModeConfig: DagMode;
+  setDagModeConfig: (dagMode: DagMode) => void;
+
+  dagLevelDistanceConfig: number;
+  setDagLevelDistanceConfig: (dagLevel: number) => void;
+}
 
 // Definición del estado de la UI
 interface UIState {
@@ -35,10 +56,6 @@ interface UIState {
   isUploadFirestore: boolean;
   setIsUploadFirestore: (upload: boolean) => void;
 
-  // Datos del usuario autenticado
-  userLoginData: UserLoginData;
-  setUserLoginDAta: (data: UserLoginData) => void;
-
   // Indica si el usuario está autenticado
   isUserLogin: boolean;
   setIsUserLogin: (login: boolean) => void;
@@ -54,14 +71,6 @@ interface UIState {
   // Indica si la ventana de configuración esta activa
   isConfigWindowActive: boolean;
   setIsconfigWindowActive: (configWindow: boolean) => void;
-
-  // Indica el language escogido
-  languageGlobal: string;
-  setLanguageGlobal: (language: string) => void;
-
-  // Datos del nodo activo
-  nodeViewData: NodeViewData;
-  setNodeViewData: (data: NodeViewData) => void;
 
   // Estado y configuración de alertas
   showAlert: boolean;
@@ -105,7 +114,7 @@ interface StepValidationState {
 }
 
 // Combina ambos estados en un único tipo de estado de aplicación
-type AppState = UIState & StepValidationState;
+type AppState = UIState & StepValidationState & GlobalData;
 
 // Creación del store usando Zustand
 const useUIStore = create<AppState>((set, get) => ({
@@ -156,6 +165,16 @@ const useUIStore = create<AppState>((set, get) => ({
     end: ",",
   },
   setNodeViewData: (data) => set({ nodeViewData: data }),
+
+  documentsFirestore: [],
+  setDocumentsFirestore: (data) => set({ documentsFirestore: data }),
+
+  dagModeConfig: cacheUser.dagMode,
+  setDagModeConfig: (dagMode) => set({ dagModeConfig: dagMode }),
+
+  dagLevelDistanceConfig: Number(cacheUser.dagLevelDistance),
+  setDagLevelDistanceConfig: (dagLevel) =>
+    set({ dagLevelDistanceConfig: dagLevel }),
 
   triggerAlert: (message, severity = "success") => {
     set({ showAlert: true, alertMessage: message, alertSeverity: severity });

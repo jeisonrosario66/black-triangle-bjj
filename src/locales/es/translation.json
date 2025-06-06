@@ -1,6 +1,6 @@
 {
   "components": {
-     "app": {
+    "app": {
       "closed": "Sesion cerrada",
       "login": "Sesion iniada"
     },
@@ -17,9 +17,21 @@
     },
     "configWindow": {
       "title": "Configuración",
-      "languageLabel": "Idioma",
+      "language.label": "Idioma",
+      "language.description": "Selecciona el idioma preferido de la aplicación.",
       "es": "Español",
       "en": "Ingles",
+      "dagMode": "Dirección del layout jerárquico",
+      "dagMode.description": "Determina cómo se disponen los nodos en el espacio según su jerarquía.",
+      "dagMode.td": "Arriba → Abajo",
+      "dagMode.bu": "Abajo → Arriba",
+      "dagMode.lr": "Izquierda → Derecha",
+      "dagMode.rl": "Derecha → Izquierda",
+      "dagMode.radialout": "Radial → Hacia afuera",
+      "dagMode.radialin": "Radial ← Hacia adentro",
+      "dagMode.none": "Sin jerarquía (layout por fuerzas)",
+      "dagLevelDistance": "Separación entre niveles",
+      "dagLevelDistance.description": "Define la distancia entre cada nivel jerárquico en el grafo(0 - 100).",
       "buttonClose": "Cerrar y Guardar"
     },
     "buttonAddNode": {

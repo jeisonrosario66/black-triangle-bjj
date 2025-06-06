@@ -17,5 +17,9 @@ export type {
   OptionTechniqueCard,
   PlayerControlsData,
   NodeInsertData,
- GroupOptionFirestone 
+ GroupOptionFirestone,
+ UserLoginData,
+ NodeViewData,
+ DocumentsFirestore,
+ DagMode,
 } from "@src/context/exportType";

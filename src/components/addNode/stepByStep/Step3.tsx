@@ -70,7 +70,7 @@ const Step3: React.FC<Step3Props> = ({ setValue, videoIdSeleted }) => {
               // label={t(textHardcoded + "subText1")}
               value={searchYT}
               onChange={(e) => {
-                setSearchYT(e.target.value), console.log(e.target.value);
+                setSearchYT(e.target.value);
               }}
               sx={{
                 margin: "auto",

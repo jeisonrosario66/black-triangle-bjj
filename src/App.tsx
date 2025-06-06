@@ -40,28 +40,43 @@ function App() {
   const triggerAlert = useUIStore((state) => state.triggerAlert);
 
   // Hook para inicializar el listener de autenticación al montar el componente
-  
+
   useEffect(() => {
-    authListener();
     const savedLanguage =
-    localStorage.getItem(cacheUser.languageUser) ?? cacheUser.languageDefault;
+      localStorage.getItem(cacheUser.languageUser) ?? cacheUser.languageDefault;
     i18n.changeLanguage(savedLanguage);
     useUIStore.setState({ languageGlobal: savedLanguage });
   }, [isConfigWindowActive]);
-  
+
   useEffect(() => {
     authListener();
+    localStorage.setItem(cacheUser.dagModeCache, cacheUser.dagMode);
+    localStorage.setItem(
+      cacheUser.dagLevelDistanceCache,
+      String(cacheUser.dagLevelDistance)
+    );
   }, []);
 
   // Hook para mostrar alertas cuando cambia el estado de inicio de sesión
   useEffect(() => {
     if (isUserLogin) {
-      triggerAlert(`${t(textHardcoded + "login")} ${userLoginData.displayName}`, "success");
+      triggerAlert(
+        `${t(textHardcoded + "login")} ${userLoginData.displayName}`,
+        "success"
+      );
       useUIStore.setState({ isLoginWindowActive: false });
     } else {
       triggerAlert(`${t(textHardcoded + "closed")}`, "warning");
     }
   }, [isUserLogin]);
+
+  // const controls = cameraControlsRef.current;
+  // if (controls) {
+  //   const { x, y, z } = controls.camera.position;
+  //   console.log("Posición de la cámara:", x, y, z);
+  // }
+
+  // cordenadas en tiempo de la posicion de la camara
 
   return (
     <>

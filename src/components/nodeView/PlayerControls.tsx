@@ -61,7 +61,6 @@ const PlayerControls: React.FC<PlayerControlsProps> = ({
                   onClick={() => {
                     const t = Math.floor(player.getCurrentTime()).toString();
                     setStartTimeLocal(t);
-                    console.log("start", t);
                     onSendDataTimeNewNode?.({
                       start: t,
                     });

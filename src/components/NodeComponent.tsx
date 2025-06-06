@@ -14,6 +14,8 @@ type NodeComponentProps = {
 };
 
 const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
+  const dagMode = useUIStore((state) => state.dagModeConfig);
+  const dagLevel = useUIStore((state) => state.dagLevelDistanceConfig);
   const graphRef = useRef<GraphRefType>(undefined); // Referencia para el grafo 3D
   useFrame(() => graphRef.current?.tickFrame()); // Actualizar el grafo en cada frame
   // Llama a la función para obtener los datos del grafo
@@ -51,6 +53,8 @@ const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
     <ForceGraph3D
       ref={graphRef}
       graphData={gData}
+      dagMode={dagMode}
+      dagLevelDistance={dagLevel}
       linkWidth={2}
       linkCurvature={0.05}
       linkDirectionalParticles={4}
