@@ -1,10 +1,8 @@
-import { database } from "@src/hooks/fireBase";
-import { collection, getDocs } from "firebase/firestore";
 import { useState, useEffect } from "react";
 import useUIStore from "@src/store/useCounterStore";
-import { GraphNode, GraphLink, GraphData } from "@src/context/exportType";
+import { GraphNode, GraphData } from "@src/context/exportType";
 import { tableNameDB } from "@src/context/configGlobal";
-import { getDataNodes } from "@src/services/firebaseService";
+import { getDataNodes, getDataLinks } from "@src/services/firebaseService";
 
 const useGraphData = () => {
   /**
@@ -22,21 +20,14 @@ const useGraphData = () => {
       try {
         // 1. Obtener nodos
         // Usamos `getData()` para obtener nodos
-        const nodes = (await getDataNodes(tableNameDB.nodes)) as GraphNode[];
+        const nodes = (await getDataNodes(
+          tableNameDB.nodesArray
+        )) as GraphNode[];
         // Filtrar el nodo con index o id igual a 1
         const filteredNodes = nodes.filter((node) => node.id !== 1);
 
         // 2. Obtener enlaces
-        const linksSnapshot = await getDocs(
-          collection(database, tableNameDB.links)
-        );
-        const links: GraphLink[] = linksSnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            source: data.source,
-            target: data.target,
-          };
-        });
+        const links = await getDataLinks(tableNameDB.linksArray);
 
         setGData({ nodes: filteredNodes, links });
       } catch (error) {

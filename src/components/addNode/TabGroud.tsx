@@ -80,7 +80,7 @@ export default function BasicTabs({
     const fetchData = async () => {
       setLoading(true);
       try {
-        const data = await getData(tableNameDB.nodes); // Petición general
+        const data = await getData(tableNameDB.nodesArray); // Petición general
         setTabData(data || []);
       } catch (error) {
         console.error("Error al cargar datos:", error);

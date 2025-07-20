@@ -2,7 +2,9 @@
   "components": {
     "app": {
       "closed": "Sesion cerrada",
-      "login": "Sesion iniada"
+      "login": "Sesion iniada",
+      "collapsedNodes": "Colapsar Nodos",
+      "expandNodes": "Expandir Nodos"
     },
     "accountMenu": {
       "title": "Menu Usuario",

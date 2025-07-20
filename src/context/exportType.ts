@@ -83,8 +83,8 @@ export type GraphNode = {
  * Enlace entre dos nodos del grafo (dirigido).
  */
 export type GraphLink = {
-  source: number;
-  target: number;
+  source: number | GraphNode;
+  target: number | GraphNode; 
 };
 
 /**
@@ -142,11 +142,24 @@ export type NodeViewData = {
  * Modos de disposición jerárquica (DAG) soportados por r3f-forcegraph.
  */
 export type DagMode =
-  | "td"         // Top → Down
-  | "bu"         // Bottom → Up
-  | "lr"         // Left → Right
-  | "rl"         // Right → Left
-  | "zout"       // Profundidad hacia afuera (obsoleto en algunas versiones)
-  | "zin"        // Profundidad hacia adentro (obsoleto)
-  | "radialout"  // Radial desde el centro hacia afuera
-  | "radialin";  // Radial desde afuera hacia el centro
+  | "td" // Top → Down
+  | "bu" // Bottom → Up
+  | "lr" // Left → Right
+  | "rl" // Right → Left
+  | "zout" // Profundidad hacia afuera (obsoleto en algunas versiones)
+  | "zin" // Profundidad hacia adentro (obsoleto)
+  | "radialout" // Radial desde el centro hacia afuera
+  | "radialin"; // Radial desde afuera hacia el centro
+
+/**
+ * Subcategoría de técnicas grupos de técnicas de BJJ
+ */
+export type Subcategory = {
+  label: string;
+  title_en: string;
+  title_es: string;
+  description_en: string;
+  description_es: string;
+  categoryId: string;
+  groupId: string;
+};

@@ -16,7 +16,7 @@ const Step4: React.FC<Step4Props> = ({ control, errors }) => {
 
   return (
     <Box sx={style.containerBoxStep}>
-      <Header />
+      <Header positionAbsolute={true}/>
       <FormLabel>{t(textHardcoded + "title")}</FormLabel>
       <Controller
         name="nodeSourceIndex"

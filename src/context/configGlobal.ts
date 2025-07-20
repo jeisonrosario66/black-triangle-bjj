@@ -1,4 +1,5 @@
 import { DagMode } from "@src/context/index";
+import { string } from "yup";
 
 // Configuración visual global para el lienzo y la escena 3D
 export const configGlobal = {
@@ -43,11 +44,25 @@ export const scenePropsDev = {
   speed: 0.5, // Velocidad de movimiento del fondo
 };
 
-// Nombres de las colecciones utilizadas en la base de datos (Firestore u otro)
+// Nombres de las colecciones utilizadas en la base de datos (Firestore)
+const SystemsOfBjjNodes = ["headlock nodes", "test nodes", "submissions_from_the_Back nodes"];
+const SystemsOfBjjLinks = ["headlock links", "test links", "submissions_from_the_Back links"];
+
+const selectedNodes = SystemsOfBjjNodes.slice(2, 3);
+const selectedLinks= SystemsOfBjjLinks.slice(2, 3);
+
+export const nodes = SystemsOfBjjNodes[2]; // Colección de nodos activa
+export const links = SystemsOfBjjLinks[2]; // Colección de enlaces entre nodos activa
+
 export const tableNameDB = {
-  nodes: "headlock nodes", // Colección de nodos
-  links: "headlock links", // Colección de enlaces entre nodos
+  nodesArray: selectedNodes,
+  linksArray: selectedLinks,
+  nodes,
+  links,
   group: "taxonomy", // Colección de grupos o categorías
+  subGroup: "subTaxonomy", // Colección de subgrupos
+  indexGlobal: "indexGlobal",
+  indexGlobalID: "9rII6qZvvc9ppKLcny3k"
 };
 
 // Valores almacenados en caché local por usuario (idioma, preferencias de visualización)

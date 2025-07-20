@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 
 import { ButtonClose } from "@src/components/index";
 import { useUIStore } from "@src/store/index";
-import { cacheUser, DagMode } from "@src/context/index";
+import { cacheUser, DagMode, nodesDataBaseActive, tableNameDB } from "@src/context/index";
 import { ToolTipInfo } from "@src/utils/index";
 
 const textHardcoded = "components.configWindow.";

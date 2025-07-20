@@ -1,7 +1,7 @@
 import { useRef, useEffect } from "react";
 import { Canvas } from "@react-three/fiber";
 import { CameraControls } from "@react-three/drei";
-
+import { Button } from "@mui/material";
 import {
   GraphScene,
   AccountMenu,
@@ -14,7 +14,8 @@ import {
 } from "@src/components/index";
 import { authListener } from "@src/hooks/index";
 import { useUIStore } from "@src/store/index";
-import { cameraPropsDev, configGlobal, cacheUser } from "@src/context/index";
+import { cameraPropsDev, configGlobal, cacheUser,tableNameDB } from "@src/context/index";
+import { debugLog } from "@src/utils/index";
 
 import * as style from "@src/styles/stylesApp";
 import { useTranslation } from "react-i18next";
@@ -34,10 +35,16 @@ function App() {
   const isConfigWindowActive = useUIStore(
     (state) => state.isConfigWindowActive
   );
+  const showFullGraph = useUIStore((state) => state.showFullGraph);
+
   const { t, i18n } = useTranslation();
   // Referencia para los controles de la camara (usado por drei)
   const cameraControlsRef = useRef<CameraControls | null>(null);
   const triggerAlert = useUIStore((state) => state.triggerAlert);
+
+  const toggleGraph = () => {
+    useUIStore.setState({ showFullGraph: !showFullGraph });
+  };
 
   // Hook para inicializar el listener de autenticación al montar el componente
 
@@ -55,6 +62,7 @@ function App() {
       cacheUser.dagLevelDistanceCache,
       String(cacheUser.dagLevelDistance)
     );
+    debugLog("info", "Sistema de Bjj Cargado: ", tableNameDB.nodesArray)
   }, []);
 
   // Hook para mostrar alertas cuando cambia el estado de inicio de sesión
@@ -91,6 +99,20 @@ function App() {
 
         {/* Contenedor del lienzo 3D */}
         <div style={style.canvasContainer}>
+          {/*  */}
+          <Button
+            style={{
+              position: "absolute",
+              top: 20,
+              left: 20,
+              zIndex: 10,
+              backgroundColor: "white",
+              padding: "0.5rem 1rem",
+            }}
+            onClick={toggleGraph}
+          >
+            {showFullGraph ? `🔽 ${t(textHardcoded + "collapsedNodes")}` : `🔼 ${t(textHardcoded + "expandNodes")}`}
+          </Button>
           <Canvas
             // Detiene el renderizado cuando se abre el formulario de nodo
             camera={{

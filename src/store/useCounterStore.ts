@@ -8,7 +8,6 @@ import {
   DagMode,
   cacheUser,
 } from "@src/context/index";
-import { cache } from "react";
 
 // Verifica si en la cache exite un language escogido, de lo contrario toma el language por default
 // const languageApp = localStorage.getItem(cacheUser.languageUser) ?? cacheUser.languageDefault
@@ -71,6 +70,10 @@ interface UIState {
   // Indica si la ventana de configuración esta activa
   isConfigWindowActive: boolean;
   setIsconfigWindowActive: (configWindow: boolean) => void;
+
+  // Indica si se expande o colapsa el grafo
+  showFullGraph: boolean;
+  setShowFullGraph: (show: boolean) => void;
 
   // Estado y configuración de alertas
   showAlert: boolean;
@@ -233,6 +236,10 @@ const useUIStore = create<AppState>((set, get) => ({
   cameraBackup: null,
   setCameraBackup: (pos, target) => set({ cameraBackup: { pos, target } }),
   clearCameraBackup: () => set({ cameraBackup: null }),
+
+  //  -------------------------- Estados de la UI ------------------------------------
+  showFullGraph: true,
+  setShowFullGraph: (show) => set({ showFullGraph: show }),
 }));
 
 export default useUIStore;

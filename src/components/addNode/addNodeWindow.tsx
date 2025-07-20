@@ -88,7 +88,7 @@ const NodeForm: React.FC = () => {
   useEffect(() => {
     const getDataNodes = async () => {
       try {
-        const dataNodes = await getData(tableNameDB.nodes);
+        const dataNodes = await getData(tableNameDB.nodesArray);
         setNodeOptions(dataNodes || []);
       } catch (error) {
         console.error("Error al obtener nodos desde Firestore:", error);
@@ -103,7 +103,7 @@ const NodeForm: React.FC = () => {
     // Modifica el estado global para indicar que se estan cargando datos a firestore
     useUIStore.setState({ isUploadFirestore: true });
     // Obtendra el index del ultimo nodo almacenado y aumentara en 1 para un nuevo registro
-    const indexNewNode = (await getIndex(tableNameDB.nodes)) + 1;
+    const indexNewNode = (await getIndex()) + 1;
 
     const date = new Date();
     const today = new Date(date);
