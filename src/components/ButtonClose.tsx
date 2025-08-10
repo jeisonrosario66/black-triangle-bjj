@@ -20,7 +20,6 @@ const ButtonClose: React.FC<ButtonCloseProps> = ({
 }) => {
   return (
     <Button
-      // size="small"
       disabled={isUploadFirestore}
       onClick={buttonFunction}
       sx={{

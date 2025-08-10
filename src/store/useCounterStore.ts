@@ -10,7 +10,6 @@ import {
 } from "@src/context/index";
 
 // Verifica si en la cache exite un language escogido, de lo contrario toma el language por default
-// const languageApp = localStorage.getItem(cacheUser.languageUser) ?? cacheUser.languageDefault
 
 // Definición del estado de datos
 interface GlobalData {

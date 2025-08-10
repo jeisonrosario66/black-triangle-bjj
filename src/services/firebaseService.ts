@@ -1,13 +1,10 @@
+import { useState, useEffect } from "react";
 import {
   addDoc,
   collection,
   getDocs,
   doc,
   updateDoc,
-  DocumentData,
-  setDoc,
-  query,
-  where,
 } from "firebase/firestore";
 
 import { debugLog } from "@src/utils/index";
@@ -19,9 +16,10 @@ import {
   cacheUser,
 } from "@src/context/index";
 import { useUIStore } from "@src/store/index";
+import { Category, Subcategory } from "@src/context/index";
 
 // -------------------------------------------------------------------------
-// 1️⃣ OBTENER DATOS (LINKS) DESDE VARIAS COLECCIONES
+// OBTENER DATOS (LINKS) DESDE VARIAS COLECCIONES
 // -------------------------------------------------------------------------
 // Hace un `getDocs` en paralelo de varias colecciones de enlaces.
 // Combina todos en un solo array.
@@ -60,7 +58,7 @@ export const getDataLinks = async (dbNames: string[]) => {
 };
 
 // -------------------------------------------------------------------------
-// 2️⃣ OBTENER DATOS (NODES) DESDE VARIAS COLECCIONES
+// OBTENER DATOS (NODES) DESDE VARIAS COLECCIONES
 // -------------------------------------------------------------------------
 // Hace un `getDocs` en paralelo de varias colecciones de nodos.
 // Combina todos en un solo array de nodos.
@@ -109,7 +107,7 @@ export const getDataNodes = async (dbNames: string[]) => {
 };
 
 // -------------------------------------------------------------------------
-// 3️⃣ OBTENER ÚLTIMO INDEX (MAYOR)
+// OBTENER ÚLTIMO INDEX (MAYOR)
 // -------------------------------------------------------------------------
 // Busca el valor más grande en el campo "index" de toda la colección.
 export const getIndex = async () => {
@@ -129,7 +127,7 @@ export const getIndex = async () => {
 };
 
 // -------------------------------------------------------------------------
-// 4️⃣ AGREGAR NUEVOS DATOS A NODES + LINKS
+// AGREGAR NUEVOS DATOS A NODES + LINKS
 // -------------------------------------------------------------------------
 // Agrega primero el nuevo nodo, luego actualiza el index, y finalmente
 // añade el link si tiene fuente.
@@ -189,7 +187,7 @@ export const addData = async (data: NodeInsertData) => {
 };
 
 // -------------------------------------------------------------------------
-// 5️⃣ OBTENER DATOS DE GRUPOS
+// OBTENER DATOS DE GRUPOS
 // -------------------------------------------------------------------------
 // Busca grupos en Firestore y proporciona la traducción según el idioma.
 export const getDataGroup = async (dbName: string) => {
@@ -213,4 +211,77 @@ export const getDataGroup = async (dbName: string) => {
     console.error("Error obteniendo grupos desde Firestore:", error);
     return []; // o puedes lanzar el error si así lo deseas
   }
+};
+
+// -------------------------------------------------------------------------
+// OBTENER DATOS DE TAXONOMY
+// -------------------------------------------------------------------------
+export const useCategories = () => {
+  const [categories, setCategories] = useState<Category[]>([]);
+  const language = localStorage.getItem(cacheUser.languageUser) || "en";
+  useEffect(() => {
+    const fetch = async () => {
+      const snapshot = await getDocs(collection(database, tableNameDB.group));
+      const data = snapshot.docs.map((doc) => {
+        const docData = doc.data() as Category;
+
+        return {
+          label: doc.id,
+          title: language === "en" ? docData.title_en : docData.title_es,
+          title_es: docData.title_es,
+          title_en: docData.title_en,
+          description:
+            language === "en" ? docData.description_en : docData.description_es,
+          description_es: docData.description_es,
+          description_en: docData.description_en,
+          categoryId: docData.categoryId,
+        };
+      });
+      setCategories(data);
+    };
+    fetch();
+  }, [language]);
+
+  return categories;
+};
+// -------------------------------------------------------------------------
+// OBTENER SUBCATEGORÍAS DE UN GRUPO
+// -------------------------------------------------------------------------
+export const useSubcategories = (groupId: string) => {
+  const [subCategories, setSubCategories] = useState<Subcategory[]>([]);
+  const language = localStorage.getItem(cacheUser.languageUser) || "en";
+
+  useEffect(() => {
+    if (!groupId) return;
+    const fetch = async () => {
+      const subRef = collection(
+        database,
+        tableNameDB.group,
+        groupId,
+        tableNameDB.subCategory
+      );
+      const snapshot = await getDocs(subRef);
+      const data = snapshot.docs.map((doc) => {
+        const docData = doc.data() as Subcategory;
+
+        return {
+          label: doc.id,
+          title: language === "en" ? docData.title_en : docData.title_es,
+          title_es: docData.title_es,
+          title_en: docData.title_en,
+          description:
+            language === "en" ? docData.description_en : docData.description_es,
+          description_es: docData.description_es,
+          description_en: docData.description_en,
+          categoryId: docData.categoryId,
+          groupId: docData.groupId,
+        };
+      });
+      setSubCategories(data);
+    };
+
+    fetch();
+  }, [groupId, language]);
+
+  return subCategories;
 };

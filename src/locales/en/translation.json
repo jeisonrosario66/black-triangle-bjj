@@ -1,13 +1,14 @@
 {
   "components": {
     "app": {
-      "closed": "Session Closed",
+      "closed": "Session closed",
       "login": "Session started",
       "collapsedNodes": "Collapse Nodes",
       "expandNodes": "Expand Nodes"
     },
     "accountMenu": {
       "title": "User Menu",
+      "triggerAlert": "Session closed",
 
       "optionsMenu": {
         "login": "Log in",
@@ -116,6 +117,12 @@
       "button6": "End time",
       "start": "Start",
       "end": "End"
+    }
+  },
+  "pages": {
+    "categories": {
+      "groupTitle": "Categories",
+      "subGroupTitle": "No category selected"
     }
   }
 }

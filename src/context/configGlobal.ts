@@ -48,8 +48,8 @@ export const scenePropsDev = {
 const SystemsOfBjjNodes = ["headlock nodes", "test nodes", "submissions_from_the_Back nodes"];
 const SystemsOfBjjLinks = ["headlock links", "test links", "submissions_from_the_Back links"];
 
-const selectedNodes = SystemsOfBjjNodes.slice(2, 3);
-const selectedLinks= SystemsOfBjjLinks.slice(2, 3);
+const selectedNodes = SystemsOfBjjNodes.slice(0, 3);
+const selectedLinks= SystemsOfBjjLinks.slice(0, 3);
 
 export const nodes = SystemsOfBjjNodes[2]; // Colección de nodos activa
 export const links = SystemsOfBjjLinks[2]; // Colección de enlaces entre nodos activa
@@ -60,7 +60,7 @@ export const tableNameDB = {
   nodes,
   links,
   group: "taxonomy", // Colección de grupos o categorías
-  subGroup: "subTaxonomy", // Colección de subgrupos
+  subCategory:"subCategories", // Ex: taxonomy/takedown/subCategories
   indexGlobal: "indexGlobal",
   indexGlobalID: "9rII6qZvvc9ppKLcny3k"
 };
