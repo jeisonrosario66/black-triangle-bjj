@@ -27,7 +27,7 @@ const Step4: React.FC<Step4Props> = ({ control, errors }) => {
               <Typography>{t(textHardcoded + "subText1")}</Typography>
               <TabGroup
                 onSelectionChange={(val) => {
-                  field.onChange(val); // Actualiza el valor en el form
+                  field.onChange(val);
                 }}
               />
             </Box>

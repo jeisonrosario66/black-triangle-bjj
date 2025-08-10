@@ -1,13 +1,13 @@
 {
   "components": {
     "app": {
-      "closed": "Sesion cerrada",
-      "login": "Sesion iniada",
+      "closed": "Sesión  cerrada",
+      "login": "Sesión  iniciada",
       "collapsedNodes": "Colapsar Nodos",
       "expandNodes": "Expandir Nodos"
     },
     "accountMenu": {
-      "title": "Menu Usuario",
+      "title": "Menú Usuario",
       "triggerAlert": "Sesión Cerrada",
 
       "optionsMenu": {
@@ -22,7 +22,7 @@
       "language.label": "Idioma",
       "language.description": "Selecciona el idioma preferido de la aplicación.",
       "es": "Español",
-      "en": "Ingles",
+      "en": "Inglés",
       "dagMode": "Dirección del layout jerárquico",
       "dagMode.description": "Determina cómo se disponen los nodos en el espacio según su jerarquía.",
       "dagMode.td": "Arriba → Abajo",
@@ -31,7 +31,7 @@
       "dagMode.rl": "Derecha → Izquierda",
       "dagMode.radialout": "Radial → Hacia afuera",
       "dagMode.radialin": "Radial ← Hacia adentro",
-      "dagMode.none": "Sin jerarquía (layout por fuerzas)",
+      "dagMode.none": "Sin jerarquía",
       "dagLevelDistance": "Separación entre niveles",
       "dagLevelDistance.description": "Define la distancia entre cada nivel jerárquico en el grafo(0 - 100).",
       "buttonClose": "Cerrar y Guardar"
@@ -73,7 +73,7 @@
         "next": "Siguiente",
         "reset": "Reset",
         "finish": "Finalizar",
-        "step1": "Estas creando un nuevo nodo",
+        "step1": "Estás creando un nuevo nodo",
         "step2": "Conecta el nodo",
         "step3": "Carga un recurso al nodo",
         "step4": "step 4",
@@ -84,7 +84,7 @@
         "notData": "No hay datos para esta categoría."
       },
       "step1": {
-        "step1Title": "Crea una nueva conexción",
+        "step1Title": "Crea una nueva conexión",
         "formLabel": "Nombre del nodo",
         "toolTipInfo": "Escribe el nombre en español, seguido del nombre en inglés, separados por una coma. Ej: Guardia cerrada, Closed guard"
       },
@@ -112,11 +112,17 @@
     },
     "nodeView": {
       "button1": "Usar totalidad del video",
-      "button2": "capturar tiempos del video",
+      "button2": "Capturar tiempos del video",
       "button5": "Tiempo inicio",
       "button6": "Tiempo final",
       "start": "Inicio",
       "end": "Fin"
+    }
+  },
+  "pages": {
+    "categories": {
+      "groupTitle": "Categorias",
+      "subGroupTitle": "No hay categoría seleccionada"
     }
   }
 }

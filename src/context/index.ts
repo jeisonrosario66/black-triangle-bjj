@@ -24,4 +24,5 @@ export type {
   NodeViewData,
   DagMode,
   Subcategory,
+  Category
 } from "@src/context/exportType";

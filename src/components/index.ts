@@ -42,3 +42,7 @@ export { default as PlayerControls } from "@src/components/nodeView/PlayerContro
 
 // Components/configWindow
 export { default as ConfigWindow } from "@src/components/configWindow/ConfigWindow";
+
+// Components/categories
+export { default as SubcategoryList } from "@src/components/categories/SubcategoryList";
+export { default as CategorySelector } from "@src/components/categories/CategorySelector";

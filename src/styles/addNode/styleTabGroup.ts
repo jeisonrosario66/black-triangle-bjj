@@ -15,12 +15,14 @@ export const tabs: SxProps = {
   borderRight: 1,
   borderColor: theme.palette.formStyles.borderColor,
   minWidth: "120px",
+
 };
 
 export const tab: SxProps = {
   fontWeight: "800",
   borderBottom: `1px solid ${theme.palette.formStyles.borderColor}`,
 };
+
 
 export const toggleButton: SxProps = {
   backgroundColor: "#fff",

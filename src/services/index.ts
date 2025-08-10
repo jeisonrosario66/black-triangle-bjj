@@ -5,4 +5,6 @@ export {
   getIndex,
   getDataGroup,
   getDataLinks,
+  useCategories,
+  useSubcategories
 } from "@src/services/firebaseService";

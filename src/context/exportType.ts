@@ -151,13 +151,32 @@ export type DagMode =
   | "radialout" // Radial desde el centro hacia afuera
   | "radialin"; // Radial desde afuera hacia el centro
 
+
+
+/**
+ * Categoría de técnicas grupos de técnicas de BJJ
+ */
+export type Category = {
+  label: string;
+  title?: string
+  title_en: string;
+  title_es: string;
+  description?: string;
+  description_en: string;
+  description_es: string;
+  categoryId: string;
+};
+
+  
 /**
  * Subcategoría de técnicas grupos de técnicas de BJJ
  */
 export type Subcategory = {
   label: string;
+  title?: string
   title_en: string;
   title_es: string;
+  description?: string;
   description_en: string;
   description_es: string;
   categoryId: string;
