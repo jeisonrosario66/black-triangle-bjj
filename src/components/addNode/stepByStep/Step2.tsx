@@ -10,9 +10,9 @@ import {
 import { useTranslation } from "react-i18next";
 
 import {
-  Header,
   SelectableButtonGroup,
   LabelStep,
+  HeaderAddNode,
 } from "@src/components/index";
 import * as style from "@src/styles/addNode/styleStepByStep";
 
@@ -27,13 +27,12 @@ const Step2: React.FC<Step2Props> = ({ control, errors }) => {
   const { t } = useTranslation();
 
   return (
-    <Box sx={{ height: "100%", margin: "0 0  50px 0", textAlign: "center" }}>
-      <Header />
+    <Box sx={{ height: "100%", margin: "50px 0  0px 0", textAlign: "center" }}>
+      <HeaderAddNode title={t(textHardcoded + "step2Title")}/>
       <LabelStep
         textLabel={t(textHardcoded + "step2Title")}
         toolTipInfo={t(textHardcoded + "toolTipInfo")}
-      />
-
+        />
       <Controller
         name="group"
         control={control}

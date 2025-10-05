@@ -1,9 +1,9 @@
 import React from "react";
 import { Control, Controller, FieldErrors } from "react-hook-form";
-import { Box, Typography, FormControl, FormLabel } from "@mui/material";
+import { Box, Typography, FormControl } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
-import { Header, TabGroup } from "@src/components/index";
+import { HeaderAddNode, CategoryPanel } from "@src/components/index";
 
 import * as style from "@src/styles/addNode/styleStepByStep";
 
@@ -15,33 +15,38 @@ const Step4: React.FC<Step4Props> = ({ control, errors }) => {
   const { t } = useTranslation();
 
   return (
-    <Box sx={style.containerBoxStep}>
-      <Header positionAbsolute={true}/>
-      <FormLabel>{t(textHardcoded + "title")}</FormLabel>
-      <Controller
-        name="nodeSourceIndex"
-        control={control}
-        render={({ field }) => (
-          <FormControl error={!!errors.nodeSource}>
-            <Box sx={style.boxFormSelect(false)}>
-              <Typography>{t(textHardcoded + "subText1")}</Typography>
-              <TabGroup
-                onSelectionChange={(val) => {
-                  field.onChange(val);
-                }}
-              />
-            </Box>
-            {errors.nodeSource && (
-              <Typography color="error" variant="caption">
-                {typeof errors.nodeSource?.message === "string"
-                  ? errors.nodeSource.message
-                  : ""}
-              </Typography>
-            )}
-          </FormControl>
-        )}
-      />
-    </Box>
+    <>
+      <Box>
+        <HeaderAddNode title={t(textHardcoded + "title")} />
+      </Box>
+      <Box sx={style.containerBoxGroup}>
+        <Controller
+          name="nodeSourceIndex"
+          control={control}
+          render={({ field }) => (
+            <FormControl
+              error={!!errors.nodeSource}
+              id="boxFormSelectContainer"
+            >
+              <Box id="tabGroup">
+                <CategoryPanel
+                  onSelectionChange={(val) => {
+                    field.onChange(val);
+                  }}
+                />
+              </Box>
+              {errors.nodeSource && (
+                <Typography color="error" variant="caption">
+                  {typeof errors.nodeSource?.message === "string"
+                    ? errors.nodeSource.message
+                    : ""}
+                </Typography>
+              )}
+            </FormControl>
+          )}
+        />
+      </Box>
+    </>
   );
 };
 

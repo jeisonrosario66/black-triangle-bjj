@@ -33,7 +33,6 @@
     "r3f-forcegraph": "^1.0.8",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
-    "react-force-graph-2d": "^1.27.1",
     "react-force-graph-3d": "^1.26.1",
     "react-hook-form": "^7.56.4",
     "react-i18next": "^15.5.1",

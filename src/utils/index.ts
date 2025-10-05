@@ -8,3 +8,4 @@ export { getPlatform } from "@src/utils/getPlatform";
 export { default as ToolTipInfo } from "@src/utils/toolTipInfo";
 export { default as extractVideoId } from "@src/utils/addNode/extractVideoId";
 export { capitalizeFirstLetter } from "@src/utils/capitalizeFirstLetter";
+export { default as formatTimeFull } from "@src/utils/formatTimeFull";

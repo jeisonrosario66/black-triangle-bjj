@@ -1,6 +1,7 @@
 import { SxProps } from "@mui/system";
 import themeApp from "@src/styles/stylesThemeApp";
-import { darken } from "@mui/material";
+import { darken, Typography } from "@mui/material";
+const theme = themeApp;
 
 export const containerPanel: SxProps = {
   maxWidth: "1300px",
@@ -14,7 +15,6 @@ export const groupPanelTitle: SxProps = {
 };
 
 export const groupPanel: SxProps = {
-  backgroundColor: "#0a0a22",
   color: themeApp.palette.text.primary,
   borderRadius: "7px 0 0 7px",
 };
@@ -22,16 +22,26 @@ export const groupPanel: SxProps = {
 // ------- CategoriySelector ---------
 export const groupNames: SxProps = {
   margin: "0",
+  color: themeApp.palette.text.tertiary,
+
   "&& .MuiButtonBase-root": {
     margin: "2px 10px",
     padding: "4px 12px",
     borderRadius: "5px",
   },
+  "&& .MuiListItemText-root .MuiTypography-root": {
+    fontWeight: 600,
+  },
   "&& .MuiListItemButton-root.Mui-selected": {
     backgroundColor: themeApp.palette.action.success,
+    color: themeApp.palette.text.primary,
   },
   "&& .MuiButtonBase-root:hover": {
     backgroundColor: darken(themeApp.palette.action.success, 0.7),
+    color: themeApp.palette.text.primary,
+  },
+  "&& .MuiTypography-root": {
+    fontFamily: themeApp.palette.typography.fontFamily,
   },
 };
 
@@ -49,33 +59,34 @@ export const subGroupPanel: SxProps = {
 };
 
 export const gridContainer: SxProps = {
-  alignItems: "stretch",
+  // alignItems: "stretch",
+
+  flexDirection: "column",
+  color: themeApp.palette.text.tertiary,
+
+  "& .buttonItemSelector": {
+    border: `1px solid ${themeApp.palette.formStyles.borderColor}`,
+    borderRadius: "5px",
+    color: themeApp.palette.text.tertiary,
+    marginBottom: "1rem",
+  },
+  "& .buttonItemSelector:hover": {
+    color: themeApp.palette.text.primary,
+    backgroundColor: darken(themeApp.palette.action.success, 0.7),
+  },
+  "& .buttonItemSelector.Mui-selected": {
+    backgroundColor: themeApp.palette.action.success,
+    color: themeApp.palette.text.primary,
+  },
+  "& .MuiTypography-root": {
+    fontWeight: 500,
+    fontFamily: theme.palette.typography.fontFamily,
+  },
 };
 
-export const gridItem: SxProps = {
-  display: "flex",
-  "&& .MuiPaper-root": {
-    p: 2,
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-  },
-  "&& .MuiPaper-root:hover": {
-    backgroundColor: darken(themeApp.palette.action.success, 0.1),
-    cursor: "pointer",
-  },
-  ".MuiListItemText-secondary": {
-    display: "-webkit-box",
-    WebkitLineClamp: 2, // número de líneas visibles
-    WebkitBoxOrient: "vertical",
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-  },
-};
-
-export const gridItemImage: SxProps = {
-  width: "70%",
-  objectFit: "cover",
-  display: "flex",
-  margin: "auto",
-};
+// export const gridItemImage: SxProps = {
+//   width: "70%",
+//   objectFit: "cover",
+//   display: "flex",
+//   margin: "auto",
+// };

@@ -23,13 +23,14 @@ import { useUIStore } from "@src/store/index";
 import { debugLog } from "@src/utils/index";
 
 import * as style from "@src/styles/addNode/stylesAddNodeWindow";
+import * as generalStyleToform from "@src/styles/stylesApp";
 
 const textHardcoded = "components.addNode.addNodeWindow.";
 
 /**
  * Componente contenedor de los steps del formulario
  */
-const NodeForm: React.FC = () => {
+const AddNodeForm: React.FC = () => {
   const { t } = useTranslation();
   const schema = yup.object({
     index: yup.number().required(),
@@ -83,7 +84,6 @@ const NodeForm: React.FC = () => {
 
   const activeStep = useUIStore((state) => state.activeStep);
   const [nodeOptions, setNodeOptions] = useState<NodeOptionFirestone[]>([]);
-
   // Llama getNameNodes una sola vez al montar el componente
   useEffect(() => {
     const getDataNodes = async () => {
@@ -177,27 +177,30 @@ const NodeForm: React.FC = () => {
   };
 
   return (
-    <Box sx={style.containerAddNodeWindow}>
-      <Divider sx={{ width: "90%", mx: "auto" }} />
-      {activeStep === 0 && <Step1 control={control} errors={errors} />}
-      {activeStep === 1 && <Step2 control={control} errors={errors} />}
-      {activeStep === 2 && (
-        <Step3 setValue={setValue} videoIdSeleted={watch("videoid")} />
-      )}
-      {activeStep === 3 && <Step4 control={control} errors={errors} />}{" "}
-      {activeStep === 4 && (
-        <StepFinal
-          newNodeData={finalFormData}
-          selectedSourceNodeData={finalNodeSourceData}
+    <>
+      {generalStyleToform.globalStyles}
+      <Box sx={style.containerAddNodeWindow}>
+        <Divider sx={{ width: "90%", mx: "auto" }} />
+        {activeStep === 0 && <Step1 control={control} errors={errors} />}
+        {activeStep === 1 && <Step2 control={control} errors={errors} />}
+        {activeStep === 2 && (
+          <Step3 setValue={setValue} videoIdSeleted={watch("videoid")} />
+        )}
+        {activeStep === 3 && <Step4 control={control} errors={errors} />}{" "}
+        {activeStep === 4 && (
+          <StepFinal
+            newNodeData={finalFormData}
+            selectedSourceNodeData={finalNodeSourceData}
+          />
+        )}
+        <StepperComponent
+          onValidate={handleValidate}
+          onHandleSubmit={handleSubmit(onSubmit)}
+          reset={reset}
         />
-      )}
-      <StepperComponent
-        onValidate={handleValidate}
-        onHandleSubmit={handleSubmit(onSubmit)}
-        reset={reset}
-      />
-    </Box>
+      </Box>
+    </>
   );
 };
 
-export default NodeForm;
+export default AddNodeForm;

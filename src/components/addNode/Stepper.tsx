@@ -79,11 +79,7 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
       sx={style.containerStepper}
       nextButton={
         <Box
-          sx={{
-            display: "flex",
-            alignItems: "center",
-            flexDirection: "row-reverse",
-          }}
+          sx={style.nextButton}
         >
           {activeStep == lastStep ? (
             <Button size="small" onClick={handleReset}>

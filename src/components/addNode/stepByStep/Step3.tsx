@@ -13,7 +13,7 @@ import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
 import { useTranslation } from "react-i18next";
 
 import { useUIStore } from "@src/store/index";
-import { NodeFormData } from "@src/context/index";
+import { NodeFormData, configGlobal } from "@src/context/index";
 import { NodeView } from "@src/components/index";
 import { handleSearch } from "@src/utils/index";
 
@@ -67,7 +67,6 @@ const Step3: React.FC<Step3Props> = ({ setValue, videoIdSeleted }) => {
 
             <TextField
               fullWidth
-              // label={t(textHardcoded + "subText1")}
               value={searchYT}
               onChange={(e) => {
                 setSearchYT(e.target.value);
@@ -107,7 +106,7 @@ const Step3: React.FC<Step3Props> = ({ setValue, videoIdSeleted }) => {
             >
               <img
                 width={"50px"}
-                src="./logoApp.svg"
+                src={configGlobal.logoApp}
                 alt="Black Triangle BJJ Logo"
               />
               <Typography
@@ -121,7 +120,7 @@ const Step3: React.FC<Step3Props> = ({ setValue, videoIdSeleted }) => {
                   alignContent: "center",
                 }}
               >
-                BLACK <br /> TRIANGLE BJJ
+                {configGlobal.namePage}
               </Typography>
             </Box>
             <Box sx={{ margin: "auto 10px", display: "flex" }}>
@@ -139,7 +138,6 @@ const Step3: React.FC<Step3Props> = ({ setValue, videoIdSeleted }) => {
         <NodeView
           isAddNode={true}
           setValue={setValue}
-          isPositionAbsolute={true}
         />
       )}
       {/* Resultados de búsqueda  */}

@@ -13,15 +13,19 @@ import { Settings, Logout } from "@mui/icons-material";
 import HubIcon from "@mui/icons-material/hub";
 import LoginIcon from "@mui/icons-material/Login";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { useUIStore } from "@src/store/index";
+import { routeList } from "@src/context/index";
+
 import * as style from "@src/styles/stylesAccountMenu";
 
 const textHardcoded = "components.accountMenu.";
 
 export default function AccountMenu() {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   // Estado global para verificar si el usuario está logueado
   const isUserLogin = useUIStore((state) => state.isUserLogin);
   const userLoginData = useUIStore((state) => state.userLoginData);
@@ -51,9 +55,11 @@ export default function AccountMenu() {
 
   // Activa el formulario de agregar nodo si el usuario está logueado
   const addNodeMenu = () => {
-    isUserLogin
-      ? useUIStore.setState({ isAddNodeActive: true })
-      : triggerAlert("Sesión Cerrada", "warning");
+    if (isUserLogin) {
+      navigate(routeList.addNode);
+    } else {
+      triggerAlert(t(textHardcoded + "triggerAlert"), "warning");
+    }
   };
 
   const handleConfigWindow = () => {

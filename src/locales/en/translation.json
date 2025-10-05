@@ -81,7 +81,8 @@
       },
       "tabGround": {
         "loadingData": "Loading data...",
-        "notData": "No data available for this category."
+        "selecCategory": "Select a category",
+        "notItems": "No techniques available"
       },
       "step1": {
         "step1Title": "Create a new connection",
@@ -111,12 +112,15 @@
       }
     },
     "nodeView": {
-      "button1": "Use the entire video",
-      "button2": "Capture video timestamps",
-      "button5": "Start time",
-      "button6": "End time",
-      "start": "Start",
-      "end": "End"
+      "title": "Video Player",
+      "subTitle": "View and analyze the video content below.",
+      "brandTitle": "Timestamp Controls",
+      "brandSubTitle": "Define the start and end points for specific video segments.",
+      "timeBrand": "Select video timestamps:",
+      "timeBrandPreview": "Select preview timestamps:",
+      "timeBrandInit": "Start:",
+      "timeBrandEnd": "End:",
+      "timeBrandAll": "Use full video"
     }
   },
   "pages": {

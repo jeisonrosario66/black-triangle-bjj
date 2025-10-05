@@ -2,15 +2,16 @@
 export { default as AccountMenu } from "@src/components/AccountMenu";
 export { default as OutlinedAlerts } from "@src/components/Alert";
 export { default as ButtonClose } from "@src/components/ButtonClose";
-export { default as Graph2D } from "@src/components/Graph2D";
 export { default as GraphScene } from "@src/components/GraphScene";
 export { default as LogoContainer } from "@src/components/LogoComponent";
 export { default as NodeComponent } from "@src/components/NodeComponent";
 export { default as NavigationGestures } from "@src/components/NavigationGestures"
 
 // Components/addNode
-export { default as NodeForm } from "@src/components/addNode/AddNodeWindow";
+export { default as AddNodeForm } from "@src/components/addNode/AddNodeWindow";
 export { default as Header } from "@src/components/addNode/Header";
+export { default as HeaderAddNode } from "@src/components/addNode/HeaderAddNode";
+
 export {
   GuardIcon,
   ControlIcon,
@@ -23,8 +24,9 @@ export {
 } from "@src/components/addNode/IconsGroup";
 export { default as SelectableButtonGroup } from "@src/components/addNode/SelectableButton";
 export { default as StepperComponent } from "@src/components/addNode/Stepper";
-export { default as TabGroup } from "@src/components/addNode/TabGroud";
+export { default as CategoryPanel } from "@src/components/addNode/CategoryPanel";
 export { default as LabelStep } from "@src/components/addNode/LabelStep";
+export { default as TimeBrandButton} from "@src/components/addNode/TimeBrandButton"
 
 // components/addNode/stepByStep
 export { default as Step1 } from "@src/components/addNode/stepByStep/Step1";
@@ -38,7 +40,6 @@ export { default as LoginUser } from "@src/components/loginUser/LoginUser";
 
 // Components/nodeView
 export { default as NodeView } from "@src/components/nodeView/NodeView";
-export { default as PlayerControls } from "@src/components/nodeView/PlayerControls";
 
 // Components/configWindow
 export { default as ConfigWindow } from "@src/components/configWindow/ConfigWindow";
@@ -46,3 +47,4 @@ export { default as ConfigWindow } from "@src/components/configWindow/ConfigWind
 // Components/categories
 export { default as SubcategoryList } from "@src/components/categories/SubcategoryList";
 export { default as CategorySelector } from "@src/components/categories/CategorySelector";
+export { ItemList } from "@src/components/categories/ItemList";

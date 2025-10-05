@@ -1,15 +1,13 @@
 import React from "react";
 import { Box, Typography } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
+import { configGlobal } from "@src/context/configGlobal";
 import { useUIStore } from "@src/store/index";
 import { ButtonClose } from "@src/components/index";
+import { routeList } from "@src/context/index";
 
 import * as style from "@src/styles/styleLogoContainer";
-
-const buttonCloseFunction = () => {
-  useUIStore.setState({ isAddNodeActive: false });
-  useUIStore.setState({ activeStep: 0 });
-};
 
 type HeaderProps = {
   isYoutubeSearch?: boolean;
@@ -20,6 +18,12 @@ const Header: React.FC<HeaderProps> = ({
   isYoutubeSearch,
   positionAbsolute,
 }) => {
+  const navigate = useNavigate();
+  const buttonCloseFunction = () => {
+    // useUIStore.setState({ isAddNodeActive: false });
+    navigate(routeList.root);
+    useUIStore.setState({ activeStep: 0 });
+  };
   const isUploadFirestore = useUIStore((state) => state.isUploadFirestore);
 
   return (
@@ -37,12 +41,12 @@ const Header: React.FC<HeaderProps> = ({
         >
           <Box sx={style.containerlogo}>
             <img
-              src="./logoApp.svg"
+              src={configGlobal.logoApp}
               alt="Black Triangle BJJ Logo"
               style={style.logo}
             />
             <Typography sx={style.title}>
-              BLACK <br /> TRIANGLE BJJ
+              {configGlobal.namePage}
             </Typography>
           </Box>
           <ButtonClose

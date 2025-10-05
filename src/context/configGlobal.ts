@@ -1,5 +1,4 @@
 import { DagMode } from "@src/context/index";
-import { string } from "yup";
 
 // Configuración visual global para el lienzo y la escena 3D
 export const configGlobal = {
@@ -7,6 +6,8 @@ export const configGlobal = {
   intensity: 0.7, // Intensidad de la luz ambiental
   colorLight: "#fff", // Color de la luz direccional
   position: [100, 20, 10] as [number, number, number], // Posición de la luz en el espacio
+  logoApp: "./logoApp.svg",
+  namePage: "BLACK \n TRIANGLE BJJ"
 };
 
 // Colores asociados a cada tipo de grupo de nodo en el grafo
@@ -45,14 +46,14 @@ export const scenePropsDev = {
 };
 
 // Nombres de las colecciones utilizadas en la base de datos (Firestore)
-const SystemsOfBjjNodes = ["headlock nodes", "test nodes", "submissions_from_the_Back nodes"];
-const SystemsOfBjjLinks = ["headlock links", "test links", "submissions_from_the_Back links"];
+const SystemsOfBjjNodes = ["/systems/headlock/nodes", "/systems/test/nodes"];
+const SystemsOfBjjLinks = ["/systems/headlock/links", "/systems/test/links"];
 
-const selectedNodes = SystemsOfBjjNodes.slice(0, 3);
-const selectedLinks= SystemsOfBjjLinks.slice(0, 3);
+const selectedNodes = SystemsOfBjjNodes.slice(1, 2);
+const selectedLinks = SystemsOfBjjLinks.slice(1, 2);
 
-export const nodes = SystemsOfBjjNodes[2]; // Colección de nodos activa
-export const links = SystemsOfBjjLinks[2]; // Colección de enlaces entre nodos activa
+export const nodes = SystemsOfBjjNodes[1]; // Colección de nodos activa
+export const links = SystemsOfBjjLinks[1]; // Colección de enlaces entre nodos activa
 
 export const tableNameDB = {
   nodesArray: selectedNodes,
@@ -60,9 +61,9 @@ export const tableNameDB = {
   nodes,
   links,
   group: "taxonomy", // Colección de grupos o categorías
-  subCategory:"subCategories", // Ex: taxonomy/takedown/subCategories
+  subCategory: "subCategories", // Ex: taxonomy/takedown/subCategories
   indexGlobal: "indexGlobal",
-  indexGlobalID: "9rII6qZvvc9ppKLcny3k"
+  indexGlobalID: "9rII6qZvvc9ppKLcny3k",
 };
 
 // Valores almacenados en caché local por usuario (idioma, preferencias de visualización)
@@ -76,4 +77,10 @@ export const cacheUser = {
 
   dagLevelDistanceCache: "dagLevelDistance", // Clave para la separación de niveles
   dagLevelDistance: localStorage.getItem("dagLevelDistance") || 35, // Valor de separación por defecto o cacheado
+};
+
+export const routeList = {
+  root: "/",
+  categories: "/categories",
+  addNode: "/add-node",
 };

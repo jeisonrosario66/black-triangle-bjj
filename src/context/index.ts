@@ -8,6 +8,7 @@ export {
   tableNameDB,
   groupColor,
   cacheUser,
+  routeList,
 } from "@src/context/configGlobal";
 export type {
   GraphNode,

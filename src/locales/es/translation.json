@@ -76,12 +76,13 @@
         "step1": "Estás creando un nuevo nodo",
         "step2": "Conecta el nodo",
         "step3": "Carga un recurso al nodo",
-        "step4": "step 4",
-        "step5": "step 5"
+        "step4": "paso 4",
+        "step5": "paso 5"
       },
       "tabGround": {
         "loadingData": "Cargando datos...",
-        "notData": "No hay datos para esta categoría."
+        "selecCategory": "Selecciona una categoría.",
+        "notItems": "No hay técnicas disponibles"
       },
       "step1": {
         "step1Title": "Crea una nueva conexión",
@@ -111,12 +112,15 @@
       }
     },
     "nodeView": {
-      "button1": "Usar totalidad del video",
-      "button2": "Capturar tiempos del video",
-      "button5": "Tiempo inicio",
-      "button6": "Tiempo final",
-      "start": "Inicio",
-      "end": "Fin"
+      "title": "Reproductor de Video",
+      "subTitle": "Visualice y analice el contenido del video a continuación.",
+      "brandTitle": "Controles de Marcas de Tiempo",
+      "brandSubTitle": "Defina los puntos de inicio y fin para segmentos específicos del video.",
+      "timeBrand": "Seleccionar marcas de tiempo del video:",
+      "timeBrandPreview": "Seleccionar marcas de tiempo del preview: ",
+      "timeBrandInit": "Inicio: ",
+      "timeBrandEnd": "Final: ",
+      "timeBrandAll": "Usar video completo"
     }
   },
   "pages": {

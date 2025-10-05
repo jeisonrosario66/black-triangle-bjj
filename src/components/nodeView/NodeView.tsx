@@ -1,39 +1,34 @@
 import React, { useState } from "react";
-import { CameraControls } from "@react-three/drei";
-import { Card, Box, Typography } from "@mui/material";
+import { Card, Box, Typography, Button } from "@mui/material";
+import FirstPageIcon from "@mui/icons-material/FirstPage";
 import YouTube, { YouTubePlayer } from "react-youtube";
 import { UseFormSetValue } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
 import { useUIStore } from "@src/store/index";
-import { ButtonClose, PlayerControls } from "@src/components/index";
-import { animateCameraBackFromNode } from "@src/hooks/index";
+import { TimeBrandButton } from "@src/components/index";
 import { NodeFormData, PlayerControlsData } from "@src/context/exportType";
 
 import * as styles from "@src/styles/stylesNodeView";
+const textHardcoded = "components.nodeView.";
 
 type NodeViewProps = {
-  controls?: CameraControls;
   isAddNode: boolean;
   setValue?: UseFormSetValue<NodeFormData>;
-  isPositionAbsolute?: boolean;
 };
 
 /**
  * Componente `NodeView`
- * Este componente muestra un video de YouTube incrustado y controles personalizados para reproducirlo.
- * También permite cerrar la vista y regresar la cámara a su posición original.
+ * Este componente muestra un viddeo de YouTube incrustado y controles personalizados para reproducirlo.
  */
-const NodeView: React.FC<NodeViewProps> = ({
-  controls,
-  isAddNode,
-  setValue,
-  isPositionAbsolute,
-}) => {
+const NodeView: React.FC<NodeViewProps> = ({ isAddNode, setValue }) => {
+  const { t } = useTranslation();
   // Obtiene los datos del nodo activo desde el estado global
   const nodeViewData = useUIStore((state) => state.nodeViewData);
   // Estado local para almacenar la instancia del reproductor de YouTube
   const [player, setPlayer] = useState<YouTubePlayer | null>(null);
-
+  // Estado local para almacenar el modo de reproduccion
+  const [mode, setMode] = useState<"range" | "all" | null>(null);
   const recuperarDatosDetiempo = (data: PlayerControlsData) => {
     // Actualiza el valor en el form
     if (setValue) {
@@ -62,9 +57,9 @@ const NodeView: React.FC<NodeViewProps> = ({
    * Regresa la cámara a su posición original y desactiva la vista del nodo.
    */
   const buttonCloseFunction = () => {
-    if (controls) {
-      animateCameraBackFromNode(controls); // Anima la cámara de regreso
-    }
+    // if (controls) {
+    //   animateCameraBackFromNode(controls); // Anima la cámara de regreso
+    // }
     useUIStore.setState({ isNodeViewActive: false }); // Desactiva la vista del nodo
   };
 
@@ -89,33 +84,107 @@ const NodeView: React.FC<NodeViewProps> = ({
 
   return (
     <Card sx={styles.containerNodeView(isAddNode)}>
-      <ButtonClose
-        buttonFunction={buttonCloseFunction}
-        isPositionAbsolute={isPositionAbsolute}
-      />
-      <Box>
+      <Box sx={styles.nodeViewScreenContainer}>
         {/* Contenedor del reproductor de YouTube */}
         <Box sx={styles.containerYoutubeView}>
-          <YouTube
-            style={{ height: "100%" }}
-            videoId={cleanVideoId}
-            opts={opts}
-            onReady={onPlayerReady}
-          />
-        </Box>
+          <Box sx={styles.reproTitle}>
+            <Box>
+              <Typography variant="h4" className="typography">
+                {t(textHardcoded + "title")}
+              </Typography>
+              <Typography variant="subtitle2" className="typography">
+                {t(textHardcoded + "subTitle")}
+              </Typography>
+            </Box>
+            <Box>
+              <Button onClick={buttonCloseFunction}>
+                <FirstPageIcon className="first-page-icon" color="error" />
+              </Button>
+            </Box>
+          </Box>
+          {/* Wrapper para mantener relación de aspecto */}
+          <Box sx={styles.youtubeWrapper}>
+            <YouTube
+              videoId={cleanVideoId}
+              opts={opts}
+              onReady={onPlayerReady}
+            />
+          </Box>
+          <Box
+            sx={styles.playerControlContainer}
+            id="player-controls-container"
+          >
+            <Box id="player-controls-descripcion">
+              <Typography variant="h6" className="typography">
+                {t(textHardcoded + "brandTitle")}
+              </Typography>
+              <Typography variant="subtitle2" className="typography">
+                {t(textHardcoded + "brandSubTitle")}
+              </Typography>
+            </Box>
 
-        {/* Controles personalizados para el reproductor */}
-        <PlayerControls
-          player={player} // Instancia del reproductor
-          end={parseInt(end ?? "0")}
-          isAddNode={isAddNode}
-          onSendDataTimeNewNode={recuperarDatosDetiempo}
-        />
-      </Box>
-      <Box>
-        <Typography>{nodeViewData.name}</Typography>
-        <Typography>{nodeViewData.group}</Typography>
-        <Typography>{nodeViewData.id}</Typography>
+            <Box id="time-brand">
+              <Typography
+                variant="h6"
+                className="typography typography-brand-controls"
+              >
+                {t(textHardcoded + "timeBrand")}
+              </Typography>
+              <Box className="time-brand-button">
+                {player && (
+                  <>
+                    <TimeBrandButton
+                      onSendDataTimeNewNode={recuperarDatosDetiempo}
+                      label={t(textHardcoded + "timeBrandInit")}
+                      player={player}
+                      timeType="start"
+                      disabled={mode === "all"}
+                      onSelect={() => setMode("range")}
+                    />
+                    <TimeBrandButton
+                      onSendDataTimeNewNode={recuperarDatosDetiempo}
+                      label={t(textHardcoded + "timeBrandEnd")}
+                      player={player}
+                      timeType="end"
+                      disabled={mode === "all"}
+                      onSelect={() => setMode("range")}
+                    />
+                    <TimeBrandButton
+                      onSendDataTimeNewNode={recuperarDatosDetiempo}
+                      label={t(textHardcoded + "timeBrandAll")}
+                      allTime={true}
+                      player={player}
+                      end={end}
+                      disabled={mode === "range"}
+                      onSelect={() => setMode("all")}
+                    />
+                  </>
+                )}
+              </Box>
+            </Box>
+
+            <Box id="time-brand-preview">
+              <Typography
+                variant="h6"
+                className="typography typography-brand-controls"
+              >
+                {t(textHardcoded + "timeBrandPreview")}
+              </Typography>
+              <Box className="time-brand-button">
+                <TimeBrandButton
+                  onSendDataTimeNewNode={recuperarDatosDetiempo}
+                  label={t(textHardcoded + "timeBrandInit")}
+                  player={player}
+                />
+                <TimeBrandButton
+                  onSendDataTimeNewNode={recuperarDatosDetiempo}
+                  label={t(textHardcoded + "timeBrandEnd")}
+                  player={player}
+                />
+              </Box>
+            </Box>
+          </Box>
+        </Box>
       </Box>
     </Card>
   );

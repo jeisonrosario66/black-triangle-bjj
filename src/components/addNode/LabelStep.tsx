@@ -27,6 +27,7 @@ const LabelStep: React.FC<LabelStepProps> = ({ textLabel, toolTipInfo }) => {
         style={{
           color: theme.palette.text.secondary,
           textAlign: "center",
+          fontWeight: 400,
         }}
       >
         {textLabel}

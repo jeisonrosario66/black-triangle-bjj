@@ -1,10 +1,10 @@
 import themeApp from "@src/styles/stylesThemeApp";
-import { SxProps } from "@mui/system";
+import { margin, SxProps } from "@mui/system";
 import React from "react";
 
 const theme = themeApp;
 
-const containerBoxStep: SxProps = {
+export const containerBoxStep: SxProps = {
   display: "flex",
   justifyContent: "center",
   flexDirection: "column",
@@ -18,29 +18,29 @@ const containerBoxStep: SxProps = {
   "& .MuiInputBase-root": {
     backgroundColor: theme.palette.formStyles.cardBackgroundColor,
   },
-  "& input": {},
 };
 
-const formGroup: SxProps = {
+export const formGroup: SxProps = {
   backgroundColor: theme.palette.formStyles.cardBackgroundColor,
   padding: "40px",
   border: `2px solid ${theme.palette.formStyles.borderColor}`,
   borderRadius: "4px",
   marginTop: "20px",
+  marginBottom: "20px",
   "& .MuiFormGroup-root": {
     color: theme.palette.text.secondary,
     fontWeight: "600",
   },
 };
 
-const formLabel: React.CSSProperties = {
+export const formLabel: React.CSSProperties = {
   fontSize: "1.5rem",
-  fontWeight: "600",
+  fontWeight: "400",
   marginBottom: "2rem",
   textAlign: "center",
 };
 
-const formSelect = (isNot1Step2: boolean): SxProps => ({
+export const formSelect = (isNot1Step2: boolean): SxProps => ({
   color: isNot1Step2
     ? theme.palette.action.deactivate
     : theme.palette.text.secondary,
@@ -55,24 +55,8 @@ const formSelect = (isNot1Step2: boolean): SxProps => ({
   },
 });
 
-const boxFormSelect = (isNot1Step2: boolean): SxProps => ({
-  display: "flex",
-  flexDirection: "column-reverse",
-  justifyContent: "space-around",
-
-  width: "100vw",
-  "& .MuiTypography-root": {
-    fontSize: "0.75rem",
-    textAlign: "center",
-    display: isNot1Step2 ? "block" : "none",
-    color: theme.palette.action.deactivate,
-    marginTop: "3px",
-    fontWeight: "400",
-  },
-});
-
 // ------------------------ 3er step --------------------------
-const stepFinalContainer: SxProps = {
+export const stepFinalContainer: SxProps = {
   display: "flex",
   fontSize: "15px",
   flexDirection: "column",
@@ -81,8 +65,9 @@ const stepFinalContainer: SxProps = {
   height: "100%",
 };
 
-const progress = (butonState: boolean): SxProps => ({
+export const progress = (butonState: boolean): SxProps => ({
   display: butonState ? "none" : "block",
+  width: "100%",
   "& .MuiLinearProgress-root": {
     marginTop: "1.8em",
     marginLeft: "2em",
@@ -91,8 +76,9 @@ const progress = (butonState: boolean): SxProps => ({
   },
 });
 
-const result = (butonState: boolean): SxProps => ({
+export const result = (butonState: boolean): SxProps => ({
   display: butonState ? "block" : "none",
+  width: "100%",
   "& p": {
     marginTop: "1.8em",
     height: "1em",
@@ -104,32 +90,13 @@ const result = (butonState: boolean): SxProps => ({
     color: theme.palette.text.secondary,
   },
 });
-const graph2DProgress = (isUploadFirestore: boolean): SxProps => ({
-  display: isUploadFirestore ? "none" : "block",
+// ------------------------ 4to step --------------------------
+export const containerBoxGroup: SxProps = {
+  // background: "pink",
   margin: "auto",
-
-  "& .MuiCircularProgress-root": {
-    width: "100px !important",
-    height: "100px !important",
+  "& #tabGroup": {
+    // width: "700px",
   },
-});
-const graph2DResult = (isUploadFirestore: boolean): SxProps => ({
-  display: isUploadFirestore ? "block" : "none",
-
-  margin: "auto",
-});
+};
 
 // ----------------------------------------------------------------
-
-export {
-  containerBoxStep,
-  formGroup,
-  formLabel,
-  formSelect,
-  boxFormSelect,
-  stepFinalContainer,
-  progress,
-  result,
-  graph2DResult,
-  graph2DProgress,
-};

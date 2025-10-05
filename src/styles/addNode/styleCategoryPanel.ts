@@ -7,7 +7,15 @@ export const tabGroupContainer: SxProps = {
   display: "flex",
   '& [role="tabpanel"]': {
     maxHeight: "60vh",
-    overflow: "auto",
+
+    // overflow: "auto",
+    background: "red",
+  },
+  "& *": {
+    fontFamily: "Poppins",
+  },
+  "& .xxx": {
+    flexDirection: "row",
   },
 };
 
@@ -15,14 +23,16 @@ export const tabs: SxProps = {
   borderRight: 1,
   borderColor: theme.palette.formStyles.borderColor,
   minWidth: "120px",
-
+  background: "yellow",
 };
 
 export const tab: SxProps = {
   fontWeight: "800",
-  borderBottom: `1px solid ${theme.palette.formStyles.borderColor}`,
+  background: "green",
+  alignSelf: "flex-start",
+  textAlign: "end",
+  // borderBottom: `1px solid ${theme.palette.formStyles.borderColor}`,
 };
-
 
 export const toggleButton: SxProps = {
   backgroundColor: "#fff",
@@ -43,8 +53,17 @@ export const toggleButton: SxProps = {
   },
 };
 
-export const itemICon = (data: string | number, selectedValue: string| null): SxProps => {
+export const itemICon = (
+  data: string | number,
+  selectedValue: string | null
+): SxProps => {
   return {
     color: data == selectedValue ? "#fff" : theme.palette.text.secondary,
   };
+};
+
+export const categoryPanelContainer: SxProps = {
+  display: "flex",
+  gap: 3,
+  "& #categoryTitle": { mb: 2, color: theme.palette.text.tertiary },
 };

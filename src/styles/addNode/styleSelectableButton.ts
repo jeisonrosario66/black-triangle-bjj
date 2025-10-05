@@ -16,17 +16,24 @@ export const toggleButtonStyles: SxProps = {
 
   // Estilos al hacer hover cuando está seleccionado
   "&.Mui-selected:hover": {
-    backgroundColor: darken(theme.palette.action.success, 0.2), 
+    backgroundColor: darken(theme.palette.action.success, 0.2),
   },
 };
 
 export const toggleButtonGroupStyles: SxProps = {
   display: "grid",
   gridTemplateColumns: "repeat(2, 1fr)",
-  gap: 1.5, // Espacio entre botones
+  gap: 1.5,
   "& .MuiToggleButtonGroup-grouped": {
     margin: 0,
-    border: `2px solid ${theme.palette.formStyles.borderColor}`, // Quitar borde colapsado por defecto
-    borderRadius: "8px !important", // Forzar bordes uniformes
+    border: `2px solid ${theme.palette.formStyles.borderColor}`,
+    borderRadius: "8px !important",
+    display: "flex",
+    justifyContent: "flex-start",
+    alignItems: "center",
+  },
+  "& .MuiToggleButtonGroup-grouped div": {
+    display: "flex",
+    alignItems: "center",
   },
 };

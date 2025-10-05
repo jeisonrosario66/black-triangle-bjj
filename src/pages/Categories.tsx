@@ -44,7 +44,7 @@ const Categorias: React.FC<PropsCategorias> = ({}) => {
             ? categoriaSeleccionada[1] // Nombre de la categoría seleccionada
             : t(textoBase + "subGroupTitle")}
         </Typography>
-        <SubcategoryList subcategories={subcategorias} />
+        <SubcategoryList items={subcategorias} />
       </Grid>
     </Grid>
   );

@@ -1,40 +1,61 @@
-import { ListItem, ListItemText, Paper, Grid, Box } from "@mui/material";
-import { Subcategory } from "@src/context/index";
-import {capitalizeFirstLetter} from "@src/utils/index"
+import {
+  ListItem,
+  ListItemText,
+  Grid,
+  ListItemButton,
+  List,
+  Typography,
+} from "@mui/material";
+import { useTranslation } from "react-i18next";
 
+import { capitalizeFirstLetter } from "@src/utils/index";
 import * as styles from "@src/styles/test/styleTest";
 
-type Props = {
-  subcategories: Subcategory[];
+const textHardcoded = "components.addNode.tabGround.notItems";
+
+type SubcategoryItem = {
+  id?: string | number;
+  name?: string;
+  group?: string;
 };
 
-export default function SubcategoryList({ subcategories }: Props) {
+type Props = {
+  items: SubcategoryItem[];
+  selectedId?: string | number | null;
+  onSelect?: (id: string | number) => void;
+};
+export default function SubcategoryList({
+  items,
+  selectedId,
+  onSelect,
+}: Props) {
+  // Hook de traducción
+  const { t } = useTranslation();
+  if (!items || items.length === 0) {
+    return (
+      <Typography variant="subtitle1" color="text.primary">
+        {t(textHardcoded)}
+      </Typography>
+    );
+  }
+
   return (
     <Grid container spacing={2} sx={styles.gridContainer}>
-      {subcategories.map((sub) => (
-        <Grid
-          key={sub.label}
-          size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
-          sx={styles.gridItem}
-        >
-          <Paper elevation={2}>
-            {/* Imagen */}
-            <Box
-              component="img"
-              src={"/black-triangle-bjj/categoryExampleImg.png"}
-              alt={sub.title}
-              sx={styles.gridItemImage}
+      <List>
+        {items.map((item) => (
+          <ListItemButton
+            className="buttonItemSelector"
+            key={item.id}
+            selected={item.id === selectedId}
+            onClick={() => item.id !== undefined && onSelect?.(item.id)}
+          >
+            <ListItemText
+              className="buttonItemText"
+              primary={capitalizeFirstLetter(item.name || "item name")}
             />
-
-            <ListItem disableGutters>
-              <ListItemText
-                primary={capitalizeFirstLetter(sub.title || "sub category name")}
-                secondary={capitalizeFirstLetter(sub.description || "sub category description")}
-              />
-            </ListItem>
-          </Paper>
-        </Grid>
-      ))}
+          </ListItemButton>
+        ))}
+      </List>
     </Grid>
   );
 }

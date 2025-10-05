@@ -3,13 +3,12 @@ import { Routes, Route } from "react-router-dom";
 
 import { authListener } from "@src/hooks/index";
 import { useUIStore } from "@src/store/index";
-import {
-  cacheUser,
-  tableNameDB,
-} from "@src/context/index";
+import { cacheUser, tableNameDB, routeList} from "@src/context/index";
 import { debugLog } from "@src/utils/index";
 import MainAppLayout from "@src/layouts/MainAppLayout";
-import {Categories} from "@src/pages/index";
+import { Categories } from "@src/pages/index";
+
+import { AddNodeForm } from "@src/components/index";
 
 import { useTranslation } from "react-i18next";
 
@@ -68,8 +67,9 @@ function App() {
 
   return (
     <Routes>
-      <Route path="/" element={<MainAppLayout />} />
-      <Route path="/categories" element={<Categories />} />
+      <Route path={routeList.root} element={<MainAppLayout />} />
+      <Route path={routeList.categories} element={<Categories />} />
+      <Route path={routeList.addNode} element={<AddNodeForm />} />
     </Routes>
   );
 }
