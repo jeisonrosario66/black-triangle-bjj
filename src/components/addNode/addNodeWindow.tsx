@@ -18,7 +18,7 @@ import {
   NodeFormData,
   tableNameDB,
 } from "@src/context/index";
-import { addData, getIndex, getData } from "@src/services/index";
+import { addData, getIndex, getDataFirestore } from "@src/services/index";
 import { useUIStore } from "@src/store/index";
 import { debugLog } from "@src/utils/index";
 
@@ -32,6 +32,10 @@ const textHardcoded = "components.addNode.addNodeWindow.";
  */
 const AddNodeForm: React.FC = () => {
   const { t } = useTranslation();
+
+  /**
+   * Esquema de validación de datos del formulario usando YUP
+   */
   const schema = yup.object({
     index: yup.number().required(),
     name: yup
@@ -41,8 +45,11 @@ const AddNodeForm: React.FC = () => {
     group: yup.string().required(t(textHardcoded + "textRequired3")),
     nodeSourceIndex: yup.number().required(t(textHardcoded + "textRequired4")), // No tiene Efecto
   });
-  // finalFormData: Almacena la informacion completa recogida por el formlario
-  // Se inicializa con valores default
+
+  /**
+   * Estado que almacena la información final del formulario
+   * Se inicializa con valores por defecto
+   */
   const [finalFormData, setFinalFormData] = useState<NodeFormData>({
     index: 0,
     name: "",
@@ -52,6 +59,10 @@ const AddNodeForm: React.FC = () => {
     start: "",
     end: "",
   });
+
+  /**
+   * Estado que guarda la información del nodo fuente seleccionado
+   */
   const [finalNodeSourceData, setFinalNodeSourceData] =
     useState<NodeOptionFirestone>({
       id: 0,
@@ -83,26 +94,41 @@ const AddNodeForm: React.FC = () => {
   });
 
   const activeStep = useUIStore((state) => state.activeStep);
+
+  /**
+   * Lista de nodos obtenidos desde Firestore
+   */
   const [nodeOptions, setNodeOptions] = useState<NodeOptionFirestone[]>([]);
-  // Llama getNameNodes una sola vez al montar el componente
+
+  /**
+   * Llama a `getDataNodes` una sola vez al montar el componente
+   */
   useEffect(() => {
     const getDataNodes = async () => {
       try {
-        const dataNodes = await getData(tableNameDB.nodesArray);
+        const dataNodes = await getDataFirestore(
+          tableNameDB.AllSystemsNodesArray,
+          "nodes"
+        );
         setNodeOptions(dataNodes || []);
       } catch (error) {
         console.error("Error al obtener nodos desde Firestore:", error);
-        setNodeOptions([]); // Opcional: asegúrate de no dejar el estado sin asignar
+        setNodeOptions([]);
       }
     };
 
     getDataNodes();
   }, []);
 
+  /**
+   * Envía la información del formulario a Firestore
+   * @param dataNodes Datos ingresados en el formulario
+   */
   const onSubmit: SubmitHandler<NodeFormData> = async (dataNodes) => {
-    // Modifica el estado global para indicar que se estan cargando datos a firestore
+    // Modifica el estado global para indicar que se están cargando datos a Firestore
     useUIStore.setState({ isUploadFirestore: true });
-    // Obtendra el index del ultimo nodo almacenado y aumentara en 1 para un nuevo registro
+
+    // Obtiene el índice del último nodo y lo incrementa en 1
     const indexNewNode = (await getIndex()) + 1;
 
     const date = new Date();
@@ -110,7 +136,7 @@ const AddNodeForm: React.FC = () => {
 
     const selectedIndex = dataNodes.nodeSourceIndex;
 
-    // Informacion del nodo de origen
+    // Información del nodo de origen
     const selectedSourceNode = nodeOptions.find(
       (node) => node.index === selectedIndex
     );
@@ -133,16 +159,16 @@ const AddNodeForm: React.FC = () => {
       uploadedDate: dataNodes.uploadedDate,
     });
 
-    // guarda los datos para mostrarlos en StepFinal
+    // Guarda los datos para mostrarlos en StepFinal
     setFinalFormData({ ...dataNodes });
     setFinalNodeSourceData({ ...selectedSourceNode });
-    debugLog("debug", "Informacion enviada a firestore: ", dataNodes);
+    debugLog("debug", "Información enviada a Firestore: ", dataNodes);
     reset();
   };
 
   /**
-   * @summary : Valida el ingreso de los datos requeridos en cada paso del stepper
-   * @event: trigger: Permite evaluar los campos del formulario manualmente
+   * Valida el ingreso de los datos requeridos en cada paso del stepper
+   * @returns Array de booleanos que indica la validez de cada paso
    */
   const handleValidate = async () => {
     const arrayStepper = [false, false, false, false];
@@ -153,26 +179,21 @@ const AddNodeForm: React.FC = () => {
     const isValidStep3_end = watch("end");
     const isValidStep4 = watch("nodeSourceIndex");
 
-    if (isValidStep1) {
-      arrayStepper[0] = true;
-    }
-    if (isValidStep2) {
-      arrayStepper[1] = true;
-    }
-    if (isValidStep3_videoid && isValidStep3_start && isValidStep3_end) {
+    if (isValidStep1) arrayStepper[0] = true;
+    if (isValidStep2) arrayStepper[1] = true;
+    if (isValidStep3_videoid && isValidStep3_start && isValidStep3_end)
       arrayStepper[2] = true;
-    }
-    // isValidStep4: Representa la primera opcion en el input "nodeSourceIndex"
-    // si este es igual 1, entonces no pasara la verificacion
-    // 1 sera el defaulValue en el input
+
+    // Si el nodo fuente no es el valor por defecto (1), se marca como válido
     if (isValidStep4 !== 1) {
       arrayStepper[3] = true;
     } else {
       debugLog(
         "warn",
-        "Escoge una conexión de origen para el nodo o preciona en saltar"
+        "Escoge una conexión de origen para el nodo o presiona en saltar"
       );
     }
+
     return arrayStepper;
   };
 

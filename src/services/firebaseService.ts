@@ -18,21 +18,89 @@ import {
 import { useUIStore } from "@src/store/index";
 import { Category, Subcategory } from "@src/context/index";
 
-// -------------------------------------------------------------------------
-// OBTENER DATOS (LINKS) DESDE VARIAS COLECCIONES
-// -------------------------------------------------------------------------
-// Hace un `getDocs` en paralelo de varias colecciones de enlaces.
-// Combina todos en un solo array.
-export const getDataLinks = async (dbNames: string[]) => {
+/**
+ * Recupera documentos desde Firestore en función del tipo de datos solicitado.
+ * Permite obtener nodos o enlaces de múltiples colecciones simultáneamente.
+ * Normaliza los datos según el idioma y la estructura esperada por el grafo.
+ *
+ * @param dbNames - Lista de colecciones de Firestore a consultar.
+ * @param type - Define si se recuperan "nodes" o "links".
+ * @returns Un arreglo de nodos o enlaces normalizados.
+ */
+export const getDataFirestore = async (
+  dbNames: string[],
+  type: "nodes" | "links"
+) => {
   try {
-    // Creamos promises en paralelo
     const promises = dbNames.map((dbName) =>
       getDocs(collection(database, dbName))
     );
-    // Esperamos a que termine de leer todas las colecciones
+    const snapshots = await Promise.all(promises);
+    let results: any[] = [];
+
+    if (type === "nodes") {
+      const language = localStorage.getItem(cacheUser.languageUser) || "en";
+      results = snapshots
+        .map((querySnapshot) =>
+          querySnapshot.docs.map((doc) => {
+            const docData = doc.data();
+            return {
+              id: docData.index,
+              index: docData.index,
+              name: language === "es" ? docData.name_es : docData.name_en,
+              group: docData.group,
+              start: docData.start,
+              end: docData.end,
+              videoid: docData.videoid,
+            };
+          })
+        )
+        .flat();
+      debugLog(
+        "debug",
+        `Nodos obtenidos desde Firestore(${dbNames}): `,
+        results
+      );
+    } else if (type === "links") {
+      results = snapshots
+        .map((querySnapshot) =>
+          querySnapshot.docs.map((doc) => {
+            const docData = doc.data();
+            return {
+              target: docData.target,
+              source: docData.source,
+            };
+          })
+        )
+        .flat();
+      debugLog(
+        "debug",
+        `Enlaces obtenidos desde Firestore(${dbNames}): `,
+        results
+      );
+    }
+
+    return results;
+  } catch (error) {
+    console.error("Error obteniendo datos desde Firestore:", error);
+    return [];
+  }
+};
+
+/**
+ * Recupera y unifica enlaces desde múltiples colecciones Firestore.
+ * Ejecuta las lecturas de forma paralela para optimizar el rendimiento.
+ *
+ * @param dbNames - Lista de colecciones de enlaces.
+ * @returns Un arreglo plano con todos los enlaces encontrados.
+ */
+export const getDataLinks = async (dbNames: string[]) => {
+  try {
+    const promises = dbNames.map((dbName) =>
+      getDocs(collection(database, dbName))
+    );
     const snapshots = await Promise.all(promises);
 
-    // Unificamos en un solo array
     const results = snapshots
       .map((querySnapshot) =>
         querySnapshot.docs.map((doc) => {
@@ -47,32 +115,30 @@ export const getDataLinks = async (dbNames: string[]) => {
 
     debugLog(
       "debug",
-      `Enlaces obtenidos desde firestone(${dbNames}): `,
+      `Enlaces obtenidos desde Firestore(${dbNames}): `,
       results
     );
     return results;
   } catch (error) {
     console.error("Error obteniendo enlaces desde Firestore:", error);
-    return []; // o puedes lanzar el error si así lo deseas
+    return [];
   }
 };
 
-// -------------------------------------------------------------------------
-// OBTENER DATOS (NODES) DESDE VARIAS COLECCIONES
-// -------------------------------------------------------------------------
-// Hace un `getDocs` en paralelo de varias colecciones de nodos.
-// Combina todos en un solo array de nodos.
+/**
+ * Recupera y normaliza nodos desde múltiples colecciones Firestore.
+ * Aplica traducción según el idioma configurado en cacheUser.languageUser.
+ *
+ * @param dbNames - Lista de colecciones de nodos.
+ * @returns Un arreglo con los nodos combinados y normalizados.
+ */
 export const getDataNodes = async (dbNames: string[]) => {
   try {
-    // Creamos promises en paralelo
     const promises = dbNames.map((dbName) =>
       getDocs(collection(database, dbName))
     );
-
-    // Esperamos a que termine de leer todas las colecciones
     const snapshots = await Promise.all(promises);
 
-    // Unificamos en un solo array de nodos
     const results = snapshots
       .map((querySnapshot) =>
         querySnapshot.docs.map((doc) => {
@@ -96,20 +162,22 @@ export const getDataNodes = async (dbNames: string[]) => {
     useUIStore.setState({ documentsFirestore: results });
     debugLog(
       "debug",
-      `Documentos obtenidos desde firestone(${tableNameDB.nodesArray}): `,
+      `Documentos obtenidos desde Firestore(${tableNameDB.AllSystemsNodesArray}): `,
       results
     );
     return results;
   } catch (error) {
     console.error("Error obteniendo documentos desde Firestore:", error);
-    return []; // o puedes lanzar el error si así lo deseas
+    return [];
   }
 };
 
-// -------------------------------------------------------------------------
-// OBTENER ÚLTIMO INDEX (MAYOR)
-// -------------------------------------------------------------------------
-// Busca el valor más grande en el campo "index" de toda la colección.
+/**
+ * Obtiene el valor máximo del campo "index" desde la colección global de índices.
+ * Se utiliza para asignar el siguiente identificador numérico disponible.
+ *
+ * @returns El valor máximo encontrado o 0 si ocurre un error.
+ */
 export const getIndex = async () => {
   try {
     const querySnapshot = await getDocs(
@@ -118,7 +186,6 @@ export const getIndex = async () => {
 
     const values = querySnapshot.docs.map((doc) => doc.data()["index"]);
     const maxValue = Math.max(...values.filter((v) => typeof v === "number"));
-
     return maxValue;
   } catch (error) {
     console.error("Error obteniendo el valor index: ", error);
@@ -126,11 +193,12 @@ export const getIndex = async () => {
   }
 };
 
-// -------------------------------------------------------------------------
-// AGREGAR NUEVOS DATOS A NODES + LINKS
-// -------------------------------------------------------------------------
-// Agrega primero el nuevo nodo, luego actualiza el index, y finalmente
-// añade el link si tiene fuente.
+/**
+ * Agrega un nuevo nodo y, si corresponde, su enlace asociado en Firestore.
+ * Además, actualiza el índice global de nodos tras la inserción.
+ *
+ * @param data - Objeto con la información del nodo y su vínculo opcional.
+ */
 export const addData = async (data: NodeInsertData) => {
   const {
     dbNodesName,
@@ -147,10 +215,9 @@ export const addData = async (data: NodeInsertData) => {
   } = data;
 
   try {
-    // Agregar nuevo node
     await addDoc(collection(database, dbNodesName), {
-      name_es: name_es.trim().toLowerCase(), // normalizamos
-      name_en: name_en.trim().toLowerCase(), // normalizamos
+      name_es: name_es.trim().toLowerCase(),
+      name_en: name_en.trim().toLowerCase(),
       index,
       group,
       uploadedDate,
@@ -159,13 +226,11 @@ export const addData = async (data: NodeInsertData) => {
       end,
     });
 
-    // Actualizamos el último index utilizado
     await updateDoc(
       doc(database, tableNameDB.indexGlobal, tableNameDB.indexGlobalID),
       { index }
     );
 
-    // Finalmente, si tiene fuente, también grabamos el nuevo link
     if (nodeSource !== 1) {
       await addDoc(collection(database, dbLinksName), {
         target: index,
@@ -186,10 +251,13 @@ export const addData = async (data: NodeInsertData) => {
   }
 };
 
-// -------------------------------------------------------------------------
-// OBTENER DATOS DE GRUPOS
-// -------------------------------------------------------------------------
-// Busca grupos en Firestore y proporciona la traducción según el idioma.
+/**
+ * Recupera información de los grupos almacenados en Firestore.
+ * Incluye la traducción dinámica de títulos y descripciones según el idioma activo.
+ *
+ * @param dbName - Nombre de la colección de grupos.
+ * @returns Un arreglo de grupos traducidos.
+ */
 export const getDataGroup = async (dbName: string) => {
   const language = localStorage.getItem(cacheUser.languageUser);
   try {
@@ -205,26 +273,29 @@ export const getDataGroup = async (dbName: string) => {
       };
     });
 
-    debugLog("debug", "Groups obtenidos desde firestone: ", data);
+    debugLog("debug", "Grupos obtenidos desde Firestore: ", data);
     return data;
   } catch (error) {
     console.error("Error obteniendo grupos desde Firestore:", error);
-    return []; // o puedes lanzar el error si así lo deseas
+    return [];
   }
 };
 
-// -------------------------------------------------------------------------
-// OBTENER DATOS DE TAXONOMY
-// -------------------------------------------------------------------------
+/**
+ * Hook React que obtiene las categorías principales desde Firestore.
+ * Realiza la traducción de campos de texto según el idioma configurado.
+ *
+ * @returns Lista de categorías traducidas.
+ */
 export const useCategories = () => {
   const [categories, setCategories] = useState<Category[]>([]);
   const language = localStorage.getItem(cacheUser.languageUser) || "en";
+
   useEffect(() => {
     const fetch = async () => {
       const snapshot = await getDocs(collection(database, tableNameDB.group));
       const data = snapshot.docs.map((doc) => {
         const docData = doc.data() as Category;
-
         return {
           label: doc.id,
           title: language === "en" ? docData.title_en : docData.title_es,
@@ -244,9 +315,14 @@ export const useCategories = () => {
 
   return categories;
 };
-// -------------------------------------------------------------------------
-// OBTENER SUBCATEGORÍAS DE UN GRUPO
-// -------------------------------------------------------------------------
+
+/**
+ * Hook React que obtiene las subcategorías asociadas a un grupo específico.
+ * Las descripciones y títulos se adaptan al idioma activo en cacheUser.
+ *
+ * @param groupId - Identificador del grupo al que pertenecen las subcategorías.
+ * @returns Lista de subcategorías traducidas pertenecientes al grupo indicado.
+ */
 export const useSubcategories = (groupId: string) => {
   const [subCategories, setSubCategories] = useState<Subcategory[]>([]);
   const language = localStorage.getItem(cacheUser.languageUser) || "en";
@@ -263,7 +339,6 @@ export const useSubcategories = (groupId: string) => {
       const snapshot = await getDocs(subRef);
       const data = snapshot.docs.map((doc) => {
         const docData = doc.data() as Subcategory;
-
         return {
           label: doc.id,
           title: language === "en" ? docData.title_en : docData.title_es,

@@ -2,7 +2,7 @@ import { useEffect, useState, useMemo } from "react";
 import { Box, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
-import { getData, useCategories } from "@src/services/index";
+import { getDataFirestore, useCategories } from "@src/services/index";
 import { NodeOptionFirestone, tableNameDB } from "@src/context/index";
 import { debugLog, capitalizeFirstLetter } from "@src/utils/index";
 import { CategorySelector, SubcategoryList } from "@src/components/index";
@@ -48,7 +48,7 @@ export default function CategoryPanel({
     const fetchData = async () => {
       setLoading(true);
       try {
-        const data = await getData(tableNameDB.nodesArray);
+        const data = await getDataFirestore(tableNameDB.AllSystemsNodesArray, "nodes");
         setTabData(data || []);
       } catch (error) {
         console.error("Error al cargar datos:", error);

@@ -1,34 +1,35 @@
 import { useState, useEffect } from "react";
 import useUIStore from "@src/store/useCounterStore";
 import { GraphNode, GraphData } from "@src/context/exportType";
-import { tableNameDB } from "@src/context/configGlobal";
 import { getDataNodes, getDataLinks } from "@src/services/firebaseService";
 
 const useGraphData = () => {
   /**
-   * Este hook recupera nodos y enlaces desde Firebase Firestore y los almacena
-   * en el estado local para ser usados en una visualización de grafo.
+   * Este hook recupera nodos y enlaces desde Firebase Firestore y los actualiza
+   * dinámicamente cuando cambian las rutas en Zustand.
    */
+
+  // 🔹 Traemos los arrays directamente del store
+  const nodesArray = useUIStore((state) => state.systemBjjSelectedNodes);
+  const linksArray = useUIStore((state) => state.systemBjjSelectedLinks);
+
   const [gData, setGData] = useState<GraphData>({
     nodes: [],
     links: [],
   });
 
   useEffect(() => {
-    useUIStore.setState({ isLoadingFirestore: true });
     const fetchData = async () => {
+      useUIStore.setState({ isLoadingFirestore: true });
       try {
-        // 1. Obtener nodos
-        // Usamos `getData()` para obtener nodos
-        const nodes = (await getDataNodes(
-          tableNameDB.nodesArray
-        )) as GraphNode[];
-        // Filtrar el nodo con index o id igual a 1
+        // 🔸 Obtener nodos
+        const nodes = (await getDataNodes(nodesArray)) as GraphNode[];
         const filteredNodes = nodes.filter((node) => node.id !== 1);
 
-        // 2. Obtener enlaces
-        const links = await getDataLinks(tableNameDB.linksArray);
+        // 🔸 Obtener enlaces
+        const links = await getDataLinks(linksArray);
 
+        // 🔹 Actualizar datos globales del grafo
         setGData({ nodes: filteredNodes, links });
       } catch (error) {
         console.error("Error obteniendo datos:", error);
@@ -37,8 +38,10 @@ const useGraphData = () => {
       }
     };
 
+    // 🔥 Ejecuta cada vez que cambian los arrays del store
     fetchData();
-  }, []);
+  }, [nodesArray, linksArray]);
+
   return gData;
 };
 

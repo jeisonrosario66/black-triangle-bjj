@@ -1,10 +1,9 @@
 // firebaseService
 export {
   addData,
-  getDataNodes as getData,
   getIndex,
   getDataGroup,
-  getDataLinks,
   useCategories,
-  useSubcategories
+  useSubcategories,
+  getDataFirestore,
 } from "@src/services/firebaseService";

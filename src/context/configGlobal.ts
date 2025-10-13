@@ -1,16 +1,53 @@
 import { DagMode } from "@src/context/index";
+import { useUIStore } from "@src/store/index";
 
-// Configuración visual global para el lienzo y la escena 3D
-export const configGlobal = {
-  canvasBackgraundColor: "#002", // Color de fondo del canvas 3D
-  intensity: 0.7, // Intensidad de la luz ambiental
-  colorLight: "#fff", // Color de la luz direccional
-  position: [100, 20, 10] as [number, number, number], // Posición de la luz en el espacio
-  logoApp: "./logoApp.svg",
-  namePage: "BLACK \n TRIANGLE BJJ"
+/**
+ * Convierte una cadena almacenada en localStorage en un arreglo de cadenas.
+ * Intenta analizar primero como JSON; si falla, limpia manualmente el texto
+ * y separa los elementos por comas.
+ * @param key - Clave del elemento almacenado en localStorage.
+ * @returns Un arreglo de cadenas válidas.
+ */
+const parseCacheArray = (key: string): string[] => {
+  const raw = localStorage.getItem(key);
+  if (!raw) return [];
+
+  try {
+    const parsed = JSON.parse(raw);
+    if (Array.isArray(parsed))
+      return parsed.filter((x) => typeof x === "string");
+
+    return raw
+      .replace(/[\[\]']+/g, "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  } catch {
+    return raw
+      .replace(/[\[\]']+/g, "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter(Boolean);
+  }
 };
 
-// Colores asociados a cada tipo de grupo de nodo en el grafo
+/**
+ * Configuración general del entorno visual 3D y parámetros de la aplicación.
+ * Define colores, iluminación, posición de la cámara y nombre de la aplicación.
+ */
+export const configGlobal = {
+  canvasBackgraundColor: "#002",
+  intensity: 0.7,
+  colorLight: "#fff",
+  position: [100, 20, 10] as [number, number, number],
+  logoApp: "./logoApp.svg",
+  namePage: "BLACK \n TRIANGLE BJJ",
+};
+
+/**
+ * Paleta de colores asociada a los tipos de nodos del sistema BJJ.
+ * Cada tipo tiene un color específico para facilitar su identificación visual.
+ */
 export const groupColor: Record<string, string> = {
   system: "rgb(159, 159, 159)",
   submission: "rgb(200, 0, 0)",
@@ -23,62 +60,107 @@ export const groupColor: Record<string, string> = {
   guard: "rgb(139, 69, 19)",
 };
 
-// Propiedades de la cámara para entorno de desarrollo (posición y límites)
+/**
+ * Propiedades de la cámara utilizadas en modo de desarrollo.
+ * Permiten un control flexible para depuración de la escena 3D.
+ */
 export const cameraPropsDev = {
-  fov: 80, // Ángulo de visión vertical (field of view)
-  near: 0.1, // Distancia mínima de renderizado
-  far: 1000, // Distancia máxima de renderizado
-  position: [251, -93, -18] as [number, number, number], // Posición inicial de la cámara
-
-  dollySpeed: 4, // Velocidad del zoom (dolly)
-  minDistance: 20, // Límite mínimo de distancia de la cámara
-  maxDistance: 270, // Límite máximo de distancia de la cámara
+  fov: 80,
+  near: 0.1,
+  far: 1000,
+  position: [251, -93, -18] as [number, number, number],
+  dollySpeed: 4,
+  minDistance: 20,
+  maxDistance: 270,
 };
 
-// Configuración del fondo estrellado para la escena (usado como decoración visual)
+/**
+ * Configuración del entorno estrellado utilizado como fondo visual.
+ * Controla el número, tamaño y movimiento de los elementos del fondo.
+ */
 export const scenePropsDev = {
-  radius: 180, // Radio del efecto estrellado
-  depth: 5, // Profundidad del campo de estrellas
-  count: 2000, // Número de estrellas
-  factor: 7, // Dispersión de las estrellas en el espacio
-  saturation: 1, // Saturación del color
-  speed: 0.5, // Velocidad de movimiento del fondo
+  radius: 180,
+  depth: 5,
+  count: 2000,
+  factor: 7,
+  saturation: 1,
+  speed: 0.5,
 };
 
-// Nombres de las colecciones utilizadas en la base de datos (Firestore)
+/**
+ * Rutas a las colecciones de sistemas BJJ almacenadas en Firestore.
+ * Contienen las definiciones de nodos y enlaces por sistema.
+ */
 const SystemsOfBjjNodes = ["/systems/headlock/nodes", "/systems/test/nodes"];
 const SystemsOfBjjLinks = ["/systems/headlock/links", "/systems/test/links"];
 
-const selectedNodes = SystemsOfBjjNodes.slice(1, 2);
-const selectedLinks = SystemsOfBjjLinks.slice(1, 2);
+/**
+ * Lista de sistemas disponibles para carga y visualización en la aplicación.
+ * Cada entrada asocia los nodos, enlaces y una etiqueta descriptiva.
+ */
+export const systemsOptions = [
+  {
+    valueNodes: "/systems/test/nodes",
+    valueLinks: "/systems/test/links",
+    label: "Test",
+  },
+  {
+    valueNodes: "/systems/headlock/nodes",
+    valueLinks: "/systems/headlock/links",
+    label: "HeadLock",
+  },
+];
 
-export const nodes = SystemsOfBjjNodes[1]; // Colección de nodos activa
-export const links = SystemsOfBjjLinks[1]; // Colección de enlaces entre nodos activa
+/**
+ * Claves y configuraciones relacionadas con la persistencia de preferencias del usuario.
+ * Incluye idioma, configuración de grafo y sistemas cargados en caché.
+ */
+export const cacheUser = {
+  languageDefault: "es",
+  languageUser: "languageApp",
+  navigationsGestures: "hideNavigationGestures",
 
+  dagModeCache: "dagMode",
+  dagMode: (localStorage.getItem("dagMode") as DagMode) || ("rl" as DagMode),
+
+  dagLevelDistanceCache: "dagLevelDistance",
+  dagLevelDistance: localStorage.getItem("dagLevelDistance") || 35,
+
+  systemsCacheNameNodes: "systemsCacheNodes",
+  systemsCacheNameLinks: "systemsCacheLinks",
+
+  systemsNodesLoaded: [],
+  systemsLinksLoaded: [],
+};
+
+/**
+ * Rutas activas de nodos y enlaces para la sesión actual.
+ * Estas rutas determinan el contenido del grafo que se cargará.
+ */
+export const nodes = SystemsOfBjjNodes[1];
+export const links = SystemsOfBjjLinks[1];
+const systemCacheLoadedLinks = parseCacheArray(cacheUser.systemsCacheNameLinks);
+const systemCacheLoadedNodes = parseCacheArray(cacheUser.systemsCacheNameNodes);
+
+/**
+ * Tabla de rutas y colecciones principales utilizadas en Firestore.
+ * Contiene referencias tanto a los sistemas almacenados como a los índices globales.
+ */
 export const tableNameDB = {
-  nodesArray: selectedNodes,
-  linksArray: selectedLinks,
+  AllSystemsNodesArray: systemCacheLoadedNodes,
+  AllSystemsLinksArray: systemCacheLoadedLinks,
   nodes,
   links,
-  group: "taxonomy", // Colección de grupos o categorías
-  subCategory: "subCategories", // Ex: taxonomy/takedown/subCategories
+  group: "taxonomy",
+  subCategory: "subCategories",
   indexGlobal: "indexGlobal",
   indexGlobalID: "9rII6qZvvc9ppKLcny3k",
 };
 
-// Valores almacenados en caché local por usuario (idioma, preferencias de visualización)
-export const cacheUser = {
-  languageDefault: "es", // Idioma predeterminado de la app
-  languageUser: "languageApp", // Clave del idioma almacenado en localStorage
-  navigationsGestures: "hideNavigationGestures", // Clave para ocultar gestos de navegación
-
-  dagModeCache: "dagMode", // Clave del modo DAG guardado en caché
-  dagMode: (localStorage.getItem("dagMode") as DagMode) || ("rl" as DagMode), // Modo DAG actual o valor por defecto
-
-  dagLevelDistanceCache: "dagLevelDistance", // Clave para la separación de niveles
-  dagLevelDistance: localStorage.getItem("dagLevelDistance") || 35, // Valor de separación por defecto o cacheado
-};
-
+/**
+ * Rutas principales de navegación interna de la aplicación.
+ * Define las direcciones utilizadas por el enrutador para acceder a las vistas.
+ */
 export const routeList = {
   root: "/",
   categories: "/categories",

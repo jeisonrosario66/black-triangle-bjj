@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 
 import { authListener } from "@src/hooks/index";
 import { useUIStore } from "@src/store/index";
-import { cacheUser, tableNameDB, routeList} from "@src/context/index";
+import { cacheUser, routeList } from "@src/context/index";
 import { debugLog } from "@src/utils/index";
 import MainAppLayout from "@src/layouts/MainAppLayout";
 import { Categories } from "@src/pages/index";
@@ -21,6 +21,10 @@ function App() {
   const isConfigWindowActive = useUIStore(
     (state) => state.isConfigWindowActive
   );
+  const systemsBjjSelectedNodesStore = useUIStore(
+    (state) => state.systemBjjSelectedNodes
+  );
+
   // Hook de traducción
   const { t, i18n } = useTranslation();
   // Referencia para los controles de la camara (usado por drei)
@@ -41,7 +45,7 @@ function App() {
       cacheUser.dagLevelDistanceCache,
       String(cacheUser.dagLevelDistance)
     );
-    debugLog("info", "Sistema de Bjj Cargado: ", tableNameDB.nodesArray);
+    debugLog("info", "Sistema de Bjj Cargado: ", systemsBjjSelectedNodesStore);
   }, []);
 
   // Hook para mostrar alertas cuando cambia el estado de inicio de sesión
