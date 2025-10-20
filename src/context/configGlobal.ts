@@ -1,35 +1,6 @@
 import { DagMode } from "@src/context/index";
-import { useUIStore } from "@src/store/index";
+import { parseCacheArray } from "@src/hooks/index";
 
-/**
- * Convierte una cadena almacenada en localStorage en un arreglo de cadenas.
- * Intenta analizar primero como JSON; si falla, limpia manualmente el texto
- * y separa los elementos por comas.
- * @param key - Clave del elemento almacenado en localStorage.
- * @returns Un arreglo de cadenas válidas.
- */
-const parseCacheArray = (key: string): string[] => {
-  const raw = localStorage.getItem(key);
-  if (!raw) return [];
-
-  try {
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed))
-      return parsed.filter((x) => typeof x === "string");
-
-    return raw
-      .replace(/[\[\]']+/g, "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-  } catch {
-    return raw
-      .replace(/[\[\]']+/g, "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-  }
-};
 
 /**
  * Configuración general del entorno visual 3D y parámetros de la aplicación.

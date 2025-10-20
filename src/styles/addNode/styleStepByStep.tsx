@@ -1,5 +1,5 @@
 import themeApp from "@src/styles/stylesThemeApp";
-import { margin, SxProps } from "@mui/system";
+import { SxProps } from "@mui/system";
 import React from "react";
 
 const theme = themeApp;

@@ -11,7 +11,7 @@ import { useTranslation } from "react-i18next";
 const textoBase = "pages.categories.";
 
 type PropsCategorias = {};
-const Categorias: React.FC<PropsCategorias> = ({}) => {
+const Categorias: React.FC<PropsCategorias> = () => {
   const { t } = useTranslation();
 
   // Estado que guarda la categoría seleccionada: [id, nombre]

@@ -24,10 +24,7 @@ function getCallerLocation(): string {
   const regex2 = /at\s+(.{1,512}?)$/;
 
   let match = regex1.exec(callerLine || "");
-  if (!match) {
-    match = regex2.exec(callerLine || "");
-  }
-
+  match ??= regex2.exec(callerLine || "");
   return match ? match[1] : "ubicación desconocida";
 }
 

@@ -50,20 +50,3 @@ export const selectSystemItem = (selected: boolean): SxProps<Theme> => ({
     color: selected ? "primary.main" : "text.primary",
   },
 });
-
-// /** Botón de guardar cambios */
-// export const buttonSave: SxProps<Theme> = {
-//   alignSelf: "center",
-//   width: "50%",
-//   paddingY: "0.8rem",
-//   fontWeight: 600,
-//   borderRadius: "12px",
-//   letterSpacing: "0.5px",
-//   textTransform: "none",
-//   boxShadow: "0 4px 14px rgba(25, 118, 210, 0.3)",
-//   transition: "all 0.25s ease",
-//   "&:hover": {
-//     transform: "scale(1.03)",
-//     boxShadow: "0 6px 18px rgba(25, 118, 210, 0.4)",
-//   },
-// };

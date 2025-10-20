@@ -1,6 +1,6 @@
 import { SxProps } from "@mui/system";
 import themeApp from "@src/styles/stylesThemeApp";
-import { darken, Typography } from "@mui/material";
+import { darken } from "@mui/material";
 const theme = themeApp;
 
 export const containerPanel: SxProps = {
@@ -83,10 +83,3 @@ export const gridContainer: SxProps = {
     fontFamily: theme.palette.typography.fontFamily,
   },
 };
-
-// export const gridItemImage: SxProps = {
-//   width: "70%",
-//   objectFit: "cover",
-//   display: "flex",
-//   margin: "auto",
-// };

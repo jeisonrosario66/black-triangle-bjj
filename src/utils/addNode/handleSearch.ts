@@ -167,7 +167,7 @@ const handleSearch = async (
       {
         params: {
           part: "snippet,contentDetails,statistics",
-          id: videoIdFromUrl ? videoIdFromUrl : videoIds.join(","),
+          id: videoIdFromUrl ?? videoIds.join(","),
           key: apiKey,
         },
       }

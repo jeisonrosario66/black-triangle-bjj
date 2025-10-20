@@ -28,7 +28,7 @@ const textHardcoded = "components.addNode.tabGround.";
 export default function CategoryPanel({
   onSelectionChange,
 }: {
-  onSelectionChange: (value: string | null) => void;
+  readonly onSelectionChange: (value: string | null) => void;
 }) {
   // Estado que contiene todos los nodos obtenidos de Firestore
   const [tabData, setTabData] = useState<NodeOptionFirestone[]>([]);
@@ -48,7 +48,10 @@ export default function CategoryPanel({
     const fetchData = async () => {
       setLoading(true);
       try {
-        const data = await getDataFirestore(tableNameDB.AllSystemsNodesArray, "nodes");
+        const data = await getDataFirestore(
+          tableNameDB.AllSystemsNodesArray,
+          "nodes"
+        );
         setTabData(data || []);
       } catch (error) {
         console.error("Error al cargar datos:", error);
@@ -88,7 +91,9 @@ export default function CategoryPanel({
   >(null);
 
   // Subcategoría seleccionada (aún no implementada, pero reservada para expansión)
-  const [, setSelectedSubcategory] = useState<string | null>(null);
+  const [_selectedSubcategory, setSelectedSubcategory] = useState<
+    string | null
+  >(null);
 
   // Obtiene la categoría completa a partir de la selección
   const categorias = useCategories();
@@ -128,7 +133,7 @@ export default function CategoryPanel({
                 items={items}
                 selectedId={selectedItemId}
                 onSelect={(id) => {
-                    setSelectedItemId(id);
+                  setSelectedItemId(id);
                   // Notifica al padre con el ID del ítem seleccionado
                   if (onSelectionChange) onSelectionChange(id.toString());
                 }}

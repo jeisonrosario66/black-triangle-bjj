@@ -21,21 +21,19 @@ const HeaderAddNode: React.FC<HeaderAddNodeProps> = ({ title }) => {
   };
 
   return (
-    <>
-      <Box sx={style.containerHeaderAddNode}>
-        <Box sx={style.logoContainer}>
-          <img src={configGlobal.logoApp} alt="Black Triangle BJJ Logo" />
-        </Box>
-        <Typography sx={style.headerTitle}>{title}</Typography>
-        <IconButton
-          aria-label="close"
-          onClick={buttonCloseFunction}
-          sx={style.closeButton}
-        >
-          <CloseIcon fontSize="medium" />
-        </IconButton>
+    <Box sx={style.containerHeaderAddNode}>
+      <Box sx={style.logoContainer}>
+        <img src={configGlobal.logoApp} alt="Black Triangle BJJ Logo" />
       </Box>
-    </>
+      <Typography sx={style.headerTitle}>{title}</Typography>
+      <IconButton
+        aria-label="close"
+        onClick={buttonCloseFunction}
+        sx={style.closeButton}
+      >
+        <CloseIcon fontSize="medium" />
+      </IconButton>
+    </Box>
   );
 };
 

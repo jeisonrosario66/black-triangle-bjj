@@ -5,10 +5,11 @@ import {capitalizeFirstLetter} from "@src/utils/index"
 import * as styles from "@src/styles/test/styleTest";
 
 type Props = {
-  categories: Category[];
-  onSelect?: (id: [string, string]) => void; // función que envía el dato al padre
-  selectedId?: string | null;
+  readonly categories: Category[];
+  readonly onSelect?: (id: [string, string]) => void;
+  readonly selectedId?: string | null;
 };
+
 
 export default function CategorySelector({
   categories,

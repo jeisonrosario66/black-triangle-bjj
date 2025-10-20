@@ -14,9 +14,10 @@ import {
   tableNameDB,
   NodeInsertData,
   cacheUser,
+  Category,
+  Subcategory,
 } from "@src/context/index";
 import { useUIStore } from "@src/store/index";
-import { Category, Subcategory } from "@src/context/index";
 
 /**
  * Recupera documentos desde Firestore en función del tipo de datos solicitado.
@@ -40,39 +41,37 @@ export const getDataFirestore = async (
 
     if (type === "nodes") {
       const language = localStorage.getItem(cacheUser.languageUser) || "en";
-      results = snapshots
-        .map((querySnapshot) =>
-          querySnapshot.docs.map((doc) => {
-            const docData = doc.data();
-            return {
-              id: docData.index,
-              index: docData.index,
-              name: language === "es" ? docData.name_es : docData.name_en,
-              group: docData.group,
-              start: docData.start,
-              end: docData.end,
-              videoid: docData.videoid,
-            };
-          })
-        )
-        .flat();
+      results = snapshots.flatMap((querySnapshot) =>
+        querySnapshot.docs.map((doc) => {
+          const docData = doc.data();
+          return {
+            id: docData.index,
+            index: docData.index,
+            name: language === "es" ? docData.name_es : docData.name_en,
+            group: docData.group,
+            start: docData.start,
+            end: docData.end,
+            videoid: docData.videoid,
+          };
+        })
+      );
+
       debugLog(
         "debug",
         `Nodos obtenidos desde Firestore(${dbNames}): `,
         results
       );
     } else if (type === "links") {
-      results = snapshots
-        .map((querySnapshot) =>
-          querySnapshot.docs.map((doc) => {
-            const docData = doc.data();
-            return {
-              target: docData.target,
-              source: docData.source,
-            };
-          })
-        )
-        .flat();
+      results = snapshots.flatMap((querySnapshot) =>
+        querySnapshot.docs.map((doc) => {
+          const docData = doc.data();
+          return {
+            target: docData.target,
+            source: docData.source,
+          };
+        })
+      );
+
       debugLog(
         "debug",
         `Enlaces obtenidos desde Firestore(${dbNames}): `,
@@ -242,7 +241,7 @@ export const addData = async (data: NodeInsertData) => {
     debugLog(
       "info",
       "Link agregado: Source:",
-      nodeSource !== 1 ? nodeSource : "Nodo sin conexión {1}"
+      nodeSource === 1 ? "Nodo sin conexión {1}" : nodeSource
     );
   } catch (error) {
     console.error("Error al agregar documento:", error);

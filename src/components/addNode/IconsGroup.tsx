@@ -1,8 +1,7 @@
 import React from "react";
 
 import { getDataGroup } from "@src/services/index";
-import { tableNameDB } from "@src/context/index";
-import { OptionTechniqueCard } from "@src/context/index";
+import { tableNameDB, OptionTechniqueCard } from "@src/context/index";
 
 import themeApp from "@src/styles/stylesThemeApp";
 const theme = themeApp;
@@ -289,6 +288,7 @@ const iconMap: Record<string, React.JSX.Element> = {
   system: <SystemIcon color={theme.palette.text.secondary} />,
   transition: <TransitionIcon color={theme.palette.text.secondary} />,
 };
+// sonarjs-ignore S6861: export mutable variable intentionally for dynamic update
 export let optionsMenu: OptionTechniqueCard[] = [];
 
 (async () => {

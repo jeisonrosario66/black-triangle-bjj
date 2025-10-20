@@ -1,8 +1,8 @@
 // i18n.tsx — Configura i18next para React con traducciones estáticas
+// sonarjs-ignore S7763: prefer explicit import/export style
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
 import { cacheUser } from "@src/context/index";
-// import LanguageDetector from 'i18next-browser-languagedetector'; // Opcional: detecta idioma del navegador
 
 // Archivos JSON con las traducciones
 import { translationEN, translationES } from "@src/locales/index";
@@ -29,4 +29,5 @@ i18n
     },
   });
 
+// sonarjs-ignore S7763: prefer explicit import/export style
 export default i18n; // Exporta la instancia configurada

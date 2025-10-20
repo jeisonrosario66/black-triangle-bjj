@@ -185,13 +185,13 @@ const AddNodeForm: React.FC = () => {
       arrayStepper[2] = true;
 
     // Si el nodo fuente no es el valor por defecto (1), se marca como válido
-    if (isValidStep4 !== 1) {
-      arrayStepper[3] = true;
-    } else {
+    if (isValidStep4 === 1) {
       debugLog(
         "warn",
         "Escoge una conexión de origen para el nodo o presiona en saltar"
       );
+    } else {
+      arrayStepper[3] = true;
     }
 
     return arrayStepper;

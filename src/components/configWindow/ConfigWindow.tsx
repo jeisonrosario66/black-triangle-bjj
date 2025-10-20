@@ -98,7 +98,7 @@ const ConfigWindow: React.FC = () => {
    */
   const handleChangeDagLevel = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = Number(e.target.value);
-    if (!isNaN(value) && value >= 0 && value <= 100) {
+    if (!Number.isNaN(value) && value >= 0 && value <= 100) {
       setDagLevel(value);
       useUIStore.setState({ dagLevelDistanceConfig: value });
     }

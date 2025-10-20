@@ -23,13 +23,13 @@ const ButtonClose: React.FC<ButtonCloseProps> = ({
       disabled={isUploadFirestore}
       onClick={buttonFunction}
       sx={{
-        ...(!isPositionAbsolute
-          ? {}
-          : {
+        ...(isPositionAbsolute
+          ? {
               position: "absolute",
               top: 10,
               right: 10,
-            }),
+            }
+          : {}),
 
         marginRight: "1rem",
         backgroundColor: lighten(

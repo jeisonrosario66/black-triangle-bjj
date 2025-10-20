@@ -61,14 +61,6 @@ function App() {
     }
   }, [isUserLogin]);
 
-  // const controls = cameraControlsRef.current;
-  // if (controls) {
-  //   const { x, y, z } = controls.camera.position;
-  //   console.log("Posición de la cámara:", x, y, z);
-  // }
-
-  // cordenadas en tiempo de la posicion de la camara
-
   return (
     <Routes>
       <Route path={routeList.root} element={<MainAppLayout />} />
