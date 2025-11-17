@@ -17,7 +17,7 @@ const HeaderAddNode: React.FC<HeaderAddNodeProps> = ({ title }) => {
   const navigate = useNavigate();
   const buttonCloseFunction = () => {
     navigate(routeList.root);
-    useUIStore.setState({ activeStep: 0 });
+    useUIStore.setState({ addNodeActiveStep: 0 });
   };
 
   return (

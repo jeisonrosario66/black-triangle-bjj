@@ -77,6 +77,7 @@ export type GraphNode = {
   start?: string;
   end?: string;
   videoid?: string;
+  description?:string;
 };
 
 /**

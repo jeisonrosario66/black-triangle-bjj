@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Typography, Grid } from "@mui/material";
 
-import { CategorySelector, SubcategoryList } from "@src/components/index";
+import { CategorySelector } from "@src/components/index";
 import { useCategories, useSubcategories } from "@src/services/index";
 
 import * as styles from "@src/styles/test/styleTest";
@@ -44,7 +44,7 @@ const Categorias: React.FC<PropsCategorias> = () => {
             ? categoriaSeleccionada[1] // Nombre de la categoría seleccionada
             : t(textoBase + "subGroupTitle")}
         </Typography>
-        <SubcategoryList items={subcategorias} />
+        {/* <SubcategoryList items={subcategorias} /> */}
       </Grid>
     </Grid>
   );

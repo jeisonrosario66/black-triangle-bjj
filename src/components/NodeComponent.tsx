@@ -80,7 +80,6 @@ const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
 
       // (Opcional) animar la cámara hacia el nodo
       animateCameraToNode(cameraControlsRef.current, nodePosition, 30);
-
       // Guardar datos del nodo clickeado en el store
       useUIStore.setState({ nodeViewData: node });
     },

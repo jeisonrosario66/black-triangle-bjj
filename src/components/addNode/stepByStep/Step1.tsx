@@ -15,6 +15,14 @@ type Step1Props = {
   errors: FieldErrors<any>;
 };
 
+/**
+ * Paso 1 del formulario para crear un nodo.
+ * Contiene el encabezado y el campo principal para ingresar el nombre del nodo.
+ *
+ * @component
+ * @param {Control<any>} control - Controlador de react-hook-form para manejar estado del formulario.
+ * @param {FieldErrors<any>} errors - Errores actuales del formulario asociados a cada campo.
+ */
 const Step1: React.FC<Step1Props> = ({ control, errors }) => {
   const { t } = useTranslation();
 
@@ -27,7 +35,6 @@ const Step1: React.FC<Step1Props> = ({ control, errors }) => {
         toolTipInfo={t(textHardcoded + "toolTipInfo")}
       />
 
-      {/* Campo "name" */}
       <Controller
         name="name"
         control={control}

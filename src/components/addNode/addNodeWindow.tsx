@@ -93,7 +93,7 @@ const AddNodeForm: React.FC = () => {
     },
   });
 
-  const activeStep = useUIStore((state) => state.activeStep);
+  const activeStep = useUIStore((state) => state.addNodeActiveStep);
 
   /**
    * Lista de nodos obtenidos desde Firestore

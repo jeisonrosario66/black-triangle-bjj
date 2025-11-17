@@ -38,20 +38,20 @@ const ConfigWindow: React.FC = () => {
   const systemsBjjSelectedNodesStore = useUIStore(
     (state) => state.systemBjjSelectedNodes
   );
+  const systemsBjjSelectedLinksStore = useUIStore(
+    (state) => state.systemBjjSelectedLinks
+  );
 
-  /** Estados locales controlados del formulario */
+  // Estado local temporal de los ajustes seleccionados.
   const [language, setLanguage] = useState(initialLang);
   const [dagMode, setDagMode] = useState(initialDagMode);
   const [dagLevel, setDagLevel] = useState(initialDagLevel);
-
-  /**
-   * Estado local temporal de los sistemas seleccionados.
-   * Se aplica al store global solo al confirmar con "Guardar".
-   */
   const [tempSystemsNodes, setTempSystemsNodes] = useState<string[]>(
     systemsBjjSelectedNodesStore
   );
-  const [tempSystemsLinks, setTempSystemsLinks] = useState<string[]>([]);
+  const [tempSystemsLinks, setTempSystemsLinks] = useState<string[]>(
+    systemsBjjSelectedLinksStore
+  );
 
   const { t, i18n } = useTranslation();
 
@@ -139,6 +139,8 @@ const ConfigWindow: React.FC = () => {
       cacheUser.systemsCacheNameLinks,
       JSON.stringify(tempSystemsLinks)
     );
+    console.log("Node temporal systems:", tempSystemsNodes);
+    console.log("Link temporal systems:", tempSystemsLinks);
 
     // Actualizar estado global solo al confirmar
     useUIStore.setState({

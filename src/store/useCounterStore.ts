@@ -6,8 +6,9 @@ import {
   NodeOptionFirestone,
   DagMode,
   cacheUser,
+  GraphLink,
 } from "@src/context/index";
-import { parseCacheArray } from "@src/hooks/index";
+import { parseCacheArray } from "@src/utils/index";
 
 const systemCacheLoadedLinks = parseCacheArray(cacheUser.systemsCacheNameLinks);
 const systemCacheLoadedNodes = parseCacheArray(cacheUser.systemsCacheNameNodes);
@@ -38,6 +39,9 @@ interface GlobalData {
 
   systemBjjSelectedLinks: string[];
   setSystemBjjSelectedLinks?: (systemLinks: string[]) => void;
+
+  linksData: GraphLink[];
+  setLinksData: (links: GraphLink[]) => void;
 }
 
 // -------------------------------------------------------------------------
@@ -59,8 +63,11 @@ interface UIState {
   isUserLogin: boolean;
   setIsUserLogin: (login: boolean) => void;
 
-  isNodeViewActive: boolean;
-  setIsNodeViewActive: (nodeView: boolean) => void;
+  isNodeAddViewActive: boolean;
+  setIsNodeAddViewActive: (nodeAddView: boolean) => void;
+
+  isNodeSceneViewActive: boolean;
+  setIsNodeSceneViewActive: (nodeSceneView: boolean) => void;
 
   overlayDontShowAgain: boolean;
   setOverlayDontShowAgain: (dontShow: boolean) => void;
@@ -76,14 +83,17 @@ interface UIState {
   alertSeverity: "success" | "info" | "warning" | "error";
   triggerAlert: (message: string, severity?: UIState["alertSeverity"]) => void;
 
-  activeStep: number;
-  setActiveStep: (step: number) => void;
+  addNodeActiveStep: number;
+  setaddNodeActiveStep: (step: number) => void;
   nextStep: () => void;
   prevStep: () => void;
 
   cameraBackup: { pos: Vector3Tuple; target: Vector3Tuple } | null;
   setCameraBackup: (pos: Vector3Tuple, target: Vector3Tuple) => void;
   clearCameraBackup: () => void;
+
+  connectionViewerActiveStep: number | null;
+  setConnectionViewerActiveStep: (viewerStep: number | null) => void;
 }
 
 // -------------------------------------------------------------------------
@@ -130,8 +140,12 @@ const useUIStore = create<AppState>((set, get) => ({
   alertMessage: "",
   alertSeverity: "success",
 
-  isNodeViewActive: false,
-  setIsNodeViewActive: (nodeView) => set({ isNodeViewActive: nodeView }),
+  isNodeAddViewActive: false,
+  setIsNodeAddViewActive: (nodeView) => set({ isNodeAddViewActive: nodeView }),
+
+  isNodeSceneViewActive: false,
+  setIsNodeSceneViewActive: (nodeViewScene) =>
+    set({ isNodeSceneViewActive: nodeViewScene }),
 
   overlayDontShowAgain: false,
   setOverlayDontShowAgain: (dontShow) =>
@@ -144,7 +158,7 @@ const useUIStore = create<AppState>((set, get) => ({
   setIsconfigWindowActive: (configWindow) =>
     set({ isConfigWindowActive: configWindow }),
 
-  nodeViewData: { videoid: "", start: "", end: "," },
+  nodeViewData: { videoid: "", start: "", end: "" },
   setNodeViewData: (data) => set({ nodeViewData: data }),
 
   documentsFirestore: [],
@@ -162,12 +176,15 @@ const useUIStore = create<AppState>((set, get) => ({
     setTimeout(() => set({ showAlert: false }), 4000);
   },
 
-  activeStep: 0,
-  setActiveStep: (step) => set({ activeStep: step }),
+  addNodeActiveStep: 0,
+  setaddNodeActiveStep: (step) => set({ addNodeActiveStep: step }),
 
-  nextStep: () => set((state) => ({ activeStep: state.activeStep + 1 })),
+  nextStep: () =>
+    set((state) => ({ addNodeActiveStep: state.addNodeActiveStep + 1 })),
   prevStep: () =>
-    set((state) => ({ activeStep: Math.max(0, state.activeStep - 1) })),
+    set((state) => ({
+      addNodeActiveStep: Math.max(0, state.addNodeActiveStep - 1),
+    })),
 
   // --- Estado de Validación por Pasos ---
   stepValidation: { step0: false, step1: false, step2: false },
@@ -197,6 +214,10 @@ const useUIStore = create<AppState>((set, get) => ({
     return true;
   },
 
+  connectionViewerActiveStep: null,
+  setConnectionViewerActiveStep: (viewerStep) =>
+    set({ connectionViewerActiveStep: viewerStep }),
+
   cameraBackup: null,
   setCameraBackup: (pos, target) => set({ cameraBackup: { pos, target } }),
   clearCameraBackup: () => set({ cameraBackup: null }),
@@ -212,6 +233,9 @@ const useUIStore = create<AppState>((set, get) => ({
   systemBjjSelectedLinks: systemCacheLoadedLinks,
   setSystemBjjSelectedLinks: (systemLinks) =>
     set({ systemBjjSelectedLinks: systemLinks }),
+
+  linksData: [],
+  setLinksData: (links) => set({ linksData: links }),
 }));
 
 export default useUIStore;

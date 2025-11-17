@@ -1,5 +1,5 @@
 import { DagMode } from "@src/context/index";
-import { parseCacheArray } from "@src/hooks/index";
+import { parseCacheArray } from "@src/utils/index";
 
 
 /**

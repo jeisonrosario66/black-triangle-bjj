@@ -49,7 +49,7 @@ export const animateCameraToNode = (
     onComplete: () => {
       // Guarda la posición anterior en el store para revertir después
       useUIStore.setState({
-        isNodeViewActive: true,
+        isNodeSceneViewActive: true,
         cameraBackup: {
           pos: fromPos.toArray(),
           target: fromTarget.toArray(),
@@ -89,7 +89,7 @@ export const animateCameraBackFromNode = (
     onComplete: () => {
       // Limpia el estado
       useUIStore.setState({
-        isNodeViewActive: false,
+        isNodeAddViewActive: false,
         cameraBackup: null,
       });
     },

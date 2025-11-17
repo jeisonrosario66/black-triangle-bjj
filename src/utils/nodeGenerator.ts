@@ -28,6 +28,7 @@ const useGraphData = () => {
 
         // 🔸 Obtener enlaces
         const links = await getDataLinks(linksArray);
+        useUIStore.setState({ linksData: links });
 
         // 🔹 Actualizar datos globales del grafo
         setGData({ nodes: filteredNodes, links });

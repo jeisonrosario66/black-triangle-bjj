@@ -11,6 +11,13 @@ const textHardcoded = "components.addNode.step4.";
 
 type Step4Props = { control: Control<any>; errors: FieldErrors<any> };
 
+/**
+ * Paso 4 del proceso de creación de un nodo.
+ * Permite seleccionar la categoría/origen del nodo mediante un panel interactivo,
+ * integrándose con react-hook-form para validar y registrar el valor seleccionado.
+ *
+ * @component
+ */
 const Step4: React.FC<Step4Props> = ({ control, errors }) => {
   const { t } = useTranslation();
 

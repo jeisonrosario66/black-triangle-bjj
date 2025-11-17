@@ -29,7 +29,7 @@ const themeApp = createTheme({
       buttonHomeScreen: "#f1f1f1",
     },
     formStyles: {
-      containerBackgroundColor: "#FAFAFBFF",
+      containerBackgroundColor: "#d1d1d1ff",
       cardBackgroundColor: "#f9f9f9",
       cardBoxShadow: "0 10px 30px rgba(0, 0, 0, 0.99)",
       buttonForm: "#001E3C",

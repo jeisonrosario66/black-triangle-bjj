@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({
   const navigate = useNavigate();
   const buttonCloseFunction = () => {
     navigate(routeList.root);
-    useUIStore.setState({ activeStep: 0 });
+    useUIStore.setState({ addNodeActiveStep: 0 });
   };
   const isUploadFirestore = useUIStore((state) => state.isUploadFirestore);
 

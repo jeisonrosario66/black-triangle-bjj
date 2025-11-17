@@ -20,17 +20,28 @@ type SubcategoryItem = {
 };
 
 type Props = {
+  /** Lista de subcategorías que se mostrarán en el componente */
   items: SubcategoryItem[];
+  /** ID del elemento actualmente seleccionado */
   selectedId?: string | number | null;
+  /** Callback ejecutado cuando el usuario selecciona un elemento */
   onSelect?: (id: string | number) => void;
 };
+
+/**
+ * Lista interactiva de subcategorías.
+ * Permite visualizar y seleccionar elementos con soporte para traducción
+ * y estilos personalizados.
+ *
+ * @component
+ */
 export default function SubcategoryList({
   items,
   selectedId,
   onSelect,
 }: Props) {
-  // Hook de traducción
   const { t } = useTranslation();
+
   if (!items || items.length === 0) {
     return (
       <Typography variant="subtitle1" color="text.primary">

@@ -40,7 +40,7 @@ export default function AccountMenu() {
   // Abre el menú al hacer clic en el botón
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
-    useUIStore.setState({ isNodeViewActive: false });
+    useUIStore.setState({ isNodeAddViewActive: false });
   };
 
   // Cierra el menú

@@ -153,6 +153,10 @@ export const getDataNodes = async (dbNames: string[]) => {
             start: docData.start,
             end: docData.end,
             videoid: docData.videoid,
+            description:
+              localStorage.getItem(cacheUser.languageUser) === "es"
+                ? docData.descrip_es
+                : docData.descrip_en,
           };
         })
       )

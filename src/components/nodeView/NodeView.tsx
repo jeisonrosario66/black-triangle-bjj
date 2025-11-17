@@ -57,10 +57,7 @@ const NodeView: React.FC<NodeViewProps> = ({ isAddNode, setValue }) => {
    * Regresa la cámara a su posición original y desactiva la vista del nodo.
    */
   const buttonCloseFunction = () => {
-    // if (controls) {
-    //   animateCameraBackFromNode(controls); // Anima la cámara de regreso
-    // }
-    useUIStore.setState({ isNodeViewActive: false }); // Desactiva la vista del nodo
+    useUIStore.setState({ isNodeAddViewActive: false }); // Desactiva la vista del nodo
   };
 
   // Configuración de las opciones del reproductor de YouTube

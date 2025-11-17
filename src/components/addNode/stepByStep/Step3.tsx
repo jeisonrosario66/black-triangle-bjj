@@ -26,6 +26,14 @@ type Step3Props = {
   videoIdSeleted?: string;
 };
 
+/**
+ * Paso 3 del proceso de creación de un nodo.
+ * Permite buscar videos, seleccionar uno y cargarlo en la vista previa del nodo.
+ *
+ * @component
+ * @param {UseFormSetValue<NodeFormData>} setValue - Función de react-hook-form para actualizar campos del formulario.
+ * @param {string} [videoIdSeleted] - ID del video actualmente seleccionado.
+ */
 const Step3: React.FC<Step3Props> = ({ setValue, videoIdSeleted }) => {
   const { t } = useTranslation();
 
@@ -33,7 +41,7 @@ const Step3: React.FC<Step3Props> = ({ setValue, videoIdSeleted }) => {
 
   const [searchYT, setSearchYT] = useState("");
   const [results, setResults] = useState<any[]>([]);
-  const isNodeViewActive = useUIStore((state) => state.isNodeViewActive);
+  const isNodeViewActive = useUIStore((state) => state.isNodeAddViewActive);
 
   type NodeViewData = {
     videoid?: string;
@@ -41,9 +49,18 @@ const Step3: React.FC<Step3Props> = ({ setValue, videoIdSeleted }) => {
     end?: string;
   };
 
+  /**
+   * Maneja la selección de un video desde los resultados,
+   * actualiza el formulario y activa la vista NodeView.
+   *
+   * @param {Object} data - Datos del video seleccionado.
+   * @param {string} [data.videoid] - ID del video seleccionado.
+   * @param {string} [data.start] - Segundo inicial del video.
+   * @param {string} [data.end] - Segundo final del video.
+   */
   const handleVideoSelect = (data: NodeViewData) => {
     setValue("videoid", data.videoid);
-    useUIStore.setState({ isNodeViewActive: true });
+    useUIStore.setState({ isNodeAddViewActive: true });
     useUIStore.setState({ nodeViewData: data });
   };
 
@@ -134,12 +151,7 @@ const Step3: React.FC<Step3Props> = ({ setValue, videoIdSeleted }) => {
         )}
       </Box>
       {/* Video seleccionado */}
-      {isNodeViewActive && (
-        <NodeView
-          isAddNode={true}
-          setValue={setValue}
-        />
-      )}
+      {isNodeViewActive && <NodeView isAddNode={true} setValue={setValue} />}
       {/* Resultados de búsqueda  */}
       {results.length > 0 && (
         <Box sx={style.resultSearchContainer}>

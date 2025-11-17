@@ -14,11 +14,20 @@ import * as style from "@src/styles/addNode/stylesStepper";
 const textHardcoded = "components.addNode.stepper.";
 
 type StepperComponentProps = {
+  /** Función opcional para validar el paso actual */
   onValidate?: () => void;
+  /** Función llamada cuando se completa el último paso */
   onHandleSubmit: () => void;
+  /** Reinicia los datos del formulario asociado */
   reset: () => void;
 };
 
+/**
+ * Stepper estructurado para el flujo de creación de nodos.
+ * Controla la navegación entre pasos, validación y envío del formulario.
+ *
+ * @component
+ */
 const StepperComponent: React.FC<StepperComponentProps> = ({
   onValidate,
   onHandleSubmit,
@@ -34,7 +43,7 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
   const lastStep = steps.length;
 
   // Configuracion de stepper
-  const activeStep = useUIStore((state) => state.activeStep);
+  const activeStep = useUIStore((state) => state.addNodeActiveStep);
 
   const nextStep = useUIStore((state) => state.nextStep);
   const prevStep = useUIStore((state) => state.prevStep);
@@ -62,7 +71,7 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
   };
 
   const handleReset = () => {
-    useUIStore.getState().setActiveStep(0);
+    useUIStore.getState().setaddNodeActiveStep(0);
     reset();
   };
 
@@ -78,9 +87,7 @@ const StepperComponent: React.FC<StepperComponentProps> = ({
       activeStep={activeStep}
       sx={style.containerStepper}
       nextButton={
-        <Box
-          sx={style.nextButton}
-        >
+        <Box sx={style.nextButton}>
           {activeStep == lastStep ? (
             <Button size="small" onClick={handleReset}>
               {t(textHardcoded + "reset")}

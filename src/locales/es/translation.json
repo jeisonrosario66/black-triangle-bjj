@@ -121,6 +121,16 @@
       "timeBrandInit": "Inicio: ",
       "timeBrandEnd": "Final: ",
       "timeBrandAll": "Usar video completo"
+    },
+    "nodeConnectionViewer": {
+      "ArrowBackToolTip": "Retroceder",
+      "ArrowForwardToolTip": "Avanzar",
+      "groupEmpty": "Grupo no asignado",
+      "node": "Nodo",
+      "sourceLinksLabel": "Este nodo no tiene conexiones salientes.",
+      "targetLinksLabel": "Este nodo no tiene conexiones entrantes.",
+      "sourceLabel": "Conexiones salientes",
+      "targetLabel": "Conexiones entrantes"
     }
   },
   "pages": {

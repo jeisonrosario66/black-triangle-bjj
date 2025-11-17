@@ -23,16 +23,25 @@ type Step2Props = {
   errors: FieldErrors<any>;
 };
 
+/**
+ * Paso 2 del formulario para crear un nodo.
+ * Permite seleccionar el grupo o categoría del nodo mediante un RadioGroup
+ * personalizado usando SelectableButtonGroup.
+ *
+ * @component
+ * @param {Control<any>} control - Controlador de react-hook-form para manejar valores del formulario.
+ * @param {FieldErrors<any>} errors - Errores asociados al formulario, usados para mostrar mensajes de validación.
+ */
 const Step2: React.FC<Step2Props> = ({ control, errors }) => {
   const { t } = useTranslation();
 
   return (
     <Box sx={{ height: "100%", margin: "50px 0  0px 0", textAlign: "center" }}>
-      <HeaderAddNode title={t(textHardcoded + "step2Title")}/>
+      <HeaderAddNode title={t(textHardcoded + "step2Title")} />
       <LabelStep
         textLabel={t(textHardcoded + "step2Title")}
         toolTipInfo={t(textHardcoded + "toolTipInfo")}
-        />
+      />
       <Controller
         name="group"
         control={control}

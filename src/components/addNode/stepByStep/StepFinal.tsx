@@ -15,6 +15,13 @@ type StepFinalProps = {
   selectedSourceNodeData: NodeOptionFirestone;
 };
 
+/**
+ * Paso final del proceso de creación del nodo.
+ * Muestra un estado visual de carga mientras se sube la información a Firestore
+ * y posteriormente presenta un resumen con los datos generados del nuevo nodo.
+ *
+ * @component
+ */
 const StepFinal: React.FC<StepFinalProps> = ({
   newNodeData: dataNodes,
 }) => {
