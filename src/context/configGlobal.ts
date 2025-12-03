@@ -135,5 +135,7 @@ export const tableNameDB = {
 export const routeList = {
   root: "/",
   categories: "/categories",
-  addNode: "/add-node",
+  addNode: "/add_node",
+  loginUser: "/login_user",
+  profile: "/profile",
 };

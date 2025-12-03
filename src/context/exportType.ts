@@ -118,15 +118,6 @@ export type PlayerControlsData = {
 };
 
 /**
- * Datos del usuario autenticado.
- */
-export type UserLoginData = {
-  displayName: string | null;
-  email: string | null;
-  photoURL: string | null;
-};
-
-/**
  * Información asociada al nodo actualmente seleccionado (vista de detalle).
  */
 export type NodeViewData = {

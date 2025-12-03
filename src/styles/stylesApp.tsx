@@ -1,4 +1,7 @@
 import { GlobalStyles } from "@mui/material";
+import themeApp from "@src/styles/stylesThemeApp";
+
+const fontFamily = themeApp.palette.typography.fontFamily;
 
 export const globalStyles = (
   <GlobalStyles
@@ -24,7 +27,7 @@ export const globalStyles = (
         width: "100vw",
         height: "100vh",
 
-        fontFamily: "Poppins, system-ui, Avenir, Helvetica, Arial, sans-serif",
+        fontFamily: fontFamily,
       },
     }}
   />

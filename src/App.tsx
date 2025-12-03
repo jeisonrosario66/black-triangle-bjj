@@ -1,23 +1,28 @@
 import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
-
-import { authListener } from "@src/hooks/index";
+import { useSession } from "@src/hooks/index";
 import { useUIStore } from "@src/store/index";
 import { cacheUser, routeList } from "@src/context/index";
 import { debugLog } from "@src/utils/index";
 import MainAppLayout from "@src/layouts/MainAppLayout";
 import { Categories } from "@src/pages/index";
 
-import { AddNodeForm } from "@src/components/index";
+import { AddNodeForm, LoginUser, Profile } from "@src/components/index";
 
 import { useTranslation } from "react-i18next";
 
 const textHardcoded = "components.app.";
 
+/**
+ * Componente principal de la aplicación.
+ * Controla la inicialización de idioma, autenticación, alertas globales
+ * y renderiza las rutas principales del proyecto.
+ *
+ * @returns {JSX.Element} Estructura principal del enrutador.
+ */
 function App() {
   // Estado global
-  const isUserLogin = useUIStore((state) => state.isUserLogin);
-  const userLoginData = useUIStore((state) => state.userLoginData);
+  const { user, isAuthenticated } = useSession();
   const isConfigWindowActive = useUIStore(
     (state) => state.isConfigWindowActive
   );
@@ -39,33 +44,31 @@ function App() {
   }, [isConfigWindowActive]);
 
   useEffect(() => {
-    authListener();
     localStorage.setItem(cacheUser.dagModeCache, cacheUser.dagMode);
     localStorage.setItem(
       cacheUser.dagLevelDistanceCache,
       String(cacheUser.dagLevelDistance)
     );
     debugLog("info", "Sistema de Bjj Cargado: ", systemsBjjSelectedNodesStore);
-  }, []);
+  }, [systemsBjjSelectedNodesStore]);
 
   // Hook para mostrar alertas cuando cambia el estado de inicio de sesión
   useEffect(() => {
-    if (isUserLogin) {
-      triggerAlert(
-        `${t(textHardcoded + "login")} ${userLoginData.displayName}`,
-        "success"
-      );
+    if (isAuthenticated) {
+      triggerAlert(`${t(textHardcoded + "login")} ${user?.name}`, "success");
       useUIStore.setState({ isLoginWindowActive: false });
     } else {
       triggerAlert(`${t(textHardcoded + "closed")}`, "warning");
     }
-  }, [isUserLogin]);
+  }, [isAuthenticated, t, triggerAlert, user?.name]);
 
   return (
     <Routes>
       <Route path={routeList.root} element={<MainAppLayout />} />
       <Route path={routeList.categories} element={<Categories />} />
       <Route path={routeList.addNode} element={<AddNodeForm />} />
+      <Route path={routeList.loginUser} element={<LoginUser />} />
+      <Route path={routeList.profile} element={<Profile />} />
     </Routes>
   );
 }

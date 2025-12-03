@@ -12,6 +12,7 @@
     "deploy": "npm run build && gh-pages -d dist"
   },
   "dependencies": {
+    "@auth0/auth0-react": "^2.9.0",
     "@babel/parser": "^7.27.2",
     "@babel/traverse": "^7.27.1",
     "@emotion/react": "^11.14.0",

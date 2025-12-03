@@ -6,7 +6,6 @@ import { Button } from "@mui/material";
 import {
   GraphScene,
   AccountMenu,
-  LoginUser,
   OutlinedAlerts,
   NavigationGestures,
   ConfigWindow,
@@ -26,7 +25,6 @@ const MainAppLayout = () => {
   // const isAddNodeActive = useUIStore((state) => state.isAddNodeActive);
   const nodeViewData = useUIStore((state) => state.nodeViewData);
   const isViewNodeActive = useUIStore((state) => state.isNodeSceneViewActive);
-  const isLoginWindowActive = useUIStore((state) => state.isLoginWindowActive);
   const isConfigWindowActive = useUIStore(
     (state) => state.isConfigWindowActive
   );
@@ -55,8 +53,7 @@ const MainAppLayout = () => {
     <>
       {style.globalStyles}
       <div style={style.appContainer}>
-        {isLoginWindowActive ? <LoginUser /> : <AccountMenu />}
-        {isConfigWindowActive ? <ConfigWindow /> : null}
+        {isConfigWindowActive ? <ConfigWindow /> : <AccountMenu />}
         {/* Contenedor del lienzo 3D */}
         <div style={style.canvasContainer}>
           {/*  */}

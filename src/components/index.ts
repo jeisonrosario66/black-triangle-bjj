@@ -44,6 +44,8 @@ export { default as StepFinal } from "@src/components/addNode/stepByStep/StepFin
 
 // Components/loginUser
 export { default as LoginUser } from "@src/components/loginUser/LoginUser";
+export { default as LoginButton } from "@src/components/loginUser/LoginButton"
+export { default as Profile } from "@src/components/loginUser/Profile"
 
 // Components/nodeView
 export { default as NodeView } from "@src/components/nodeView/NodeView";

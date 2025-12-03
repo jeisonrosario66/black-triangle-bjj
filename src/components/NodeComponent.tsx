@@ -10,7 +10,7 @@ import { GraphRefType, GraphNode, groupColor } from "@src/context/index";
 import { useUIStore } from "@src/store/index";
 
 type NodeComponentProps = {
-  cameraControlsRef: React.RefObject<CameraControls>;
+  cameraControlsRef: React.RefObject<CameraControls | null>;
 };
 
 const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {

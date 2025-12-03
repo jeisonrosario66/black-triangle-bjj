@@ -2,7 +2,6 @@ import { create } from "zustand";
 import { Vector3Tuple } from "three";
 import {
   NodeViewData,
-  UserLoginData,
   NodeOptionFirestone,
   DagMode,
   cacheUser,
@@ -16,9 +15,6 @@ const systemCacheLoadedNodes = parseCacheArray(cacheUser.systemsCacheNameNodes);
 // Definición del estado de datos globales
 // -------------------------------------------------------------------------
 interface GlobalData {
-  userLoginData: UserLoginData;
-  setUserLoginDAta: (data: UserLoginData) => void;
-
   languageGlobal: string;
   setLanguageGlobal: (language: string) => void;
 
@@ -129,9 +125,6 @@ const useUIStore = create<AppState>((set, get) => ({
 
   isUploadFirestore: false,
   setIsUploadFirestore: (upload) => set({ isUploadFirestore: upload }),
-
-  userLoginData: { displayName: "", email: "", photoURL: "" },
-  setUserLoginDAta: (data) => set({ userLoginData: data }),
 
   isUserLogin: false,
   setIsUserLogin: (login) => set({ isUserLogin: login }),

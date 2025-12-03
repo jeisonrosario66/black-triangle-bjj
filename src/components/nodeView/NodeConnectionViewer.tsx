@@ -12,7 +12,7 @@
  * Fecha: [Fecha de última modificación]
  */
 
-import React, { useState, useMemo } from "react";
+import React, { useMemo } from "react";
 import {
   Tabs,
   Tab,
@@ -105,6 +105,7 @@ export default function NodeConnectionViewer({
    * Si la pestaña seleccionada ya está activa, se oculta su contenido.
    */
   const handleChange = (event: React.SyntheticEvent, newValue: number) => {
+    debugLog("info", "NodeConnectionViewer:", event);
     useUIStore.setState((state) => ({
       connectionViewerActiveStep:
         state.connectionViewerActiveStep === newValue ? null : newValue,

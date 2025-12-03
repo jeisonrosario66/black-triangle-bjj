@@ -56,6 +56,7 @@
       "buttonClose": "Cerrar"
     },
     "loginUser": {
+      "title": "Inicia sesión en tu cuenta",
       "loginGoogle": "Iniciar sesión con Google"
     },
     "addNode": {
