@@ -36,6 +36,8 @@ export type NodeInsertData = {
   start: string;
   end: string;
   uploadedDate: string;
+  descrip_es?: { summary: string; points: string[] };
+  descrip_en?: { summary: string; points: string[] };
 };
 
 /**
@@ -74,10 +76,11 @@ export type GraphNode = {
   name?: string;
   color?: string;
   group?: string;
+  subGroup?: string;
   start?: string;
   end?: string;
   videoid?: string;
-  description?:string;
+  description?: { summary: string; points: string[] };
 };
 
 /**
@@ -85,7 +88,7 @@ export type GraphNode = {
  */
 export type GraphLink = {
   source: number | GraphNode;
-  target: number | GraphNode; 
+  target: number | GraphNode;
 };
 
 /**
@@ -128,6 +131,7 @@ export type NodeViewData = {
   color?: string;
   group?: string;
   id?: number;
+  description?: { summary: string; points: string[] };
 };
 
 /**
@@ -143,14 +147,12 @@ export type DagMode =
   | "radialout" // Radial desde el centro hacia afuera
   | "radialin"; // Radial desde afuera hacia el centro
 
-
-
 /**
  * Categoría de técnicas grupos de técnicas de BJJ
  */
 export type Category = {
   label: string;
-  title?: string
+  title?: string;
   title_en: string;
   title_es: string;
   description?: string;
@@ -159,13 +161,12 @@ export type Category = {
   categoryId: string;
 };
 
-  
 /**
  * Subcategoría de técnicas grupos de técnicas de BJJ
  */
 export type Subcategory = {
   label: string;
-  title?: string
+  title?: string;
   title_en: string;
   title_es: string;
   description?: string;
@@ -173,4 +174,12 @@ export type Subcategory = {
   description_es: string;
   categoryId: string;
   groupId: string;
+};
+
+export type TaxonomyType = {
+  category_id: string;
+  node_index: number;
+  specific_category_id: string;
+  subcategory_id: string;
+  tab_ids: string[];
 };

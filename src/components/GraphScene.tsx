@@ -10,7 +10,9 @@ import { NodeComponent } from "@src/components/index";
 import { configGlobal } from "@src/context/index";
 
 // Define las props para GraphScene
-type GraphSceneProps = { cameraControlsRef: React.RefObject<CameraControls | null> };
+type GraphSceneProps = {
+  cameraControlsRef: React.RefObject<CameraControls | null>;
+};
 
 /**
  * Escena principal del grafo 3D.
@@ -23,7 +25,7 @@ const GraphScene: React.FC<GraphSceneProps> = ({ cameraControlsRef }) => {
   return (
     <>
       {/* Fondo estrellado */}
-      <Stars
+      {/*<Stars
         radius={scenePropsDev.radius}
         depth={scenePropsDev.depth}
         count={scenePropsDev.count}
@@ -32,6 +34,7 @@ const GraphScene: React.FC<GraphSceneProps> = ({ cameraControlsRef }) => {
         fade
         speed={scenePropsDev.speed}
       />
+       */}
       {/* Grafo 3D */}
       <NodeComponent cameraControlsRef={cameraControlsRef} />
 

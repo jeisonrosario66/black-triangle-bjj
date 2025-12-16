@@ -5,7 +5,7 @@ export {
   scenePropsDev,
   nodes as nodesDataBaseActive,
   links as linksDataBaseActive,
-  tableNameDB,
+  firestoreSchema,
   groupColor,
   cacheUser,
   routeList,
@@ -25,5 +25,6 @@ export type {
   NodeViewData,
   DagMode,
   Subcategory,
-  Category
+  Category,
+  TaxonomyType,
 } from "@src/context/exportType";

@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import useUIStore from "@src/store/useCounterStore";
 import { GraphNode, GraphData } from "@src/context/exportType";
-import { getDataNodes, getDataLinks } from "@src/services/firebaseService";
+import { getDataNodes, getDataLinks } from "@src/services/index";
 
 const useGraphData = () => {
   /**

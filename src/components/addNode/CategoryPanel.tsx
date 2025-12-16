@@ -3,7 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { useTranslation } from "react-i18next";
 
 import { getDataFirestore, useCategories } from "@src/services/index";
-import { NodeOptionFirestone, tableNameDB } from "@src/context/index";
+import { NodeOptionFirestone, firestoreSchema } from "@src/context/index";
 import { debugLog, capitalizeFirstLetter } from "@src/utils/index";
 import { CategorySelector, SubcategoryList } from "@src/components/index";
 
@@ -49,7 +49,7 @@ export default function CategoryPanel({
       setLoading(true);
       try {
         const data = await getDataFirestore(
-          tableNameDB.AllSystemsNodesArray,
+          firestoreSchema.cachedSystemNodes,
           "nodes"
         );
         setTabData(data || []);

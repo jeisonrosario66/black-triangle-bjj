@@ -131,7 +131,8 @@
       "sourceLinksLabel": "This node has no outgoing connections.",
       "targetLinksLabel": "This node has no incoming connections.",
       "sourceLabel": "Outgoing Connections",
-      "targetLabel": "Incoming Connections"
+      "targetLabel": "Incoming Connections",
+      "descriptionLabel": "Description"
     }
   },
   "pages": {

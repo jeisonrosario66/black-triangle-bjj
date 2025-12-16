@@ -26,3 +26,4 @@ dist-ssr
 rutaDeTrabajo.txt
 dist
 package-lock.json
+src/pages/AddFast.tsx

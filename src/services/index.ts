@@ -6,4 +6,7 @@ export {
   useCategories,
   useSubcategories,
   getDataFirestore,
+  getDataNodes,
+  getDataLinks,
+  addNodeTaxonomy,
 } from "@src/services/firebaseService";

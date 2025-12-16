@@ -1,7 +1,6 @@
 import { DagMode } from "@src/context/index";
 import { parseCacheArray } from "@src/utils/index";
 
-
 /**
  * Configuración general del entorno visual 3D y parámetros de la aplicación.
  * Define colores, iluminación, posición de la cámara y nombre de la aplicación.
@@ -42,7 +41,7 @@ export const cameraPropsDev = {
   position: [251, -93, -18] as [number, number, number],
   dollySpeed: 4,
   minDistance: 20,
-  maxDistance: 270,
+  maxDistance: 2700,
 };
 
 /**
@@ -80,6 +79,11 @@ export const systemsOptions = [
     valueLinks: "/systems/headlock/links",
     label: "HeadLock",
   },
+  {
+    valueNodes: "/systems/dogfight/nodes",
+    valueLinks: "/systems/dogfight/links",
+    label: "DogFight",
+  },
 ];
 
 /**
@@ -114,20 +118,34 @@ const systemCacheLoadedLinks = parseCacheArray(cacheUser.systemsCacheNameLinks);
 const systemCacheLoadedNodes = parseCacheArray(cacheUser.systemsCacheNameNodes);
 
 /**
- * Tabla de rutas y colecciones principales utilizadas en Firestore.
- * Contiene referencias tanto a los sistemas almacenados como a los índices globales.
+ * Mapa centralizado de colecciones, documentos e índices utilizados en Firestore.
+ * Define las fuentes de datos principales del sistema, incluyendo nodos, taxonomía,
+ * relaciones y estructuras de indexación global.
  */
-export const tableNameDB = {
-  AllSystemsNodesArray: systemCacheLoadedNodes,
-  AllSystemsLinksArray: systemCacheLoadedLinks,
+export const firestoreSchema = {
+  /** Cache en memoria de todos los nodos cargados por sistema */
+  cachedSystemNodes: systemCacheLoadedNodes,
+  /** Cache en memoria de todos los enlaces cargados por sistema */
+  cachedSystemLinks: systemCacheLoadedLinks,
+  /** Colección principal de nodos técnicos */
   nodes,
+  /** Colección principal de relaciones entre nodos */
   links,
-  group: "taxonomy",
-  subCategory: "subCategories",
-  indexGlobal: "indexGlobal",
-  indexGlobalID: "9rII6qZvvc9ppKLcny3k",
+  /** Colección raíz de la taxonomía (categorías principales) */
+  categories: "taxonomy",
+  /** Colección de subcategorías asociadas a una categoría principal */
+  subcategories: "subCategories",
+  /** Colección que mantiene el índice global incremental del sistema */
+  globalIndexCollection: "index_global",
+  /** ID único del documento que almacena el índice global */
+  globalIndexDocId: "63keMnlfnUPYdIxLUviv",
+  /** Colección puente entre nodos y etiquetas taxonómicas */
+  nodeTaxonomy: "node_taxonomy",
+  /** Campo que almacena los identificadores de tabs asociados a un nodo */
+  nodeTabIdsField: "tab_ids",
+  /** Colección de etiquetas (tabs) utilizadas para clasificación y filtrado */
+  tabs: "tabs",
 };
-
 /**
  * Rutas principales de navegación interna de la aplicación.
  * Define las direcciones utilizadas por el enrutador para acceder a las vistas.
@@ -138,4 +156,5 @@ export const routeList = {
   addNode: "/add_node",
   loginUser: "/login_user",
   profile: "/profile",
+  test: "test_add_fast",
 };

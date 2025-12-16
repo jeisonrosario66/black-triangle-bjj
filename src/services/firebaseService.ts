@@ -5,13 +5,14 @@ import {
   getDocs,
   doc,
   updateDoc,
+  setDoc,
 } from "firebase/firestore";
 
 import { debugLog } from "@src/utils/index";
 import { database } from "@src/hooks/index";
 import {
   GroupOptionFirestone,
-  tableNameDB,
+  firestoreSchema,
   NodeInsertData,
   cacheUser,
   Category,
@@ -161,11 +162,10 @@ export const getDataNodes = async (dbNames: string[]) => {
         })
       )
       .flat();
-
     useUIStore.setState({ documentsFirestore: results });
     debugLog(
       "debug",
-      `Documentos obtenidos desde Firestore(${tableNameDB.AllSystemsNodesArray}): `,
+      `Documentos obtenidos desde Firestore(${firestoreSchema.cachedSystemNodes}): `,
       results
     );
     return results;
@@ -184,9 +184,8 @@ export const getDataNodes = async (dbNames: string[]) => {
 export const getIndex = async () => {
   try {
     const querySnapshot = await getDocs(
-      collection(database, tableNameDB.indexGlobal)
+      collection(database, firestoreSchema.globalIndexCollection)
     );
-
     const values = querySnapshot.docs.map((doc) => doc.data()["index"]);
     const maxValue = Math.max(...values.filter((v) => typeof v === "number"));
     return maxValue;
@@ -197,10 +196,25 @@ export const getIndex = async () => {
 };
 
 /**
- * Agrega un nuevo nodo y, si corresponde, su enlace asociado en Firestore.
- * Además, actualiza el índice global de nodos tras la inserción.
+ * Agrega un nuevo nodo en Firestore y, opcionalmente, crea un enlace
+ * hacia otro nodo existente. Finalmente, actualiza el índice global
+ * de nodos.
  *
- * @param data - Objeto con la información del nodo y su vínculo opcional.
+ * @param data - Objeto que encapsula toda la información necesaria para la inserción.
+ * @param data.dbNodesName - Nombre de la colección de Firestore donde se almacenan los nodos.
+ * @param data.dbLinksName - Nombre de la colección de Firestore donde se almacenan los enlaces entre nodos.
+ * @param data.index - Identificador numérico único del nodo dentro del grafo.
+ * @param data.name_es - Nombre del nodo en español; se normaliza a minúsculas antes de persistirse.
+ * @param data.name_en - Nombre del nodo en inglés; se normaliza a minúsculas antes de persistirse.
+ * @param data.group - Grupo o categoría a la que pertenece el nodo (usado para clasificación o visualización).
+ * @param data.nodeSource - Índice del nodo origen al que se conectará este nodo.
+ *                           Si el valor es 1, se considera un nodo sin conexión y no se crea enlace.
+ * @param data.videoid - Identificador del video asociado al nodo.
+ * @param data.start - Tiempo inicial (en segundos) del fragmento relevante del video.
+ * @param data.end - Tiempo final (en segundos) del fragmento relevante del video.
+ * @param data.uploadedDate - Fecha de carga del nodo o del recurso asociado.
+ * @param data.descrip_en - Descripción del nodo en inglés.
+ * @param data.descrip_es - Descripción del nodo en español.
  */
 export const addData = async (data: NodeInsertData) => {
   const {
@@ -215,6 +229,8 @@ export const addData = async (data: NodeInsertData) => {
     start,
     end,
     uploadedDate,
+    descrip_en,
+    descrip_es,
   } = data;
 
   try {
@@ -227,10 +243,12 @@ export const addData = async (data: NodeInsertData) => {
       videoid,
       start,
       end,
+      descrip_en,
+      descrip_es,
     });
 
     await updateDoc(
-      doc(database, tableNameDB.indexGlobal, tableNameDB.indexGlobalID),
+      doc(database, firestoreSchema.globalIndexCollection, firestoreSchema.globalIndexDocId),
       { index }
     );
 
@@ -296,7 +314,7 @@ export const useCategories = () => {
 
   useEffect(() => {
     const fetch = async () => {
-      const snapshot = await getDocs(collection(database, tableNameDB.group));
+      const snapshot = await getDocs(collection(database, firestoreSchema.categories));
       const data = snapshot.docs.map((doc) => {
         const docData = doc.data() as Category;
         return {
@@ -335,9 +353,9 @@ export const useSubcategories = (groupId: string) => {
     const fetch = async () => {
       const subRef = collection(
         database,
-        tableNameDB.group,
+        firestoreSchema.categories,
         groupId,
-        tableNameDB.subCategory
+        firestoreSchema.subcategories
       );
       const snapshot = await getDocs(subRef);
       const data = snapshot.docs.map((doc) => {
@@ -362,4 +380,44 @@ export const useSubcategories = (groupId: string) => {
   }, [groupId, language]);
 
   return subCategories;
+};
+
+/**
+ * Interfaz para insertar la taxonomía de un nodo.
+ * Define los campos requeridos y opcionales al crear o asignar taxonomía a un nodo.
+ *
+ * @property {number} nodeIndex Índice identificador del nodo.
+ * @property {string} [categoryId] ID de la categoría principal del nodo.
+ * @property {string} [subcategoryId] ID de la subcategoría asociada.
+ * @property {string[]} tabIds Lista de IDs de pestañas asociadas al nodo.
+ */
+export interface NodeTaxonomyInsert {
+  nodeIndex: number;
+  categoryId?: string;
+  subcategoryId?: string;
+  specificCategoryId?: string;
+  tabIds: string[];
+}
+
+/**
+ * Asigna taxonomía a un nodo en Firestore.
+ * Crea un documento en la colección de nodeTaxonomy con la información proporcionada.
+ *
+ * @param {NodeTaxonomyInsert} data Objeto con los datos de taxonomía a insertar.
+ * @returns {Promise<void>} Promesa que se resuelve cuando la operación finaliza.
+ */
+export const addNodeTaxonomy = async (data: NodeTaxonomyInsert) => {
+  try {
+    await addDoc(collection(database, firestoreSchema.nodeTaxonomy), {
+      node_index: data.nodeIndex,
+      category_id: data.categoryId ?? null,
+      subcategory_id: data.subcategoryId ?? null,
+      specific_category_id: data.specificCategoryId ?? null,
+      tab_ids: data.tabIds,
+    });
+
+    debugLog("info", "Taxonomía asignada al nodo:", data.nodeIndex);
+  } catch (error) {
+    console.error("Error asignando taxonomía:", error);
+  }
 };

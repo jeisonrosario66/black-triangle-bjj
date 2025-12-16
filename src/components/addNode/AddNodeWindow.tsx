@@ -16,7 +16,7 @@ import {
 import {
   NodeOptionFirestone,
   NodeFormData,
-  tableNameDB,
+  firestoreSchema,
 } from "@src/context/index";
 import { addData, getIndex, getDataFirestore } from "@src/services/index";
 import { useUIStore } from "@src/store/index";
@@ -107,7 +107,7 @@ const AddNodeForm: React.FC = () => {
     const getDataNodes = async () => {
       try {
         const dataNodes = await getDataFirestore(
-          tableNameDB.AllSystemsNodesArray,
+          firestoreSchema.cachedSystemNodes,
           "nodes"
         );
         setNodeOptions(dataNodes || []);
@@ -146,8 +146,8 @@ const AddNodeForm: React.FC = () => {
     const nodeNames = dataNodes.name.split(",");
 
     addData({
-      dbNodesName: tableNameDB.nodes,
-      dbLinksName: tableNameDB.links,
+      dbNodesName: firestoreSchema.nodes,
+      dbLinksName: firestoreSchema.links,
       index: dataNodes.index,
       name_es: nodeNames[0],
       name_en: nodeNames[1],

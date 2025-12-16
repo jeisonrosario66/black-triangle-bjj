@@ -1,7 +1,7 @@
 import React from "react";
 
 import { getDataGroup } from "@src/services/index";
-import { tableNameDB, OptionTechniqueCard } from "@src/context/index";
+import { firestoreSchema, OptionTechniqueCard } from "@src/context/index";
 
 import themeApp from "@src/styles/stylesThemeApp";
 const theme = themeApp;
@@ -292,7 +292,7 @@ const iconMap: Record<string, React.JSX.Element> = {
 export let optionsMenu: OptionTechniqueCard[] = [];
 
 (async () => {
-  const groups = await getDataGroup(tableNameDB.group);
+  const groups = await getDataGroup(firestoreSchema.categories);
 
   optionsMenu = (groups ?? []).map((item: any) => ({
     value: item.label,

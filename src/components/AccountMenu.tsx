@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from "@mui/material";
 import { Settings, Logout } from "@mui/icons-material";
-import HubIcon from "@mui/icons-material/hub";
+import HubIcon from "@mui/icons-material/Group";
 import LoginIcon from "@mui/icons-material/Login";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import { useNavigate } from "react-router-dom";
@@ -90,7 +90,7 @@ export default function AccountMenu() {
    * de lo contrario muestra una alerta.
    */
   const addNodeMenu = () => {
-    if (isUserLogin) {
+    if (!isUserLogin) {
       navigate(routeList.addNode);
     } else {
       triggerAlert(t(textHardcoded + "triggerAlert"), "warning");
@@ -173,7 +173,7 @@ export default function AccountMenu() {
           </MenuItem>
         ) : (
           // Si no está logueado, muestra la opción para iniciar sesión
-          <MenuItem onClick={handleLoginWindow}>
+          <MenuItem onClick={handleLoginWindow} disabled>
             <ListItemIcon>
               <LoginIcon fontSize="small" />
             </ListItemIcon>
@@ -184,7 +184,7 @@ export default function AccountMenu() {
         <Divider />
 
         {/* Opción para agregar un nodo */}
-        <MenuItem onClick={addNodeMenu}>
+        <MenuItem onClick={addNodeMenu} disabled>
           <ListItemIcon>
             <HubIcon fontSize="small" />
           </ListItemIcon>
@@ -202,13 +202,13 @@ export default function AccountMenu() {
         </MenuItem>
 
         {/* Opción para cerrar sesión */}
-        <MenuItem onClick={handleLogout}>
+        {/* <MenuItem onClick={handleLogout}>
           <ListItemIcon>
             <Logout fontSize="small" />
           </ListItemIcon>
 
           {t(textHardcoded + "optionsMenu.logOut")}
-        </MenuItem>
+        </MenuItem> */}
       </Menu>
     </React.Fragment>
   );

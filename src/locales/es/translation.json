@@ -131,7 +131,8 @@
       "sourceLinksLabel": "Este nodo no tiene conexiones salientes.",
       "targetLinksLabel": "Este nodo no tiene conexiones entrantes.",
       "sourceLabel": "Conexiones salientes",
-      "targetLabel": "Conexiones entrantes"
+      "targetLabel": "Conexiones entrantes",
+      "descriptionLabel": "Descripción"
     }
   },
   "pages": {
