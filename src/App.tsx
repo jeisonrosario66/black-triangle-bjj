@@ -49,7 +49,7 @@ function App() {
   return (
     <Routes>
       <Route path={routeList.root} element={<MainAppLayout />} />
-      <Route path={routeList.test} element={<AddFast />} />
+      {/* <Route path={routeList.test} element={<AddFast />} /> */}
       {/* <Route path={routeList.addNode} element={<AddNodeForm />} /> */}
       {/* <Route path={routeList.profile} element={<Profile />} /> */}
       {/* <Route path={routeList.loginUser} element={<LoginUser />} /> */}
