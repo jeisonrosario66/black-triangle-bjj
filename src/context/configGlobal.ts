@@ -1,7 +1,5 @@
 import { DagMode } from "@src/context/index";
 import { parseCacheArray } from "@src/utils/index";
-import { getSystem } from "@src/services/index"
-
 
 /**
  * Configuración general del entorno visual 3D y parámetros de la aplicación.
@@ -56,42 +54,6 @@ export const scenePropsDev = {
 };
 
 /**
- * Lista de sistemas disponibles para carga y visualización en la aplicación.
- * Cada entrada asocia los nodos, enlaces y una etiqueta descriptiva.
- */
-export const systemsOptions = [
-    {
-        valueNodes: "/systems/headlock/nodes",
-        valueLinks: "/systems/headlock/links",
-        label: "HeadLock"
-    }, {
-        valueNodes: "/systems/dogfight/nodes",
-        valueLinks: "/systems/dogfight/links",
-        label: "DogFight"
-    }, {
-        valueNodes: "/systems/escaping_back_control/nodes",
-        valueLinks: "/systems/escaping_back_control/links",
-        label: "Escaping Back Control"
-    }, {
-        valueNodes: "/systems/mount_escape/nodes",
-        valueLinks: "/systems/mount_escape/links",
-        label: "Mount Escape"
-    }, {
-        valueNodes: "/systems/side_control_escapes/nodes",
-        valueLinks: "/systems/side_control_escapes/links",
-        label: "Side Control Escapes"
-    }, {
-        valueNodes: "/systems/turtle_defense/nodes",
-        valueLinks: "/systems/turtle_defense/links",
-        label: "Turtle Denfese"
-    }, {
-        valueNodes: "/systems/side_control_escapes_switch_base_variants/nodes",
-        valueLinks: "/systems/side_control_escapes_switch_base_variants/links",
-        label: "Side Control Escapes Switch Base Variants"
-    },
-];
-
-/**
  * Claves y configuraciones relacionadas con la persistencia de preferencias del usuario.
  * Incluye idioma, configuración de grafo y sistemas cargados en caché.
  */
@@ -112,11 +74,6 @@ export const cacheUser = {
     systemsNodesLoaded: [],
     systemsLinksLoaded: []
 };
-const ss = getSystem("systems")
-
-console.log("xxx: ", await ss)
-
-
 /**
  * Rutas activas de nodos y enlaces para la sesión actual.
  * Estas rutas determinan el contenido del grafo que se cargará.
@@ -138,6 +95,7 @@ export const tableNameDB = {
     nodeTaxonomy: "node_taxonomy", // nombre de la coleccion intermedia entre los nodos y los tabs
     tab_ids: "tab_ids", // nombre del registro de los tab dentro de la coleccion de node_taxonomy
     tabs: "tabs", // nombre de la coleccion de las etiquetas
+    systemsCollections: "systems"
 };
 
 /**

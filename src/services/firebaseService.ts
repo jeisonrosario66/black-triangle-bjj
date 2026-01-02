@@ -3,15 +3,16 @@ import {
     getDocs,
 } from "firebase/firestore";
 
-import {debugLog} from "@src/utils/index";
-import {database} from "@src/hooks/index";
+import { debugLog } from "@src/utils/index";
+import { database } from "@src/hooks/index";
 import {
     GroupOptionFirestore,
     tableNameDB,
     cacheUser,
     NodeOptionFirestore,
+    SystemOption
 } from "@src/context/index";
-import {useUIStore} from "@src/store/index";
+import { useUIStore } from "@src/store/index";
 
 
 /**
@@ -21,14 +22,14 @@ import {useUIStore} from "@src/store/index";
  * @param dbNames - Lista de colecciones de enlaces.
  * @returns Un arreglo plano con todos los enlaces encontrados.
  */
-export const getDataLinks = async (dbNames : string[]) => {
+export const getDataLinks = async (dbNames: string[]) => {
     try {
         const promises = dbNames.map((dbName) => getDocs(collection(database, dbName)));
         const snapshots = await Promise.all(promises);
 
         const results = snapshots.map((querySnapshot) => querySnapshot.docs.map((doc) => {
             const docData = doc.data();
-            return {target: docData.target, source: docData.source};
+            return { target: docData.target, source: docData.source };
         })).flat();
 
         debugLog("debug", `Enlaces obtenidos desde Firestore(${dbNames}): `, results);
@@ -46,12 +47,12 @@ export const getDataLinks = async (dbNames : string[]) => {
  * @param dbNames - Lista de colecciones de nodos.
  * @returns Un arreglo con los nodos combinados y normalizados.
  */
-export const getDataNodes = async (dbNames : string[]) => {
+export const getDataNodes = async (dbNames: string[]) => {
     try {
         const promises = dbNames.map((dbName) => getDocs(collection(database, dbName)));
         const snapshots = await Promise.all(promises);
 
-        const results:NodeOptionFirestore[] = snapshots.map((querySnapshot) => querySnapshot.docs.map((doc) => {
+        const results: NodeOptionFirestore[] = snapshots.map((querySnapshot) => querySnapshot.docs.map((doc) => {
             const docData = doc.data();
             return {
                 id: docData.index,
@@ -62,10 +63,9 @@ export const getDataNodes = async (dbNames : string[]) => {
                 description: localStorage.getItem(cacheUser.languageUser) === "es" ? docData.descrip_es : docData.descrip_en
             };
         })).flat();
-        useUIStore.setState({documentsFirestore: results});
-        debugLog("debug", `Documentos obtenidos desde Firestore(${
-            tableNameDB.AllSystemsNodesArray
-        }): `, results);
+        useUIStore.setState({ documentsFirestore: results });
+        debugLog("debug", `Documentos obtenidos desde Firestore(${tableNameDB.AllSystemsNodesArray
+            }): `, results);
         return results;
     } catch (error) {
         console.error("Error obteniendo documentos desde Firestore:", error);
@@ -81,12 +81,12 @@ export const getDataNodes = async (dbNames : string[]) => {
  * @param dbName - Nombre de la colección de grupos.
  * @returns Un arreglo de grupos traducidos.
  */
-export const getDataGroup = async (dbName : string) => {
+export const getDataGroup = async (dbName: string) => {
     const language = localStorage.getItem(cacheUser.languageUser);
     try {
         const querySnapshot = await getDocs(collection(database, dbName));
 
-    const data: GroupOptionFirestore[] = querySnapshot.docs.map((doc) => {
+        const data: GroupOptionFirestore[] = querySnapshot.docs.map((doc) => {
             const docData = doc.data();
             return {
                 label: docData.label,
@@ -103,29 +103,34 @@ export const getDataGroup = async (dbName : string) => {
     }
 };
 
-type SystemMetadatos = {
-    label: string;
-    name: string;
-}
 
-export const getSystem = async (dbName : string) => {
-    // const language = "es";
+/**
+ * Recupera la lista de sistemas disponibles desde Firestore.
+ * Construye las rutas de nodos y enlaces asociadas a cada sistema según el idioma activo.
+ *
+ * @returns Un arreglo de opciones de sistema listas para selección en la UI.
+ */
+export const getSystem = async () => {
+    const dbName = tableNameDB.systemsCollections
     const language = localStorage.getItem(cacheUser.languageUser);
     try {
         const querySnapshot = await getDocs(collection(database, dbName));
 
-    const data: SystemMetadatos[] = querySnapshot.docs.map((doc) => {
+        const systems: SystemOption[] = querySnapshot.docs.map((doc) => {
             const docData = doc.data();
+            const label = language === "es" ? docData.name_es : docData.name_en;
+
             return {
-                label: docData.label,
-                name: language === "es" ? docData.name_es : docData.name_en,
+                label,
+                valueNodes: `${tableNameDB.systemsCollections}/${docData.label}/nodes`,
+                valueLinks: `${tableNameDB.systemsCollections}/${docData.label}/links`,
             };
         });
 
-        debugLog("debug", "Grupos obtenidos desde Firestore: ", data);
-        return data;
+        debugLog("debug", "Sistemas obtenidos desde Firestore: ", systems);
+        return systems;
     } catch (error) {
-        console.error("Error obteniendo grupos desde Firestore:", error);
+        console.error("Error obteniendo sistemas desde Firestore:", error);
         return [];
     }
 };

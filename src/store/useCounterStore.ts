@@ -6,9 +6,11 @@ import {
   DagMode,
   cacheUser,
   GraphLink,
-  LanguageConfig
+  LanguageConfig,
+  SystemOption
 } from "@src/context/index";
 import { parseCacheArray } from "@src/utils/index";
+import { getSystem } from "@src/services/index";
 
 const systemCacheLoadedLinks = parseCacheArray(cacheUser.systemsCacheNameLinks);
 const systemCacheLoadedNodes = parseCacheArray(cacheUser.systemsCacheNameNodes);
@@ -40,6 +42,10 @@ interface GlobalData {
 
   linksData: GraphLink[];
   setLinksData: (links: GraphLink[]) => void;
+
+  systemsOptions: SystemOption[];
+  loadSystems: () => Promise<void>;
+
 }
 
 // -------------------------------------------------------------------------
@@ -216,6 +222,22 @@ const useUIStore = create<AppState>((set, get) => ({
 
   linksData: [],
   setLinksData: (links) => set({ linksData: links }),
+
+  systemsOptions: [],
+  loadSystems: async () => {
+    try {
+      set({ isLoadingFirestore: true });
+
+      const systems = await getSystem();
+
+      set({ systemsOptions: systems });
+    } catch (error) {
+      console.error("Error loading systems:", error);
+    } finally {
+      set({ isLoadingFirestore: false });
+    }
+  },
+
 }));
 
 export default useUIStore;

@@ -7,7 +7,6 @@ export {
     groupColor,
     cacheUser,
     routeList,
-    systemsOptions
 }
 from "@src/context/configGlobal";
 export type {
@@ -20,6 +19,7 @@ export type {
     GroupOptionFirestore,
     NodeViewData,
     DagMode,
-    LanguageConfig
+    LanguageConfig,
+    SystemOption
 }
 from "@src/context/exportType";

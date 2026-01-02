@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Typography,
@@ -19,7 +19,7 @@ import { useTranslation } from "react-i18next";
 
 import { ButtonClose } from "@src/components/index";
 import { useUIStore } from "@src/store/index";
-import { cacheUser, DagMode, systemsOptions } from "@src/context/index";
+import { cacheUser, DagMode } from "@src/context/index";
 import { ToolTipInfo } from "@src/utils/index";
 import * as style from "@src/styles/configWindow/styleConfigWindow";
 
@@ -52,6 +52,14 @@ const ConfigWindow: React.FC = () => {
   const [tempSystemsLinks, setTempSystemsLinks] = useState<string[]>(
     systemsBjjSelectedLinksStore
   );
+
+  // Lista de sistemas disponibles para carga y visualización en la aplicación.
+  const loadSystems = useUIStore((s) => s.loadSystems);
+  const systemsOptions = useUIStore((s) => s.systemsOptions);
+
+  useEffect(() => {
+    loadSystems();
+  }, [loadSystems]);
 
   const { t, i18n } = useTranslation();
 

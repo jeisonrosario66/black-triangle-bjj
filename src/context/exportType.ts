@@ -81,7 +81,6 @@ export type OptionTechniqueCard =  {
     icon?: React.ReactNode;
 };
 
-
 /**
  * Información asociada al nodo actualmente seleccionado (vista de detalle).
  */
@@ -103,6 +102,24 @@ export type DagMode =
   | "radialout" // Radial desde el centro hacia afuera
   | "radialin"; // Radial desde afuera hacia el centro
 
+/**
+* Configuración de idioma de la aplicación.
+* Define el locale activo para internacionalización.
+*
+* @returns {{ locale: "es" | "en" }} Configuración de idioma.
+*/
 export type LanguageConfig = {
     locale: "es" | "en";
+};
+
+/**
+ * Opción de sistema seleccionable.
+ * Asocia identificadores de nodos y enlaces con una etiqueta descriptiva.
+ *
+ * @returns {{ valueNodes: string; valueLinks: string; label: string }} Opción de sistema.
+ */
+export type SystemOption = {
+    valueNodes: string;
+    valueLinks: string;
+    label: string;
 };
