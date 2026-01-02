@@ -23,7 +23,7 @@ createRoot(document.getElementById("root")!).render(
       cacheLocation="localstorage"
       useRefreshTokens={true}
     >
-      <BrowserRouter basename="/black-triangle-bjj">
+      <BrowserRouter basename="/">
         <App />
       </BrowserRouter>
     </Auth0Provider>

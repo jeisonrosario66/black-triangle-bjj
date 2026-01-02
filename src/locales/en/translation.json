@@ -59,59 +59,6 @@
       "title": "Login to your account",
       "loginGoogle": "Log in with Google"
     },
-    "addNode": {
-      "addNodeWindow": {
-        "textRequired1": "The name must be at least 4 characters long",
-        "textRequired2": "The name is required",
-        "textRequired3": "The group is required",
-        "textRequired4": "The origin node is required"
-      },
-      "stepper": {
-        "back": "Back",
-        "previous": "Previous",
-        "skip": "Skip",
-        "optional": "Optional",
-        "next": "Next",
-        "reset": "Reset",
-        "finish": "Finish",
-        "step1": "You are creating a new node",
-        "step2": "Connect the node",
-        "step3": "Upload a resource to the node",
-        "step4": "step 4",
-        "step5": "step 5"
-      },
-      "tabGround": {
-        "loadingData": "Loading data...",
-        "selecCategory": "Select a category",
-        "notItems": "No techniques available"
-      },
-      "step1": {
-        "step1Title": "Create a new connection",
-        "formLabel": "Node name",
-        "toolTipInfo": "Write the name in Spanish, followed by the name in English, separated by a comma. E.g.: Guardia cerrada, Closed guard"
-      },
-      "step2": {
-        "step2Title": "Group for the new node",
-        "formLabel": "Groups",
-        "toolTipInfo": "Select the group to which this new node will belong"
-      },
-      "step3": {
-        "title": "Search YouTube Video",
-        "subText1": "Search",
-        "subText2": "views - ago"
-      },
-      "step4": {
-        "title": "Connect the new node"
-      },
-      "stepFinal": {
-        "text1": "Node Summary",
-        "text2": "Index",
-        "text3": "Name",
-        "text4": "Position",
-        "text5": "Origin Node",
-        "text6": "Upload date"
-      }
-    },
     "nodeView": {
       "title": "Video Player",
       "subTitle": "View and analyze the video content below.",
@@ -133,12 +80,6 @@
       "sourceLabel": "Outgoing Connections",
       "targetLabel": "Incoming Connections",
       "descriptionLabel": "Description"
-    }
-  },
-  "pages": {
-    "categories": {
-      "groupTitle": "Categories",
-      "subGroupTitle": "No category selected"
     }
   }
 }

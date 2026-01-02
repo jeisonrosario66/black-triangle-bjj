@@ -28,6 +28,7 @@ export const groupColor: Record<string, string> = {
   takedown: "rgb(255, 140, 0)",
   defence: "rgb(34, 139, 34)",
   guard: "rgb(139, 69, 19)",
+  defense_escape: "rgba(255, 185, 135, 1)",
 };
 
 /**
@@ -41,7 +42,7 @@ export const cameraPropsDev = {
   position: [251, -93, -18] as [number, number, number],
   dollySpeed: 4,
   minDistance: 20,
-  maxDistance: 2700,
+  maxDistance: 1000,
 };
 
 /**
@@ -70,11 +71,6 @@ const SystemsOfBjjLinks = ["/systems/headlock/links", "/systems/test/links"];
  */
 export const systemsOptions = [
   {
-    valueNodes: "/systems/test/nodes",
-    valueLinks: "/systems/test/links",
-    label: "Test",
-  },
-  {
     valueNodes: "/systems/headlock/nodes",
     valueLinks: "/systems/headlock/links",
     label: "HeadLock",
@@ -83,6 +79,31 @@ export const systemsOptions = [
     valueNodes: "/systems/dogfight/nodes",
     valueLinks: "/systems/dogfight/links",
     label: "DogFight",
+  },
+  {
+    valueNodes: "/systems/escaping_back_control/nodes",
+    valueLinks: "/systems/escaping_back_control/links",
+    label: "Escaping Back Control",
+  },
+  {
+    valueNodes: "/systems/mount_escape/nodes",
+    valueLinks: "/systems/mount_escape/links",
+    label: "Mount Escape",
+  },
+  {
+    valueNodes: "/systems/side_control_escapes/nodes",
+    valueLinks: "/systems/side_control_escapes/links",
+    label: "Side Control Escapes",
+  },
+  {
+    valueNodes: "/systems/turtle_defense/nodes",
+    valueLinks: "/systems/turtle_defense/links",
+    label: "Turtle Denfese",
+  },
+  {
+    valueNodes: "/systems/side_control_escapes_switch_base_variants/nodes",
+    valueLinks: "/systems/side_control_escapes_switch_base_variants/links",
+    label: "Side Control Escapes Switch Base Variants",
   },
 ];
 
@@ -118,34 +139,23 @@ const systemCacheLoadedLinks = parseCacheArray(cacheUser.systemsCacheNameLinks);
 const systemCacheLoadedNodes = parseCacheArray(cacheUser.systemsCacheNameNodes);
 
 /**
- * Mapa centralizado de colecciones, documentos e índices utilizados en Firestore.
- * Define las fuentes de datos principales del sistema, incluyendo nodos, taxonomía,
- * relaciones y estructuras de indexación global.
+ * Tabla de rutas y colecciones principales utilizadas en Firestore.
+ * Contiene referencias tanto a los sistemas almacenados como a los índices globales.
  */
-export const firestoreSchema = {
-  /** Cache en memoria de todos los nodos cargados por sistema */
-  cachedSystemNodes: systemCacheLoadedNodes,
-  /** Cache en memoria de todos los enlaces cargados por sistema */
-  cachedSystemLinks: systemCacheLoadedLinks,
-  /** Colección principal de nodos técnicos */
+export const tableNameDB = {
+  AllSystemsNodesArray: systemCacheLoadedNodes,
+  AllSystemsLinksArray: systemCacheLoadedLinks,
   nodes,
-  /** Colección principal de relaciones entre nodos */
   links,
-  /** Colección raíz de la taxonomía (categorías principales) */
-  categories: "taxonomy",
-  /** Colección de subcategorías asociadas a una categoría principal */
-  subcategories: "subCategories",
-  /** Colección que mantiene el índice global incremental del sistema */
-  globalIndexCollection: "index_global",
-  /** ID único del documento que almacena el índice global */
-  globalIndexDocId: "63keMnlfnUPYdIxLUviv",
-  /** Colección puente entre nodos y etiquetas taxonómicas */
-  nodeTaxonomy: "node_taxonomy",
-  /** Campo que almacena los identificadores de tabs asociados a un nodo */
-  nodeTabIdsField: "tab_ids",
-  /** Colección de etiquetas (tabs) utilizadas para clasificación y filtrado */
-  tabs: "tabs",
+  categories: "taxonomy", // nombre de la coleccion de categorias principales
+  subCategory: "subCategories", // nombre de la collecion de las subcoleeciones de group
+  indexGlobal: "index_global", // nombre de la collecion que marca el index  global
+  indexGlobalID: "63keMnlfnUPYdIxLUviv", // identificador unico del documento de index global
+  nodeTaxonomy: "node_taxonomy", // nombre de la coleccion intermedia entre los nodos y los tabs
+  tab_ids: "tab_ids", // nombre del registro de los tab dentro de la coleccion de node_taxonomy
+  tabs: "tabs", // nombre de la coleccion de las etiquetas
 };
+
 /**
  * Rutas principales de navegación interna de la aplicación.
  * Define las direcciones utilizadas por el enrutador para acceder a las vistas.
@@ -156,5 +166,4 @@ export const routeList = {
   addNode: "/add_node",
   loginUser: "/login_user",
   profile: "/profile",
-  test: "test_add_fast",
 };

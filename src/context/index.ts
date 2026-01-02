@@ -1,30 +1,27 @@
 // context
 export {
-  configGlobal,
-  cameraPropsDev,
-  scenePropsDev,
-  nodes as nodesDataBaseActive,
-  links as linksDataBaseActive,
-  firestoreSchema,
-  groupColor,
-  cacheUser,
-  routeList,
-  systemsOptions,
-} from "@src/context/configGlobal";
+    configGlobal,
+    cameraPropsDev,
+    scenePropsDev,
+    nodes as nodesDataBaseActive,
+    links as linksDataBaseActive,
+    tableNameDB,
+    groupColor,
+    cacheUser,
+    routeList,
+    systemsOptions
+}
+from "@src/context/configGlobal";
 export type {
-  GraphNode,
-  GraphRefType,
-  NodeFormData,
-  NodeOptionFirestone,
-  GraphLink,
-  GraphData,
-  OptionTechniqueCard,
-  PlayerControlsData,
-  NodeInsertData,
-  GroupOptionFirestone,
-  NodeViewData,
-  DagMode,
-  Subcategory,
-  Category,
-  TaxonomyType,
-} from "@src/context/exportType";
+    GraphNode,
+    GraphRefType,
+    NodeOptionFirestore,
+    GraphLink,
+    GraphData,
+    OptionTechniqueCard,
+    NodeInsertData,
+    GroupOptionFirestore,
+    NodeViewData,
+    DagMode
+}
+from "@src/context/exportType";

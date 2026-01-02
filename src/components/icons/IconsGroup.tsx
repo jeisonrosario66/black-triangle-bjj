@@ -1,7 +1,7 @@
 import React from "react";
 
 import { getDataGroup } from "@src/services/index";
-import { firestoreSchema, OptionTechniqueCard } from "@src/context/index";
+import { tableNameDB, OptionTechniqueCard } from "@src/context/index";
 
 import themeApp from "@src/styles/stylesThemeApp";
 const theme = themeApp;
@@ -288,15 +288,20 @@ const iconMap: Record<string, React.JSX.Element> = {
   system: <SystemIcon color={theme.palette.text.secondary} />,
   transition: <TransitionIcon color={theme.palette.text.secondary} />,
 };
-// sonarjs-ignore S6861: export mutable variable intentionally for dynamic update
-export let optionsMenu: OptionTechniqueCard[] = [];
 
-(async () => {
-  const groups = await getDataGroup(firestoreSchema.categories);
+type GroupFirestore = {
+    label: string;
+    title: string;
+};
 
-  optionsMenu = (groups ?? []).map((item: any) => ({
-    value: item.label,
-    label: item.title,
-    icon: iconMap[item.label] || null, // Previene errores si no hay ícono
-  }));
-})();
+export async function loadOptionsMenu(): Promise < OptionTechniqueCard[] > {
+    const groups = await getDataGroup(tableNameDB.categories);
+
+    return(groups ?? []).map(
+        (item : GroupFirestore) => ({
+            value: item.label,
+            label: item.title,
+            icon: iconMap[item.label] ?? null
+        })
+    );
+}

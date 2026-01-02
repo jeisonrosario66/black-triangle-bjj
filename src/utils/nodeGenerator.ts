@@ -9,7 +9,7 @@ const useGraphData = () => {
    * dinámicamente cuando cambian las rutas en Zustand.
    */
 
-  // 🔹 Traemos los arrays directamente del store
+  // Traemos los arrays directamente del store
   const nodesArray = useUIStore((state) => state.systemBjjSelectedNodes);
   const linksArray = useUIStore((state) => state.systemBjjSelectedLinks);
 
@@ -22,15 +22,15 @@ const useGraphData = () => {
     const fetchData = async () => {
       useUIStore.setState({ isLoadingFirestore: true });
       try {
-        // 🔸 Obtener nodos
+        // Obtener nodos
         const nodes = (await getDataNodes(nodesArray)) as GraphNode[];
         const filteredNodes = nodes.filter((node) => node.id !== 1);
 
-        // 🔸 Obtener enlaces
+        // Obtener enlaces
         const links = await getDataLinks(linksArray);
         useUIStore.setState({ linksData: links });
 
-        // 🔹 Actualizar datos globales del grafo
+        // Actualizar datos globales del grafo
         setGData({ nodes: filteredNodes, links });
       } catch (error) {
         console.error("Error obteniendo datos:", error);
@@ -39,7 +39,7 @@ const useGraphData = () => {
       }
     };
 
-    // 🔥 Ejecuta cada vez que cambian los arrays del store
+    // Ejecuta cada vez que cambian los arrays del store
     fetchData();
   }, [nodesArray, linksArray]);
 

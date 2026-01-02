@@ -8,13 +8,8 @@ import {
   doc,
 } from "firebase/firestore";
 
-import { firestoreSchema, TaxonomyType } from "@src/context/index";
+import { tableNameDB } from "@src/context/configGlobal";
 import { database } from "@src/hooks";
-
-type NodeTaxonomyState = {
-  id: string;
-  data: TaxonomyType;
-};
 
 /**
  * Hook para obtener la taxonomía asociada a un nodo.
@@ -24,7 +19,7 @@ type NodeTaxonomyState = {
  * @returns {any | null} Objeto de taxonomía del nodo o null si no existe.
  */
 export const useNodeTaxonomy = (nodeIndex: number) => {
-  const [taxonomy, setTaxonomy] = useState<NodeTaxonomyState | null>(null);
+  const [taxonomy, setTaxonomy] = useState<any | null>(null);
 
   useEffect(() => {
     if (!nodeIndex) {
@@ -34,7 +29,7 @@ export const useNodeTaxonomy = (nodeIndex: number) => {
 
     const fetch = async () => {
       const q = query(
-        collection(database, firestoreSchema.nodeTaxonomy),
+        collection(database, tableNameDB.nodeTaxonomy),
         where("node_index", "==", nodeIndex)
       );
 
@@ -49,7 +44,7 @@ export const useNodeTaxonomy = (nodeIndex: number) => {
 
       setTaxonomy({
         id: docSnap.id,
-        data: docSnap.data() as TaxonomyType,
+        ...docSnap.data(),
       });
     };
 
@@ -58,6 +53,7 @@ export const useNodeTaxonomy = (nodeIndex: number) => {
 
   return taxonomy;
 };
+
 
 export interface Tab {
   id: string;
@@ -84,7 +80,7 @@ export const useTabsByIds = (tabIds?: string[]) => {
 
     const fetch = async () => {
       const snaps = await Promise.all(
-        tabIds.map((id) => getDoc(doc(database, firestoreSchema.tabs, id)))
+        tabIds.map((id) => getDoc(doc(database, tableNameDB.tabs, id)))
       );
 
       const resolved = snaps

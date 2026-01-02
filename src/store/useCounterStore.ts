@@ -1,8 +1,8 @@
 import { create } from "zustand";
 import { Vector3Tuple } from "three";
 import {
-  NodeViewData,
-  NodeOptionFirestone,
+  NodeViewData, 
+  NodeOptionFirestore,
   DagMode,
   cacheUser,
   GraphLink,
@@ -18,11 +18,12 @@ interface GlobalData {
   languageGlobal: string;
   setLanguageGlobal: (language: string) => void;
 
-  nodeViewData: NodeViewData;
+nodeViewData : NodeViewData | null;
+
   setNodeViewData: (data: NodeViewData) => void;
 
-  documentsFirestore: NodeOptionFirestone[];
-  setDocumentsFirestore: (data: NodeOptionFirestone[]) => void;
+  documentsFirestore: NodeOptionFirestore[];
+  setDocumentsFirestore : (data : NodeOptionFirestore[]) => void;
 
   dagModeConfig: DagMode;
   setDagModeConfig: (dagMode: DagMode) => void;
@@ -78,11 +79,6 @@ interface UIState {
   alertMessage: string;
   alertSeverity: "success" | "info" | "warning" | "error";
   triggerAlert: (message: string, severity?: UIState["alertSeverity"]) => void;
-
-  addNodeActiveStep: number;
-  setaddNodeActiveStep: (step: number) => void;
-  nextStep: () => void;
-  prevStep: () => void;
 
   cameraBackup: { pos: Vector3Tuple; target: Vector3Tuple } | null;
   setCameraBackup: (pos: Vector3Tuple, target: Vector3Tuple) => void;
@@ -151,7 +147,7 @@ const useUIStore = create<AppState>((set, get) => ({
   setIsconfigWindowActive: (configWindow) =>
     set({ isConfigWindowActive: configWindow }),
 
-  nodeViewData: { videoid: "", start: "", end: "" },
+  nodeViewData: null,
   setNodeViewData: (data) => set({ nodeViewData: data }),
 
   documentsFirestore: [],
@@ -168,16 +164,6 @@ const useUIStore = create<AppState>((set, get) => ({
     set({ showAlert: true, alertMessage: message, alertSeverity: severity });
     setTimeout(() => set({ showAlert: false }), 4000);
   },
-
-  addNodeActiveStep: 0,
-  setaddNodeActiveStep: (step) => set({ addNodeActiveStep: step }),
-
-  nextStep: () =>
-    set((state) => ({ addNodeActiveStep: state.addNodeActiveStep + 1 })),
-  prevStep: () =>
-    set((state) => ({
-      addNodeActiveStep: Math.max(0, state.addNodeActiveStep - 1),
-    })),
 
   // --- Estado de Validación por Pasos ---
   stepValidation: { step0: false, step1: false, step2: false },

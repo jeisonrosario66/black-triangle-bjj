@@ -9,8 +9,7 @@ import {
   IconButton,
   Tooltip,
 } from "@mui/material";
-import { Settings, Logout } from "@mui/icons-material";
-import HubIcon from "@mui/icons-material/Group";
+import { Settings } from "@mui/icons-material";
 import LoginIcon from "@mui/icons-material/Login";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import { useNavigate } from "react-router-dom";
@@ -33,16 +32,14 @@ const textHardcoded = "components.accountMenu.";
  * @returns {JSX.Element} Menú interactivo de cuenta.
  */
 export default function AccountMenu() {
-  const { user, isAuthenticated, logout } = useSession();
+  // const { user, isAuthenticated, logout } = useSession();
+  const { user, isAuthenticated } = useSession();
 
   const { t } = useTranslation();
   const navigate = useNavigate();
 
-  const isUserLogin = useUIStore((state) => state.isUserLogin);
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
-
-  const triggerAlert = useUIStore((state) => state.triggerAlert);
 
   /**
    * Abre el menú anclándolo al elemento seleccionado.
@@ -72,10 +69,10 @@ export default function AccountMenu() {
   /**
    * Cierra sesión del usuario autenticado.
    */
-  const handleLogout = () => {
-    setAnchorEl(null);
-    logout();
-  };
+  // const handleLogout = () => {
+  //   setAnchorEl(null);
+  //   logout();
+  // };
 
   /**
    * Abre la ventana de inicio de sesión y redirige al usuario.
@@ -83,18 +80,6 @@ export default function AccountMenu() {
   const handleLoginWindow = () => {
     useUIStore.setState({ isLoginWindowActive: true });
     navigate(routeList.loginUser);
-  };
-
-  /**
-   * Activa la opción de agregar nodo si el usuario está autenticado;
-   * de lo contrario muestra una alerta.
-   */
-  const addNodeMenu = () => {
-    if (!isUserLogin) {
-      navigate(routeList.addNode);
-    } else {
-      triggerAlert(t(textHardcoded + "triggerAlert"), "warning");
-    }
   };
 
   /**
@@ -180,16 +165,6 @@ export default function AccountMenu() {
             {t(textHardcoded + "optionsMenu.login")}
           </MenuItem>
         )}
-
-        <Divider />
-
-        {/* Opción para agregar un nodo */}
-        <MenuItem onClick={addNodeMenu} disabled>
-          <ListItemIcon>
-            <HubIcon fontSize="small" />
-          </ListItemIcon>
-          {t(textHardcoded + "optionsMenu.addNode")}
-        </MenuItem>
 
         <Divider />
 

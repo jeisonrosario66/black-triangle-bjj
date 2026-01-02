@@ -1,185 +1,135 @@
-import { GraphMethods } from "r3f-forcegraph";
+import {GraphMethods} from "r3f-forcegraph";
 
+type NodeIdentity = {
+    id: number;
+    index?: number;
+};
+type NodePosition3D = {
+    x: number;
+    y: number;
+    z: number;
+};
+type StructuredDescription = {
+    summary: string;
+    points: string[];
+};
+type NodeMetadata = {
+    name: string;
+    group: string;
+    videoid: string;
+    color?: string;
+    description: StructuredDescription;
+};
+type CoreNode = NodeIdentity & NodeMetadata;
+type NodeNames = {
+    name_es: string;
+    name_en: string;
+};
+type MultilangDescription = {
+    descrip_es?: StructuredDescription;
+    descrip_en?: StructuredDescription;
+};
 /**
  * Referencia al grafo 3D, basada en los métodos expuestos por r3f-forcegraph.
  */
-export type GraphRefType =
-  | GraphMethods<{ id?: number }, { source: number; target: number }>
-  | undefined;
-
-/**
- * Datos recogidos desde el formulario de creación de nodo.
- */
-export type NodeFormData = {
-  index: number;
-  name: string;
-  group: string;
-  nodeSourceIndex: number;
-  uploadedDate?: string;
-  videoid?: string;
-  end?: string;
-  start?: string;
-};
-
+export type GraphRefType = |GraphMethods < GraphNode,
+GraphLink > | undefined;
 /**
  * Datos necesarios para insertar un nuevo nodo en la base de datos.
+ *
+ * Este tipo representa el **payload normalizado de creación**, utilizado
+ * exclusivamente en operaciones de escritura (insert) hacia Firestore.
+ *
+ * Consideraciones clave:
+ * - Este tipo **no representa un nodo del grafo ni de la UI**, sino un modelo
+ *   de persistencia orientado a base de datos.
+ * - `idNewNode` define la posición ordinal del nodo dentro del sistema y no su identidad.
+ * - La identidad global del nodo se genera o asigna en la capa de persistencia.
+ * - `nodeSource` indica uno o varios nodos existentes desde los cuales se crea
+ *   el enlace inicial (relación dirigida).
+ * - Los campos `descrip_es` y `descrip_en` permiten almacenar descripciones
+ *   estructuradas y multilenguaje, siendo opcionales según el contenido disponible.
+ *
+ * Este tipo debe mantenerse aislado de los modelos de visualización y simulación.
  */
-export type NodeInsertData = {
-  dbNodesName: string; // Nombre de la colección de nodos
-  dbLinksName: string; // Nombre de la colección de enlaces
-  index: number;
-  name_es: string;
-  name_en: string;
-  group: string;
-  nodeSource: number; // ID del nodo origen (para crear el enlace)
-  videoid: string;
-  start: string;
-  end: string;
-  uploadedDate: string;
-  descrip_es?: { summary: string; points: string[] };
-  descrip_en?: { summary: string; points: string[] };
-};
 
+export type NodeInsertData = {
+    dbNodesName: string;
+    dbLinksName: string;
+    idNewNode: number;
+    group: string;
+    videoid: string;
+    nodeSource: number | number[];
+    uploadedDate: string;
+} & NodeNames & MultilangDescription;
 /**
  * Representación de un nodo almacenado en Firestore.
+ *
+ * Notas importantes sobre identificadores:
+ * - `id` es el identificador único y permanente del nodo en todo el sistema.
+ *   Se utiliza para persistencia, referencias y relaciones entre nodos.
+ * - `index` representa la posición ordinal del nodo dentro de un sistema o conjunto específico.
+ *   Puede cambiar si el sistema se reorganiza y no debe usarse como identificador único.
+ *
+ * Ambos valores cumplen propósitos distintos y no son intercambiables.
  */
-export type NodeOptionFirestone = {
-  id?: number | string;
-  index?: number;
-  name?: string;
-  group?: string;
-  start?: string;
-  end?: string;
-  videoid?: string;
-  x?: string; // Posición X en el grafo (si está definida)
-  y?: string; // Posición Y
-  z?: string; // Posición Z
-};
+export type NodeOptionFirestore = CoreNode;
 
 /**
  * Definición de grupo o categoría cargada desde Firestore.
  */
-export type GroupOptionFirestone = {
-  label: string;
-  title: string;
-  description: string;
+export type GroupOptionFirestore = {
+    label: string;
+    title: string;
+    description: string;
 };
 
 /**
  * Representación de un nodo dentro del grafo visual.
  */
-export type GraphNode = {
-  id?: number;
-  x?: number;
-  y?: number;
-  z?: number;
-  name?: string;
-  color?: string;
-  group?: string;
-  subGroup?: string;
-  start?: string;
-  end?: string;
-  videoid?: string;
-  description?: { summary: string; points: string[] };
-};
+export type GraphNode = CoreNode & NodePosition3D;
 
 /**
  * Enlace entre dos nodos del grafo (dirigido).
  */
 export type GraphLink = {
-  source: number | GraphNode;
-  target: number | GraphNode;
+    source: number;
+    target: number;
 };
 
 /**
  * Conjunto completo de nodos y enlaces para renderizar el grafo.
  */
 export type GraphData = {
-  nodes: GraphNode[];
-  links: GraphLink[];
+    nodes: GraphNode[];
+    links: GraphLink[];
 };
 
 /**
  * Opción para tarjetas de selección de técnicas (por ejemplo, en formularios o menús).
  */
-export type OptionTechniqueCard = {
-  value: string;
-  label: string;
-  icon?: React.ReactNode;
-  id?: number | string;
-  name?: string;
-  group?: string;
+export type OptionTechniqueCard =  {
+    label: string;
+    name?: string;
+    group?: string;
+    value: string;
+    icon?: React.ReactNode;
 };
 
-/**
- * Datos enviados desde los controles de reproducción de video (inicio y fin de un fragmento).
- */
-export type PlayerControlsData = {
-  start?: string;
-  end?: string;
-  videoid?: string;
-};
 
 /**
  * Información asociada al nodo actualmente seleccionado (vista de detalle).
  */
-export type NodeViewData = {
-  videoid?: string;
-  start?: string;
-  end?: string;
-  name?: string;
-  color?: string;
-  group?: string;
-  id?: number;
-  description?: { summary: string; points: string[] };
-};
+export type NodeViewData = CoreNode
 
 /**
  * Modos de disposición jerárquica (DAG) soportados por r3f-forcegraph.
  */
-export type DagMode =
-  | "td" // Top → Down
-  | "bu" // Bottom → Up
-  | "lr" // Left → Right
-  | "rl" // Right → Left
-  | "zout" // Profundidad hacia afuera (obsoleto en algunas versiones)
-  | "zin" // Profundidad hacia adentro (obsoleto)
-  | "radialout" // Radial desde el centro hacia afuera
-  | "radialin"; // Radial desde afuera hacia el centro
-
-/**
- * Categoría de técnicas grupos de técnicas de BJJ
- */
-export type Category = {
-  label: string;
-  title?: string;
-  title_en: string;
-  title_es: string;
-  description?: string;
-  description_en: string;
-  description_es: string;
-  categoryId: string;
-};
-
-/**
- * Subcategoría de técnicas grupos de técnicas de BJJ
- */
-export type Subcategory = {
-  label: string;
-  title?: string;
-  title_en: string;
-  title_es: string;
-  description?: string;
-  description_en: string;
-  description_es: string;
-  categoryId: string;
-  groupId: string;
-};
-
-export type TaxonomyType = {
-  category_id: string;
-  node_index: number;
-  specific_category_id: string;
-  subcategory_id: string;
-  tab_ids: string[];
-};
+export type DagMode = |"td" // Top → Down
+| "bu" // Bottom → Up
+| "lr" // Left → Right
+| "rl" // Right → Left
+| "zout" // Profundidad hacia afuera (obsoleto en algunas versiones)
+| "zin" // Profundidad hacia adentro (obsoleto)
+| "radialout" // Radial desde el centro hacia afuera
+| "radialin"; // Radial desde afuera hacia el centro

@@ -1,11 +1,11 @@
 import {
   GizmoHelper,
   GizmoViewport,
-  Stars,
+  // Stars,
   CameraControls,
 } from "@react-three/drei";
 
-import { scenePropsDev } from "@src/context/configGlobal";
+// import { scenePropsDev } from "@src/context/configGlobal";
 import { NodeComponent } from "@src/components/index";
 import { configGlobal } from "@src/context/index";
 

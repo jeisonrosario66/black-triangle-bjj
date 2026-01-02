@@ -59,59 +59,6 @@
       "title": "Inicia sesión en tu cuenta",
       "loginGoogle": "Iniciar sesión con Google"
     },
-    "addNode": {
-      "addNodeWindow": {
-        "textRequired1": "El nombre debe tener al menos 4 caracteres",
-        "textRequired2": "El nombre es obligatorio",
-        "textRequired3": "El grupo es obligatorio",
-        "textRequired4": "El nodo origen es obligatorio"
-      },
-      "stepper": {
-        "back": "Volver",
-        "previous": "Retroceder",
-        "skip": "Saltar",
-        "optional": "Opcional",
-        "next": "Siguiente",
-        "reset": "Reset",
-        "finish": "Finalizar",
-        "step1": "Estás creando un nuevo nodo",
-        "step2": "Conecta el nodo",
-        "step3": "Carga un recurso al nodo",
-        "step4": "paso 4",
-        "step5": "paso 5"
-      },
-      "tabGround": {
-        "loadingData": "Cargando datos...",
-        "selecCategory": "Selecciona una categoría.",
-        "notItems": "No hay técnicas disponibles"
-      },
-      "step1": {
-        "step1Title": "Crea una nueva conexión",
-        "formLabel": "Nombre del nodo",
-        "toolTipInfo": "Escribe el nombre en español, seguido del nombre en inglés, separados por una coma. Ej: Guardia cerrada, Closed guard"
-      },
-      "step2": {
-        "step2Title": "Grupo para el nuevo nodo",
-        "formLabel": "Grupos",
-        "toolTipInfo": "Selecciona el grupo al que pertenecerá este nuevo nodo"
-      },
-      "step3": {
-        "title": "Buscar Video en YouTube",
-        "subText1": "Buscar",
-        "subText2": "vistas - hace"
-      },
-      "step4": {
-        "title": "Conecta el nuevo nodo"
-      },
-      "stepFinal": {
-        "text1": "Resumen del Nodo",
-        "text2": "Índice",
-        "text3": "Nombre",
-        "text4": "Posición",
-        "text5": "Nodo Origen",
-        "text6": "Fecha de subida"
-      }
-    },
     "nodeView": {
       "title": "Reproductor de Video",
       "subTitle": "Visualice y analice el contenido del video a continuación.",
@@ -133,12 +80,6 @@
       "sourceLabel": "Conexiones salientes",
       "targetLabel": "Conexiones entrantes",
       "descriptionLabel": "Descripción"
-    }
-  },
-  "pages": {
-    "categories": {
-      "groupTitle": "Categorias",
-      "subGroupTitle": "No hay categoría seleccionada"
     }
   }
 }
