@@ -3,8 +3,6 @@ export {
     configGlobal,
     cameraPropsDev,
     scenePropsDev,
-    nodes as nodesDataBaseActive,
-    links as linksDataBaseActive,
     tableNameDB,
     groupColor,
     cacheUser,
@@ -19,9 +17,9 @@ export type {
     GraphLink,
     GraphData,
     OptionTechniqueCard,
-    NodeInsertData,
     GroupOptionFirestore,
     NodeViewData,
-    DagMode
+    DagMode,
+    LanguageConfig
 }
 from "@src/context/exportType";

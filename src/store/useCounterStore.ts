@@ -1,11 +1,12 @@
 import { create } from "zustand";
 import { Vector3Tuple } from "three";
 import {
-  NodeViewData, 
+  NodeViewData,
   NodeOptionFirestore,
   DagMode,
   cacheUser,
   GraphLink,
+  LanguageConfig
 } from "@src/context/index";
 import { parseCacheArray } from "@src/utils/index";
 
@@ -14,16 +15,16 @@ const systemCacheLoadedNodes = parseCacheArray(cacheUser.systemsCacheNameNodes);
 // -------------------------------------------------------------------------
 // Definición del estado de datos globales
 // -------------------------------------------------------------------------
+
 interface GlobalData {
-  languageGlobal: string;
-  setLanguageGlobal: (language: string) => void;
+  languageGlobal: LanguageConfig;
+  setLanguageGlobal: (language: LanguageConfig) => void;
 
-nodeViewData : NodeViewData | null;
-
+  nodeViewData: NodeViewData | null;
   setNodeViewData: (data: NodeViewData) => void;
 
   documentsFirestore: NodeOptionFirestore[];
-  setDocumentsFirestore : (data : NodeOptionFirestore[]) => void;
+  setDocumentsFirestore: (data: NodeOptionFirestore[]) => void;
 
   dagModeConfig: DagMode;
   setDagModeConfig: (dagMode: DagMode) => void;
@@ -140,7 +141,7 @@ const useUIStore = create<AppState>((set, get) => ({
   setOverlayDontShowAgain: (dontShow) =>
     set({ overlayDontShowAgain: dontShow }),
 
-  languageGlobal: "",
+  languageGlobal: { locale: "es" },
   setLanguageGlobal: (language) => set({ languageGlobal: language }),
 
   isConfigWindowActive: false,

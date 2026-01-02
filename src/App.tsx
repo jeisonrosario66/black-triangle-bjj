@@ -15,10 +15,6 @@ import { useTranslation } from "react-i18next";
  * @returns {JSX.Element} Estructura principal del enrutador.
  */
 function App() {
-  // Estado global
-  const isConfigWindowActive = useUIStore(
-    (state) => state.isConfigWindowActive
-  );
   const systemsBjjSelectedNodesStore = useUIStore(
     (state) => state.systemBjjSelectedNodes
   );
@@ -26,21 +22,21 @@ function App() {
   // Hook de traducción
   const { i18n } = useTranslation();
 
-  // Hook para inicializar el listener de autenticación al montar el componente
+  // Hook inicializador al montar el componente
   useEffect(() => {
     const savedLanguage =
-      localStorage.getItem(cacheUser.languageUser) ?? cacheUser.languageDefault;
-    i18n.changeLanguage(savedLanguage);
-    useUIStore.setState({ languageGlobal: savedLanguage });
-  }, [isConfigWindowActive]);
+      (localStorage.getItem(cacheUser.languageUser) ?? cacheUser.languageDefault) as "es" | "en";
 
-  useEffect(() => {
+    useUIStore.setState({ languageGlobal: { locale: savedLanguage } });
+
     localStorage.setItem(cacheUser.dagModeCache, cacheUser.dagMode);
     localStorage.setItem(
       cacheUser.dagLevelDistanceCache,
       String(cacheUser.dagLevelDistance)
     );
+    localStorage.setItem(cacheUser.languageUser, savedLanguage)
     debugLog("info", "Sistema de Bjj Cargado: ", systemsBjjSelectedNodesStore);
+    i18n.changeLanguage(savedLanguage);
   }, [systemsBjjSelectedNodesStore]);
 
   return (

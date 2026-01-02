@@ -34,7 +34,9 @@
       "dagMode.none": "Sin jerarquía",
       "dagLevelDistance": "Separación entre niveles",
       "dagLevelDistance.description": "Define la distancia entre cada nivel jerárquico en el grafo(0 - 100).",
-      "buttonClose": "Cerrar y Guardar"
+      "buttonClose": "Cerrar y Guardar",
+      "system": "Escoger Sistema BJJ",
+      "system.description": "Selecciona los sistemas de Jiu-Jitsu Brasileño que deseas cargar en la visualización. Cada sistema activado añadirá sus posiciones y transiciones al grafo principal."
     },
     "buttonAddNode": {
       "title": "Agregar Nodos"

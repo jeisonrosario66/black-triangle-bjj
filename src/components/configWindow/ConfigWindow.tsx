@@ -60,13 +60,10 @@ const ConfigWindow: React.FC = () => {
    * Restaura idioma y configuraciones iniciales desde Zustand/localStorage.
    */
   const buttonCloseFunction = () => {
-    localStorage.setItem(cacheUser.languageUser, initialLang);
     useUIStore.setState({
       languageGlobal: initialLang,
-      dagModeConfig: localStorage.getItem(cacheUser.dagModeCache) as DagMode,
-      dagLevelDistanceConfig: Number(
-        localStorage.getItem(cacheUser.dagLevelDistanceCache)
-      ),
+      dagModeConfig: initialDagMode,
+      dagLevelDistanceConfig: initialDagLevel,
       isConfigWindowActive: false,
     });
   };
@@ -75,10 +72,9 @@ const ConfigWindow: React.FC = () => {
    * Cambia el idioma activo de la aplicación.
    * @param event Evento del selector de idioma.
    */
-  const handleChangeLanguage = (event: SelectChangeEvent) => {
-    setLanguage(event.target.value);
-    localStorage.setItem(cacheUser.languageUser, event.target.value);
-    i18n.changeLanguage(event.target.value);
+  const handleChangeLanguage = (event: SelectChangeEvent<"es" | "en">) => {
+    const value = event.target.value;
+    setLanguage({ locale: value });
   };
 
   /**
@@ -88,7 +84,6 @@ const ConfigWindow: React.FC = () => {
   const handleChangeDagMode = (event: SelectChangeEvent) => {
     const value = event.target.value as DagMode;
     setDagMode(value);
-    useUIStore.setState({ dagModeConfig: value });
   };
 
   /**
@@ -100,7 +95,6 @@ const ConfigWindow: React.FC = () => {
     const value = Number(e.target.value);
     if (!Number.isNaN(value) && value >= 0 && value <= 100) {
       setDagLevel(value);
-      useUIStore.setState({ dagLevelDistanceConfig: value });
     }
   };
   /**
@@ -127,6 +121,8 @@ const ConfigWindow: React.FC = () => {
    */
   const buttonCloseSaveFunction = () => {
     // Guardar configuraciones numéricas y de modo DAG
+    i18n.changeLanguage(language.locale);
+    localStorage.setItem(cacheUser.languageUser, language.locale);
     localStorage.setItem(cacheUser.dagModeCache, dagMode);
     localStorage.setItem(cacheUser.dagLevelDistanceCache, String(dagLevel));
 
@@ -139,8 +135,6 @@ const ConfigWindow: React.FC = () => {
       cacheUser.systemsCacheNameLinks,
       JSON.stringify(tempSystemsLinks)
     );
-    console.log("Node temporal systems:", tempSystemsNodes);
-    console.log("Link temporal systems:", tempSystemsLinks);
 
     // Actualizar estado global solo al confirmar
     useUIStore.setState({
@@ -174,7 +168,7 @@ const ConfigWindow: React.FC = () => {
         <Select
           labelId="language-select-label"
           id="language-select"
-          defaultValue={initialLang}
+          defaultValue={initialLang.locale}
           label={t(textHardcoded + "language.label")}
           onChange={handleChangeLanguage}
         >
@@ -234,7 +228,7 @@ const ConfigWindow: React.FC = () => {
 
       {/* Lista de sistemas disponibles */}
       <InputLabel id="system-select-label">
-        {t(textHardcoded + "system.label")}
+        {t(textHardcoded + "system")}
       </InputLabel>
       <FormControl fullWidth sx={style.formGeneral}>
         <Paper sx={style.selectSystemPaper}>

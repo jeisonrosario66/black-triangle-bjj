@@ -34,7 +34,9 @@
       "dagMode.none": "No hierarchy",
       "dagLevelDistance": "Level separation",
       "dagLevelDistance.description": "Sets the spacing between each hierarchical level in the graph(0 - 100).",
-      "buttonClose": "Close and Save"
+      "buttonClose": "Close and Save",
+      "system": "Select System Bjj",
+      "system.description": "Select the Brazilian Jiu-Jitsu systems you want to load into the visualization. Each activated system will add its positions and transitions to the main graph."
     },
     "buttonAddNode": {
       "title": "Add Nodes"

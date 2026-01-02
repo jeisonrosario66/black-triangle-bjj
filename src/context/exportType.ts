@@ -21,47 +21,12 @@ type NodeMetadata = {
     description: StructuredDescription;
 };
 type CoreNode = NodeIdentity & NodeMetadata;
-type NodeNames = {
-    name_es: string;
-    name_en: string;
-};
-type MultilangDescription = {
-    descrip_es?: StructuredDescription;
-    descrip_en?: StructuredDescription;
-};
+
 /**
  * Referencia al grafo 3D, basada en los métodos expuestos por r3f-forcegraph.
  */
 export type GraphRefType = |GraphMethods < GraphNode,
 GraphLink > | undefined;
-/**
- * Datos necesarios para insertar un nuevo nodo en la base de datos.
- *
- * Este tipo representa el **payload normalizado de creación**, utilizado
- * exclusivamente en operaciones de escritura (insert) hacia Firestore.
- *
- * Consideraciones clave:
- * - Este tipo **no representa un nodo del grafo ni de la UI**, sino un modelo
- *   de persistencia orientado a base de datos.
- * - `idNewNode` define la posición ordinal del nodo dentro del sistema y no su identidad.
- * - La identidad global del nodo se genera o asigna en la capa de persistencia.
- * - `nodeSource` indica uno o varios nodos existentes desde los cuales se crea
- *   el enlace inicial (relación dirigida).
- * - Los campos `descrip_es` y `descrip_en` permiten almacenar descripciones
- *   estructuradas y multilenguaje, siendo opcionales según el contenido disponible.
- *
- * Este tipo debe mantenerse aislado de los modelos de visualización y simulación.
- */
-
-export type NodeInsertData = {
-    dbNodesName: string;
-    dbLinksName: string;
-    idNewNode: number;
-    group: string;
-    videoid: string;
-    nodeSource: number | number[];
-    uploadedDate: string;
-} & NodeNames & MultilangDescription;
 /**
  * Representación de un nodo almacenado en Firestore.
  *
@@ -124,12 +89,20 @@ export type NodeViewData = CoreNode
 
 /**
  * Modos de disposición jerárquica (DAG) soportados por r3f-forcegraph.
+ *
+ * Definen la dirección y forma en que se organizan los nodos
+ * dentro del grafo tridimensional.
  */
-export type DagMode = |"td" // Top → Down
-| "bu" // Bottom → Up
-| "lr" // Left → Right
-| "rl" // Right → Left
-| "zout" // Profundidad hacia afuera (obsoleto en algunas versiones)
-| "zin" // Profundidad hacia adentro (obsoleto)
-| "radialout" // Radial desde el centro hacia afuera
-| "radialin"; // Radial desde afuera hacia el centro
+export type DagMode =
+  | "td"        // Top → Down (de arriba hacia abajo)
+  | "bu"        // Bottom → Up (de abajo hacia arriba)
+  | "lr"        // Left → Right (de izquierda a derecha)
+  | "rl"        // Right → Left (de derecha a izquierda)
+  | "zout"      // Profundidad hacia afuera (obsoleto en algunas versiones)
+  | "zin"       // Profundidad hacia adentro (obsoleto)
+  | "radialout" // Radial desde el centro hacia afuera
+  | "radialin"; // Radial desde afuera hacia el centro
+
+export type LanguageConfig = {
+    locale: "es" | "en";
+};
