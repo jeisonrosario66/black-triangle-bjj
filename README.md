@@ -1,75 +1,147 @@
-# 🥋 Black Triangle BJJ - Aplicación de Gestión de Técnicas de Jiu-Jitsu
+# Black Triangle BJJ
 
-Black Triangle BJJ es una aplicación interactiva para la gestión y visualización de técnicas de Jiu-Jitsu, permitiendo a los usuarios explorar y organizar posiciones, transiciones y estrategias en un entorno visual en 3D.
+## Descripción general
 
-## 🚀 Características
+**Black Triangle BJJ** es un proyecto personal y educativo cuyo objetivo es mapear el Brazilian Jiu-Jitsu (BJJ) como un sistema completo de conocimiento, utilizando un enfoque basado en grafos. Cada técnica, posición, transición, sistema o concepto es representado como un nodo interconectado, permitiendo estudiar el BJJ de forma estructural, relacional y no lineal.
 
-✅ **Visualización 3D:** Utiliza `@react-three/fiber` y `@react-three/drei` para representar gráficamente las posiciones y transiciones.  
-✅ **Gestión de datos con Firestore:** Se almacenan y consultan técnicas de Jiu-Jitsu en una base de datos en tiempo real.  
-✅ **Interfaz dinámica:** React con Zustand para gestionar estados de la UI de forma eficiente.  
-✅ **Configuración segura:** Variables de entorno protegidas mediante `.env.local`.  
-✅ **Estilización modular:** Uso de CSS Modules para mantener los estilos organizados.  
+El proyecto está diseñado para crecer a largo plazo, evolucionando desde un visor técnico hacia un sistema integral de aprendizaje, análisis y exploración del arte suave.
 
-## 📂 Estructura del Proyecto
+---
 
-```bash
-📦 BlackTriangleBJJ
-├── 📁 src
-│   ├── 📁 components      # Componentes reutilizables
-│   ├── 📁 context         # Configuración global del proyecto
-│   ├── 📁 store           # Estado global con Zustand
-│   ├── 📁 styles          # Estilos CSS Modules
-│   ├── 📁 hooks           # Hooks personalizados
-│   ├── 📁 services        # Lógica de conexión con Firestore
-│   ├── 📁 utils           # Funciones auxiliares
-│   ├── 📁 locates         # Archivos de traduccion
-│   ├── App.tsx           # Componente principal
-│   └── main.tsx          # Punto de entrada de la aplicación
-├── [.env.local]         # Variables de entorno (excluidas en Git)
-├── [tsconfig.json]      # Configuración de TypeScript
-├── [vite.config.ts]     # Configuración de Vite
-└── [package.json]       # Dependencias y scripts
-```
+## 1️⃣ Modelo conceptual
 
-📦 Instalación
-Sigue estos pasos para configurar el proyecto en tu máquina local:
+El núcleo del proyecto es un **grafo dirigido** donde:
 
-Clona el repositorio:
-```bash
-git clone https://github.com/tu-usuario/black-triangle-bjj.git
-cd black-triangle-bjj
-```
+- **Nodos** representan entidades del BJJ:
+  - Técnicas
+  - Posiciones
+  - Transiciones
+  - Sistemas
+  - Defensas / escapes
+  - Conceptos
+- **Enlaces** representan relaciones técnicas y lógicas entre nodos:
+  - Continuaciones
+  - Dependencias
+  - Orígenes y destinos técnicos
 
-Instala las dependencias:
-```bash
-npm install
-```
+Cada nodo puede contener:
+- Identificador numérico único (`index`)
+- Nombre multilenguaje (ES / EN)
+- Grupo o tipo
+- Fragmento de video asociado (YouTube)
+- Descripción técnica
+- Metadatos de carga
 
-Configura las variables de entorno:
-- Crea un archivo .env.local en la raíz del proyecto.
-- Agrega las siguientes variables:
-```bash
-VITE_FIREBASE_API_KEY=api_key
-VITE_FIREBASE_AUTH_DOMAIN=auth_domain
-VITE_FIREBASE_PROJECT_ID=project_id
-VITE_FIREBASE_STORAGE_BUCKET=storage_bucket
-VITE_FIREBASE_MESSAGING_SENDER_ID=messaging_sender_id
-VITE_FIREBASE_APP_ID=app_id
-VITE_FIREBASE_MEASUREMENT_ID=measurement_id
-VITE_YOUTUBE_API_KEY=youtube_api_key
-```
+El sistema evita estructuras lineales tradicionales y apuesta por una representación **sistémica y navegable** del conocimiento.
 
-Inicia el servidor de desarrollo:
-```bash
-npm run dev
-```
+---
 
+## 2️⃣ Visualización e interacción principal
 
-📄 Licencia
-Este proyecto está bajo la licencia MIT.
+La interfaz principal es una **visualización 3D de grafos**, que permite:
 
-📧 Contacto
-Si tienes preguntas o sugerencias, no dudes en contactarme:
+- Explorar técnicas de forma espacial
+- Expandir o colapsar nodos dinámicamente
+- Visualizar relaciones técnicas reales
+- Navegar entre sistemas completos de BJJ
 
-Email: jeisonrosario5.com
-GitHub: jeisonrosario66
+### Características clave
+
+- Renderizado con `r3f-forcegraph`
+- Expansión controlada por estado (`collapsedMapRef`)
+- Carga optimizada desde Firestore
+- Interacción directa con nodos (click, foco, detalles)
+- Ventanas laterales para información extendida
+
+El grafo no solo muestra información, sino que **invita a explorar**, descubrir rutas técnicas y comprender conexiones profundas entre movimientos.
+
+---
+
+## 3️⃣ Arquitectura técnica
+
+### Stack principal
+
+- **Frontend:** React + TypeScript
+- **Estado global:** Zustand
+- **Visualización:** Three.js / react-three-fiber / r3f-forcegraph
+- **Backend / DB:** Firebase Firestore
+
+### Firestore como sistema central
+
+Firestore se utiliza para:
+
+- Almacenar nodos y enlaces
+- Mantener índices globales
+- Gestionar categorías y subcategorías
+- Asignar taxonomía técnica
+- Soportar multilenguaje
+
+### Principios de diseño
+
+- Lecturas paralelas para optimizar rendimiento
+- Normalización de datos antes de renderizar
+- Separación clara entre datos, estado y vista
+- Logs controlados para depuración y auditoría
+
+---
+
+## 4️⃣ Taxonomía y clasificación
+
+El proyecto implementa un sistema de **clasificación jerárquica**:
+
+- Categorías principales
+- Subcategorías
+- Categorías específicas
+- Asociación a pestañas o vistas
+
+Cada nodo puede estar vinculado a múltiples capas taxonómicas, permitiendo:
+
+- Filtrado avanzado
+- Rutas de aprendizaje
+- Agrupación pedagógica
+- Escalabilidad futura
+
+---
+
+## 5️⃣ Gestión de datos
+
+### Inserción de nodos
+
+- Los nodos se agregan con índice global único
+- Se crean enlaces opcionales a nodos existentes
+- Se actualiza automáticamente el índice global
+- Se normalizan textos antes de persistir
+
+### Lectura de datos
+
+- Carga paralela de múltiples colecciones
+- Traducción dinámica según idioma del usuario
+- Normalización para consumo directo por el grafo
+
+---
+
+## 6️⃣ Visión del proyecto
+
+Este es un **proyecto personal y educativo**, pensado para ser **abierto y accesible para todos**.
+
+A largo plazo, la visión es:
+
+- Mapear **todo el BJJ** como un sistema completo
+- Representar relaciones reales entre técnicas
+- Facilitar el estudio sistémico del arte suave
+- Construir rutas de aprendizaje dinámicas
+- Evolucionar hacia análisis técnico avanzado
+
+No busca ser una enciclopedia estática, sino un **ecosistema vivo de conocimiento**, capaz de crecer, adaptarse y profundizar a medida que el entendimiento del BJJ evoluciona.
+
+---
+
+## Estado del proyecto
+
+En desarrollo activo. El sistema está diseñado para escalar progresivamente tanto en volumen de datos como en complejidad conceptual.
+
+---
+
+## Licencia
+
+Uso educativo y experimental. Licencia por definir.
