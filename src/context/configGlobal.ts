@@ -66,7 +66,7 @@ export const cacheUser = {
     dagMode: (localStorage.getItem("dagMode") as DagMode) || ("td" as DagMode),
 
     dagLevelDistanceCache: "dagLevelDistance",
-    dagLevelDistance: localStorage.getItem("dagLevelDistance") || 35,
+    dagLevelDistance: localStorage.getItem("dagLevelDistance") || 5,
 
     systemsCacheNameNodes: "systemsCacheNodes",
     systemsCacheNameLinks: "systemsCacheLinks",

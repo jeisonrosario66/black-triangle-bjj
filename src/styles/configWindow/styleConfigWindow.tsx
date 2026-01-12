@@ -3,6 +3,7 @@ import { SxProps, Theme } from "@mui/material";
 /** Contenedor principal de la ventana de configuración */
 export const containerConfigWindow: SxProps<Theme> = {
   width: "80%",
+  height: "90%",
   padding: "2rem",
   backgroundColor: "white",
   borderRadius: "10px",
@@ -10,7 +11,9 @@ export const containerConfigWindow: SxProps<Theme> = {
   flexDirection: "column",
   position: "absolute",
   zIndex: "10",
+  overflow:"auto"
 };
+
 
 /** Espaciado y formato general de los formularios */
 export const formGeneral: SxProps<Theme> = {
@@ -24,13 +27,6 @@ export const formGeneral: SxProps<Theme> = {
 /** Contenedor de la lista de sistemas disponibles */
 export const selectSystemPaper: SxProps<Theme> = {
   width: "100%",
-  borderRadius: "12px",
-  border: "1px solid rgba(255,255,255,0.1)",
-  backgroundColor: (theme) =>
-    theme.palette.mode === "dark"
-      ? "rgba(30,30,30,0.9)"
-      : "rgba(255,255,255,0.9)",
-  boxShadow: "inset 0 0 8px rgba(0,0,0,0.15)",
 };
 
 /** Estilo dinámico de cada elemento de sistema (seleccionado / no seleccionado) */

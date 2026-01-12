@@ -57,21 +57,25 @@ const MainAppLayout = () => {
         {/* Contenedor del lienzo 3D */}
         <div style={style.canvasContainer}>
           {/*  */}
-          <Button
-            style={{
-              position: "absolute",
-              top: 20,
-              left: 20,
-              zIndex: 10,
-              backgroundColor: "white",
-              padding: "0.5rem 1rem",
-            }}
-            onClick={toggleGraph}
-          >
-            {showFullGraph
-              ? `🔽 ${t(textHardcoded + "collapsedNodes")}`
-              : `🔼 ${t(textHardcoded + "expandNodes")}`}
-          </Button>
+          {isConfigWindowActive ?
+            <>
+            </> :
+            <Button
+              style={{
+                position: "absolute",
+                top: 20,
+                left: 20,
+                zIndex: 10,
+                backgroundColor: "white",
+                padding: "0.5rem 1rem",
+              }}
+              onClick={toggleGraph}
+            >
+              {showFullGraph
+                ? `🔽 ${t(textHardcoded + "collapsedNodes")}`
+                : `🔼 ${t(textHardcoded + "expandNodes")}`}
+            </Button>
+          }
           <Canvas
             // Detiene el renderizado cuando se abre el formulario de nodo
             camera={{

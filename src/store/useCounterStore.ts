@@ -17,6 +17,11 @@ const systemCacheLoadedNodes = parseCacheArray(cacheUser.systemsCacheNameNodes);
 // -------------------------------------------------------------------------
 // Definición del estado de datos globales
 // -------------------------------------------------------------------------
+type testType = {
+  label: string;
+  name: string;
+  systems: SystemOption[];
+};
 
 interface GlobalData {
   languageGlobal: LanguageConfig;
@@ -43,7 +48,7 @@ interface GlobalData {
   linksData: GraphLink[];
   setLinksData: (links: GraphLink[]) => void;
 
-  systemsOptions: SystemOption[];
+  systemsOptions: testType[];
   loadSystems: () => Promise<void>;
 
 }
@@ -236,7 +241,7 @@ const useUIStore = create<AppState>((set, get) => ({
     } finally {
       set({ isLoadingFirestore: false });
     }
-  },
+  },  
 
 }));
 

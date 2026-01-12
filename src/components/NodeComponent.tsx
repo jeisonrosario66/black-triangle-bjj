@@ -6,7 +6,7 @@ import * as THREE from "three";
 
 import {animateCameraToNode} from "@src/hooks/index";
 import {useGraphData, debugLog, createNodeObject} from "@src/utils/index";
-import {GraphRefType, GraphNode, groupColor} from "@src/context/index";
+import {GraphRefType, GraphNode, groupColor,tableNameDB} from "@src/context/index";
 import {useUIStore} from "@src/store/index";
 
 type NodeComponentProps = {
@@ -26,7 +26,7 @@ const NodeComponent: React.FC<NodeComponentProps> = ({cameraControlsRef}) => { /
 
     // Datos del grafo (nodos y enlaces) obtenidos de Firestore u otra fuente
     const gData = useGraphData();
-    const rootGroup = "system"; // Grupo raíz desde el cual se expande el grafo
+    const rootGroup = tableNameDB.systemsCollections; // Grupo raíz desde el cual se expande el grafo
 
     const displayedGraph = useMemo(() => {
         if (! gData.nodes.length || ! gData.links.length) {

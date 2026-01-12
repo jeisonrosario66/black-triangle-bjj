@@ -13,8 +13,10 @@ import {
   Paper,
   MenuList,
   ListItemIcon,
+  Accordion, AccordionDetails, AccordionSummary,
 } from "@mui/material";
 import Check from "@mui/icons-material/Check";
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTranslation } from "react-i18next";
 
 import { ButtonClose } from "@src/components/index";
@@ -241,33 +243,44 @@ const ConfigWindow: React.FC = () => {
       <FormControl fullWidth sx={style.formGeneral}>
         <Paper sx={style.selectSystemPaper}>
           <MenuList dense>
-            {systemsOptions.map((option) => (
-              <MenuItem
-                key={option.valueNodes}
-                selected={tempSystemsNodes.includes(option.valueNodes)}
-                onClick={() =>
-                  handleSystemSelect(option.valueNodes, option.valueLinks)
-                }
-                sx={style.selectSystemItem(
-                  tempSystemsNodes.includes(option.valueNodes)
-                )}
-              >
-                {tempSystemsNodes.includes(option.valueNodes) && (
-                  <ListItemIcon>
-                    <Check color="primary" />
-                  </ListItemIcon>
-                )}
-                <ListItemText
-                  inset={
-                    !systemsOptions.some(
-                      (opt) => opt.valueNodes === option.valueNodes
-                    )
-                  }
-                >
-                  {option.label}
-                </ListItemText>
-              </MenuItem>
+
+            {systemsOptions.map((set) => (
+              <Box key={set.label} sx={{ marginBottom: 2 }}>
+                <Accordion>
+                  <AccordionSummary
+                    expandIcon={<ExpandMoreIcon />}
+                    aria-controls="panel1-content"
+                    id="panel1-header"
+                  >
+                    <Typography component="span">
+                      {set.name}
+                    </Typography>
+                  </AccordionSummary>
+                  <AccordionDetails>
+                    {set.systems.map((option) => (
+                      <MenuItem
+                        key={option.valueNodes}
+                        selected={tempSystemsNodes.includes(option.valueNodes)}
+                        onClick={() =>
+                          handleSystemSelect(option.valueNodes, option.valueLinks)
+                        }
+                      >
+                        {tempSystemsNodes.includes(option.valueNodes) && (
+                          <ListItemIcon>
+                            <Check color="primary" />
+                          </ListItemIcon>
+                        )}
+                        <ListItemText>{option.label}</ListItemText>
+                      </MenuItem>
+                    ))}
+                  </AccordionDetails>
+                </Accordion>
+
+
+              </Box>
             ))}
+
+
           </MenuList>
         </Paper>
         <ToolTipInfo content={t(textHardcoded + "system.description")} />

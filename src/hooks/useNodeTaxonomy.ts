@@ -8,7 +8,7 @@ import {
   doc,
 } from "firebase/firestore";
 
-import { tableNameDB } from "@src/context/configGlobal";
+import { tableNameDB, cacheUser } from "@src/context/configGlobal";
 import { database } from "@src/hooks";
 
 /**
@@ -19,6 +19,7 @@ import { database } from "@src/hooks";
  * @returns {any | null} Objeto de taxonomía del nodo o null si no existe.
  */
 export const useNodeTaxonomy = (nodeIndex: number) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [taxonomy, setTaxonomy] = useState<any | null>(null);
 
   useEffect(() => {
@@ -28,24 +29,42 @@ export const useNodeTaxonomy = (nodeIndex: number) => {
     }
 
     const fetch = async () => {
-      const q = query(
-        collection(database, tableNameDB.nodeTaxonomy),
-        where("node_index", "==", nodeIndex)
+      const systemsNodes: string[] = JSON.parse(
+        localStorage.getItem(cacheUser.systemsCacheNameNodes) || "[]"
+      );
+      const systemsTabs = systemsNodes.map((path) =>
+        path.replace("/nodes", "/tabs")
       );
 
-      const snap = await getDocs(q);
+      const queries = [
+        // colección principal
+        query(
+          collection(database, tableNameDB.nodeTaxonomy),
+          where("node_index", "==", nodeIndex)
+        ),
 
-      if (snap.empty) {
-        setTaxonomy(null);
-        return;
-      }
+        // colecciones dinámicas
+        ...systemsTabs.map((path) =>
+          query(
+            collection(database, path),
+            where("node_index", "==", nodeIndex)
+          )
+        ),
+      ];
 
-      const docSnap = snap.docs[0];
+      const snapshots = await Promise.all(
+        queries.map((q) => getDocs(q))
+      );
 
-      setTaxonomy({
-        id: docSnap.id,
-        ...docSnap.data(),
-      });
+      const firstMatch = snapshots
+        .flatMap((snap) =>
+          snap.docs.map((docSnap) => ({
+            id: docSnap.id,
+            ...docSnap.data(),
+          }))
+        )[0];
+      setTaxonomy(firstMatch ?? null);
+
     };
 
     fetch();
