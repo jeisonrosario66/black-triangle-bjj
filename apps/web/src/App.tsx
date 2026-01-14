@@ -6,7 +6,6 @@ import { debugLog } from "@src/utils/index";
 import MainAppLayout from "@src/layouts/MainAppLayout";
 import { useTranslation } from "react-i18next";
 
-
 /**
  * Componente principal de la aplicación.
  * Controla la inicialización de idioma, autenticación, alertas globales
