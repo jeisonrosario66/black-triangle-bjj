@@ -2,9 +2,7 @@
 export { default as AccountMenu } from "@src/components/AccountMenu";
 export { default as OutlinedAlerts } from "@src/components/Alert";
 export { default as ButtonClose } from "@src/components/ButtonClose";
-export { default as GraphScene } from "@src/components/GraphScene";
 export { default as LogoContainer } from "@src/components/LogoComponent";
-export { default as NodeComponent } from "@src/components/NodeComponent";
 export { default as NavigationGestures } from "@src/components/NavigationGestures";
 
 // Components/icons
@@ -30,5 +28,11 @@ export { default as Profile } from "@src/components/loginUser/Profile"
 export { default as WindowViewNode } from "@src/components/nodeView/WindowViewNode";
 export { default as NodeConnectionViewer } from "@src/components/nodeView/NodeConnectionViewer";
 
-// Components/configWindow
 export { default as ConfigWindow } from "@src/components/configWindow/ConfigWindow";
+
+// Components/header
+export { default as AppBarNewHeader } from "@src/components/header/AppBarNewHeader";
+export { default as getHeaderActions } from "@src/components/header/getHeaderActions";
+export { default as HeaderActions } from "@src/components/header/HeaderActions";
+export { default as HeaderMenu } from "@src/components/header/HeaderMenu";
+

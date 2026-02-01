@@ -3,7 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import { useUIStore } from "@src/store/index";
 import { cacheUser, routeList } from "@src/context/index";
 import { debugLog } from "@src/utils/index";
-import MainAppLayout from "@src/layouts/MainAppLayout";
+import HomeScreenWeb from "@src/screens/HomeScreenWeb";
 import { useTranslation } from "react-i18next";
 
 /**
@@ -15,7 +15,7 @@ import { useTranslation } from "react-i18next";
  */
 function App() {
   const systemsBjjSelectedNodesStore = useUIStore(
-    (state) => state.systemBjjSelectedNodes
+    (state) => state.systemBjjSelectedNodes,
   );
 
   // Hook de traducción
@@ -23,24 +23,25 @@ function App() {
 
   // Hook inicializador al montar el componente
   useEffect(() => {
-    const savedLanguage =
-      (localStorage.getItem(cacheUser.languageUser) ?? cacheUser.languageDefault) as "es" | "en";
+    const savedLanguage = (localStorage.getItem(cacheUser.languageUser) ??
+      cacheUser.languageDefault) as "es" | "en";
 
     useUIStore.setState({ languageGlobal: { locale: savedLanguage } });
 
     localStorage.setItem(cacheUser.dagModeCache, cacheUser.dagMode);
     localStorage.setItem(
       cacheUser.dagLevelDistanceCache,
-      String(cacheUser.dagLevelDistance)
+      String(cacheUser.dagLevelDistance),
     );
-    localStorage.setItem(cacheUser.languageUser, savedLanguage)
+    localStorage.setItem(cacheUser.languageUser, savedLanguage);
     debugLog("info", "Sistema de Bjj Cargado: ", systemsBjjSelectedNodesStore);
     i18n.changeLanguage(savedLanguage);
   }, [systemsBjjSelectedNodesStore]);
 
   return (
     <Routes>
-      <Route path={routeList.root} element={<MainAppLayout />} />
+      <Route path={routeList.root} element={<HomeScreenWeb />} />
+      {/* <Route path={routeList.nodeViewer} element={<MainAppLayout />} /> */}
       {/* <Route path={routeList.addNode} element={<AddNodeForm />} /> */}
       {/* <Route path={routeList.profile} element={<Profile />} /> */}
       {/* <Route path={routeList.loginUser} element={<LoginUser />} /> */}

@@ -1,0 +1,1 @@
+export {HomeScreenWeb} from "@src/screens/HomeScreenWeb";

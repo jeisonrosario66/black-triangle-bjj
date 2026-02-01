@@ -2,8 +2,11 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { Auth0Provider } from "@auth0/auth0-react";
+import { ThemeProvider, CssBaseline } from "@mui/material";
+import { muiTheme } from "../theme/theme.mui";
 import App from "./App.tsx";
 import "./index.css";
+
 import "./i18n";
 
 /**
@@ -23,9 +26,12 @@ createRoot(document.getElementById("root")!).render(
       cacheLocation="localstorage"
       useRefreshTokens={true}
     >
-      <BrowserRouter basename="/">
-        <App />
-      </BrowserRouter>
+      <ThemeProvider theme={muiTheme}>
+        <CssBaseline />
+        <BrowserRouter basename="/">
+          <App />
+        </BrowserRouter>
+      </ThemeProvider>
     </Auth0Provider>
-  </StrictMode>
+  </StrictMode>,
 );

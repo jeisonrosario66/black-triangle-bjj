@@ -1,5 +1,5 @@
 import { Box, Typography } from "@mui/material";
-import { configGlobal } from "@src/context/configGlobal";
+import { configGlobal } from "@src/context/index";
 
 import * as style from "@src/styles/styleLogoContainer";
 
