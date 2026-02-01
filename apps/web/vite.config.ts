@@ -22,7 +22,7 @@ export default defineConfig({
     resolve: {
         alias: { // Alias para acceder a la carpeta src de forma más limpia
             "@src": path.resolve(__dirname, "src"),
-            "@bt/shared": path.resolve(__dirname, "../../packages/shared/src")
+            "@bt/shared": path.resolve(__dirname, "../../shared/packages")
         }
     }
 })

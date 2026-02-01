@@ -1,11 +1,18 @@
 {
-  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "jsx": "react-native",
-    "lib": ["ES2020"],
-    "types": ["react", "react-native"],
-    "allowJs": true,
-    "skipLibCheck": true
+    "strict": true,
+    "baseUrl": ".",
+    "ignoreDeprecations": "6.0",
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "types": ["expo", "react-native"],
+
+    "paths": {
+      "@mobileSrc/*": ["src/*"],
+      "@mobileStyles/*": ["src/styles/*"],
+      "@mobileTheme/*": ["src/theme/*"],
+      "@bt/shared/*": ["../../shared/*"]
+    }
   },
-  "include": ["src", "App.tsx"]
+  "include": ["src", "../../shared"]
 }

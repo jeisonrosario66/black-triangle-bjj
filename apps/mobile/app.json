@@ -1,21 +1,24 @@
 {
   "expo": {
-    "name": "mobile",
-    "slug": "mobile",
-    "version": "1.0.0",
+    "name": "Black Triangle",
+    "slug": "black-triangle-bjj",
+    "description": "Aplicación móvil para el aprendizaje y exploración estructurada de Brazilian Jiu-Jitsu mediante sistemas, rutas de progreso y visualización de nodos.",
+    "version": "1.0.1",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
+    "icon": "./assets/logo.png",
     "splash": {
       "image": "./assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.blacktriangle.bjj.mobile"
     },
     "android": {
+      "package": "com.blacktriangle.bjj.mobile",
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -25,6 +28,18 @@
     },
     "web": {
       "favicon": "./assets/favicon.png"
-    }
+    },
+    "extra": {
+      "appRole": "mobile",
+      "domain": "brazilian-jiu-jitsu",
+      "architecture": "node-graph",
+      "build": {
+        "environment": "development"
+      },
+      "eas": {
+        "projectId": "266ed214-d13b-4ca2-9148-ac18fc57ba6d"
+      }
+    },
+    "owner": "sofanaranja"
   }
 }
