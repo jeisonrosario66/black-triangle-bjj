@@ -1,5 +1,6 @@
-// src/styles/components/header
+// mobile/src/styles/components/header
 export { createstylesHeader } from "./components/header/stylesHeader";
 
-// src/styles/screens
+// mobile/src/styles/screens
 export { createHomeStyles } from "./screens/stylesHomeScreen";
+export { createExplorerStyles } from "./screens/stylesExplorerScreen";

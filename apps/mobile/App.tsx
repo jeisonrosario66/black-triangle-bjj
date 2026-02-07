@@ -7,6 +7,7 @@ import {
   ExplorerScreen,
   SettingsScreen,
 } from "./src/screens/index";
+import { ExplorerStack } from "./src/navigation/index";
 import { TabHeader } from "./src/components/index";
 import { paperTheme } from "./theme/index";
 
@@ -42,7 +43,7 @@ export default function App() {
           />
           <Tab.Screen
             name="Explorer"
-            component={ExplorerScreen}
+            component={ExplorerStack}
             options={{
               tabBarIcon: ({ color }) => (
                 <Icon source="graph-outline" size={22} color={color} />

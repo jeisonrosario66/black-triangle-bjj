@@ -1,56 +1,109 @@
-// Design tokens for the application
+/**
+ * Design tokens – Color system
+ *
+ * Objetivo:
+ * - Jerarquía visual clara
+ * - Buen contraste en mobile
+ * - Escalable a dark mode
+ * - Compatible con React Native Paper / Material 3
+ */
+
 export const colors = {
-  // Primary and secondary colors
-  primary: "#2196F3",
+  /* ─────────────────────────────────────────────
+   * PRIMARY BRAND COLORS
+   * Usar para: CTA principales, iconos activos,
+   * highlights importantes, navegación activa
+   * ───────────────────────────────────────────── */
+
+  primary: "#1E3A8A", // Azul profundo (marca principal)
   onPrimary: "#FFFFFF",
-  primaryContainer: "#E3F2FD",
-  onPrimaryContainer: "#0D47A1",
 
-  secondary: "#757575",
+  primaryContainer: "#E0E7FF", // Fondos suaves (chips, cards activas)
+  onPrimaryContainer: "#1E293B",
+
+  /* ─────────────────────────────────────────────
+   * SECONDARY COLORS
+   * Usar para: estados secundarios, filtros,
+   * acciones menos prioritarias
+   * ───────────────────────────────────────────── */
+
+  secondary: "#475569", // Gris azulado técnico
   onSecondary: "#FFFFFF",
-  secondaryContainer: "#F5F5F5",
-  onSecondaryContainer: "#424242",
 
-  // Background and surface colors
-  background: "#FFFFFF",
-  onBackground: "#1E1E1E",
-  surface: "#FFFFFF",
-  onSurface: "#1E1E1E",
-  surfaceVariant: "#FAFAFA",
-  onSurfaceVariant: "#5F5F5F",
-  surfaceContainer: "#F5F5F5",
-  surfaceContainerHigh: "#E8E8E8",
-  surfaceContainerHighest: "#DCDCDC",
+  secondaryContainer: "#E2E8F0",
+  onSecondaryContainer: "#1F2937",
 
-  // Text colors
-  textPrimary: "#1E1E1E",
-  textSecondary: "#5F5F5F",
+  /* ─────────────────────────────────────────────
+   * BACKGROUND & SURFACES
+   * Controla profundidad visual (layers)
+   * ───────────────────────────────────────────── */
 
-  // Outline and borders
-  outline: "#BDBDBD",
-  outlineVariant: "#E0E0E0",
+  background: "#F8FAFC", // Fondo principal app
+  onBackground: "#0F172A",
 
-  // Semantic colors
-  success: "#4CAF50",
+  surface: "#FFFFFF", // Cards principales
+  onSurface: "#0F172A",
+
+  surfaceVariant: "#F1F5F9", // Cards secundarias / secciones
+  onSurfaceVariant: "#475569",
+
+  surfaceContainer: "#F1F5F9", // Agrupaciones
+  surfaceContainerHigh: "#E2E8F0", // Headers / footers
+  surfaceContainerHighest: "#CBD5E1", // Separaciones fuertes
+
+  /* ─────────────────────────────────────────────
+   * TEXT COLORS
+   * Separados por intención semántica
+   * ───────────────────────────────────────────── */
+
+  textPrimary: "#0F172A", // Títulos, labels importantes
+  textSecondary: "#475569", // Descripciones, metadata
+  textDisabled: "#94A3B8", // Estados inactivos
+
+  /* ─────────────────────────────────────────────
+   * OUTLINES & BORDERS
+   * ───────────────────────────────────────────── */
+
+  outline: "#CBD5E1", // Bordes estándar
+  outlineVariant: "#E2E8F0", // Dividers suaves
+
+  /* ─────────────────────────────────────────────
+   * SEMANTIC COLORS
+   * Feedback del sistema
+   * ───────────────────────────────────────────── */
+
+  success: "#16A34A", // Confirmaciones, progreso
   onSuccess: "#FFFFFF",
-  warning: "#FF9800",
-  onWarning: "#000000",
-  error: "#F44336",
+
+  warning: "#D97706", // Advertencias
+  onWarning: "#FFFFFF",
+
+  error: "#DC2626", // Errores críticos
   onError: "#FFFFFF",
-  info: "#2196F3",
+
+  info: "#0284C7", // Información contextual
   onInfo: "#FFFFFF",
 
-  // Brand colors
-  brandPrimary: "#2196F3",
-  brandSecondary: "#757575",
+  /* ─────────────────────────────────────────────
+   * BRAND EXTENSIONS
+   * Para futuras expansiones visuales
+   * ───────────────────────────────────────────── */
+
+  brandPrimary: "#1E3A8A",
+  brandSecondary: "#0F172A",
 };
+
+/**
+ * Shape tokens
+ * Bordes suaves → enfoque moderno / técnico
+ */
 
 export const shape = {
   borderRadius: {
-    xs: 2,
-    sm: 3,
-    md: 8,
-    lg: 12,
-    xl: 16,
+    xs: 2,  // Chips pequeños
+    sm: 4,  // Inputs, badges
+    md: 8,  // Cards estándar
+    lg: 12, // Modales
+    xl: 16, // Hero cards / covers
   },
 };

@@ -11,9 +11,9 @@ import {
 } from "react-native-paper";
 import { View } from "react-native";
 
-import { createHomeStyles } from "../styles/index";
-import { pickRandom } from "../../../../shared/packages/hooks/index";
-import { testSystems, testRoutes } from "../../../../shared/packages/context/index";
+import { createHomeStyles } from "@mobileStyles/index";
+import { pickRandom } from "@bt/shared/packages/hooks/index";
+import { testSystems, testRoutes } from "@bt/shared/packages/context/index";
 
 /**
  * Pantalla principal de inicio de la aplicación móvil.

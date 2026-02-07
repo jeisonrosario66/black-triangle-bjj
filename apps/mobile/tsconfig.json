@@ -5,14 +5,28 @@
     "ignoreDeprecations": "6.0",
     "moduleResolution": "bundler",
     "jsx": "react-jsx",
-    "types": ["expo", "react-native"],
-
+    "types": [
+      "expo",
+      "react-native"
+    ],
     "paths": {
-      "@mobileSrc/*": ["src/*"],
-      "@mobileStyles/*": ["src/styles/*"],
-      "@mobileTheme/*": ["src/theme/*"],
-      "@bt/shared/*": ["../../shared/*"]
+      "@mobileSrc/*": [
+        "src/*"
+      ],
+      "@mobileStyles/*": [
+        "src/styles/*"
+      ],
+      "@mobileTheme/*": [
+        "src/theme/*"
+      ],
+      "@bt/shared/*": [
+        "../../shared/*"
+      ]
     }
   },
-  "include": ["src", "../../shared"]
+  "include": [
+    "src",
+    "../../shared"
+  ],
+  "extends": "expo/tsconfig.base"
 }
