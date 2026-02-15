@@ -30,15 +30,18 @@ export const getSystemshared = async (
     const querySnapshot = await getDocs(collection(database, dbName));
     const systems: SystemCardOption[] = querySnapshot.docs.map((doc: any) => {
       const docData = doc.data();
-      const label = language === "es" ? docData.name_es : docData.name_en;
-      const instructor = docData.instructor
+      const label = docData.label;
+      const name = language === "es" ? docData.name_es : docData.name_en;
+      const coach = docData.coach.replaceAll("_", " "); 
       const coverUrl = docData.coverUrl
       const description = language === "es" ? docData.descrip_es : docData.descrip_en;
+
       return {
         label,
+        name,
         valueNodes: `${tableNameDB.systemsCollections}/${docData.label}/nodes`,
         valueLinks: `${tableNameDB.systemsCollections}/${docData.label}/links`,
-        instructor,
+        coach,
         coverUrl,
         description
       };

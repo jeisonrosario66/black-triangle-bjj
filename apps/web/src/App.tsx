@@ -3,9 +3,12 @@ import { Routes, Route } from "react-router-dom";
 import { useUIStore } from "@src/store/index";
 import { cacheUser, routeList } from "@src/context/index";
 import { debugLog } from "@src/utils/index";
-import HomeScreenWeb from "@src/screens/HomeScreenWeb";
+import {
+  ExplorerScreen,
+  CourseDetailScreen,
+  VideoDetailScreen
+} from "@src/screens/index";
 import { useTranslation } from "react-i18next";
-
 /**
  * Componente principal de la aplicación.
  * Controla la inicialización de idioma, autenticación, alertas globales
@@ -40,11 +43,20 @@ function App() {
 
   return (
     <Routes>
-      <Route path={routeList.root} element={<HomeScreenWeb />} />
+      <Route path={routeList.root} element={<ExplorerScreen />} />
+      {/* <Route path={routeList.explorerScreen} element={<ExplorerScreen />} /> */}
+      <Route
+        path={routeList.courseDetailScreen}
+        element={<CourseDetailScreen />}
+      />
+      <Route
+        path={routeList.videoDetailScreen}
+        element={<VideoDetailScreen />}
+      />
       {/* <Route path={routeList.nodeViewer} element={<MainAppLayout />} /> */}
       {/* <Route path={routeList.addNode} element={<AddNodeForm />} /> */}
       {/* <Route path={routeList.profile} element={<Profile />} /> */}
-      {/* <Route path={routeList.loginUser} element={<LoginUser />} /> */}
+      {/* <Route path={routeList.loginUser} element={<LoginUser />} />  */}
       {/* <Route path={routeList.categories} element={<Categories />} /> */}
     </Routes>
   );

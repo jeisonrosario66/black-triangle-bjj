@@ -8,19 +8,20 @@ import {
   doc,
 } from "firebase/firestore";
 
-import { tableNameDB, cacheUser } from "@src/context/configGlobal";
+import { tableNameDB, NodeTaxonomy } from "@bt/shared/context/index";
 import { database } from "@src/hooks";
 
 /**
- * Hook para obtener la taxonomía asociada a un nodo.
- * Recupera desde Firestore la información taxonómica basada en el índice del nodo.
+ * Hook que resuelve la taxonomía asociada a un nodo específico.
+ * Centraliza la lógica de consulta distribuida entre la colección global de taxonomía
+ * y las colecciones dinámicas de tabs por sistema, devolviendo la primera coincidencia válida.
  *
- * @param {number} nodeIndex Índice identificador del nodo.
- * @returns {any | null} Objeto de taxonomía del nodo o null si no existe.
+ * @param {number} nodeIndex - Índice único del nodo dentro del sistema global.
+ * @param {string[]} firestoreRuta - Rutas de Firestore de los sistemas cargados para resolver tabs dinámicos.
+ * @returns {any | null} Objeto de taxonomía asociado al nodo o null si no existe.
  */
-export const useNodeTaxonomy = (nodeIndex: number) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [taxonomy, setTaxonomy] = useState<any | null>(null);
+export const useNodeTaxonomy = (nodeIndex: number, firestoreRuta: string[]) => {
+  const [taxonomy, setTaxonomy] = useState<NodeTaxonomy | null>(null);
 
   useEffect(() => {
     if (!nodeIndex) {
@@ -29,42 +30,40 @@ export const useNodeTaxonomy = (nodeIndex: number) => {
     }
 
     const fetch = async () => {
-      const systemsNodes: string[] = JSON.parse(
-        localStorage.getItem(cacheUser.systemsCacheNameNodes) || "[]"
-      );
+      const systemsNodes: string[] = firestoreRuta;
       const systemsTabs = systemsNodes.map((path) =>
-        path.replace("/nodes", "/tabs")
+        path.replace("/nodes", "/tabs"),
       );
 
       const queries = [
         // colección principal
         query(
           collection(database, tableNameDB.nodeTaxonomy),
-          where("node_index", "==", nodeIndex)
+          where("node_index", "==", nodeIndex),
         ),
 
         // colecciones dinámicas
         ...systemsTabs.map((path) =>
           query(
             collection(database, path),
-            where("node_index", "==", nodeIndex)
-          )
+            where("node_index", "==", nodeIndex),
+          ),
         ),
       ];
 
-      const snapshots = await Promise.all(
-        queries.map((q) => getDocs(q))
-      );
+      const snapshots = await Promise.all(queries.map((q) => getDocs(q)));
 
-      const firstMatch = snapshots
-        .flatMap((snap) =>
-          snap.docs.map((docSnap) => ({
+      const firstMatch = snapshots.flatMap((snap) =>
+        snap.docs.map((docSnap) => {
+          const data = docSnap.data() as NodeTaxonomy;
+
+          return {
             id: docSnap.id,
-            ...docSnap.data(),
-          }))
-        )[0];
+            ...data,
+          };
+        }),
+      )[0];
       setTaxonomy(firstMatch ?? null);
-
     };
 
     fetch();
@@ -72,7 +71,6 @@ export const useNodeTaxonomy = (nodeIndex: number) => {
 
   return taxonomy;
 };
-
 
 export interface Tab {
   id: string;
@@ -99,7 +97,7 @@ export const useTabsByIds = (tabIds?: string[]) => {
 
     const fetch = async () => {
       const snaps = await Promise.all(
-        tabIds.map((id) => getDoc(doc(database, tableNameDB.tabs, id)))
+        tabIds.map((id) => getDoc(doc(database, tableNameDB.tabs, id))),
       );
 
       const resolved = snaps

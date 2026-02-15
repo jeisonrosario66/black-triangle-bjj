@@ -7,6 +7,6 @@ export { default as handleSearch } from "@src/utils/addNode/handleSearch";
 export { getPlatform } from "@src/utils/getPlatform";
 export { default as ToolTipInfo } from "@src/utils/toolTipInfo";
 export { default as extractVideoId } from "@src/utils/addNode/extractVideoId";
-export { capitalizeFirstLetter } from "@src/utils/capitalizeFirstLetter";
+ export { capitalizeFirstLetter } from "@bt/shared/utils/capitalizeFirstLetter";
 export { default as formatTimeFull } from "@src/utils/formatTimeFull";
 export { parseCacheArray } from "@src/utils/parseCacheArray";

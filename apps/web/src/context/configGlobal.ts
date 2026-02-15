@@ -82,8 +82,10 @@ const systemCacheLoadedLinks = parseCacheArray(cacheUser.systemsCacheNameLinks);
 const systemCacheLoadedNodes = parseCacheArray(cacheUser.systemsCacheNameNodes);
 
 /**
- * Tabla de rutas y colecciones principales utilizadas en Firestore.
- * Contiene referencias tanto a los sistemas almacenados como a los índices globales.
+ * @deprecated Constante obsoleta.
+ * Ya no es utilizada en el flujo actual de acceso a datos.
+ * Programada para eliminación.
+ * Fecha de deprecación: 2026-02
  */
 export const tableNameDB = {
     AllSystemsNodesArray: systemCacheLoadedNodes,
@@ -95,7 +97,7 @@ export const tableNameDB = {
     nodeTaxonomy: "node_taxonomy", // nombre de la coleccion intermedia entre los nodos y los tabs
     tab_ids: "tab_ids", // nombre del registro de los tab dentro de la coleccion de node_taxonomy
     tabs: "tabs", // nombre de la coleccion de las etiquetas
-    systemsCollections: "systems"
+    systemsCollections: "systems_test"
 };
 
 /**
@@ -105,5 +107,8 @@ export const tableNameDB = {
 export const routeList = {
     root: "/",
     loginUser: "/login_user",
-    profile: "/profile"
+    profile: "/profile",
+    explorerScreen: "/explorer",
+    courseDetailScreen: "/course_detail/:systemName",
+    videoDetailScreen: "/video_detail/:systemName/:nodeId"
 };

@@ -1,21 +1,21 @@
-import {
-  Box,
-  Divider,
-  Typography,
-  Container,
-  Paper,
-  LinearProgress,
-  Button,
-} from "@mui/material";
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
+import {
+  Box,
+  Button,
+  Container,
+  Divider,
+  LinearProgress,
+  Paper,
+  Typography,
+} from "@mui/material";
 
 import { useTheme } from "@mui/material/styles";
 import * as style from "@src/styles/screens/styleHomeScreenWeb";
 
+import { testRoutes, testSystems } from "@bt/shared/context/configShared";
 import { shape } from "@bt/shared/design-system/index";
 import { pickRandom } from "@bt/shared/hooks/index";
-import { testSystems, testRoutes } from "@bt/shared/context/configShared";
 import { AppBarNewHeader } from "@src/components/index";
 
 /**

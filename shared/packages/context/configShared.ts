@@ -17,8 +17,7 @@ export const testRoutes = [
 // **** isLogin sera movido a contexto global ****
 export const isLogin = true;
 export const userIniciales = "YY"
-export const userName = "Jeison Rosario"
-
+export const userName = "Jhon Doe"
 export const coverUrlDefault = "https://picsum.photos/1500/800"
 
 /**
@@ -33,6 +32,6 @@ export const tableNameDB = {
     nodeTaxonomy: "node_taxonomy", // nombre de la coleccion intermedia entre los nodos y los tabs
     tab_ids: "tab_ids", // nombre del registro de los tab dentro de la coleccion de node_taxonomy
     tabs: "tabs", // nombre de la coleccion de las etiquetas
-    systemsCollections: "systems"
+    systemsCollections: "systems_test"
 };
 

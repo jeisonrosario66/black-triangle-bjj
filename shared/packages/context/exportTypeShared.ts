@@ -113,8 +113,9 @@ export type SystemCardOption = {
   valueLinks: string;
   label: string;
   set: string;
-  instructor: string;
+  coach: string;
   description: string;
+  name: string;
 };
 
 export type HeaderAction =
