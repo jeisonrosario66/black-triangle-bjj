@@ -107,7 +107,7 @@ export default function CourseDetailScreen() {
               </Card>
 
               <Text variant="headlineSmall" style={{ marginTop: 16 }}>
-                {capitalizeFirstLetter(system.label)}
+                {capitalizeFirstLetter(system.name)}
               </Text>
 
               <Text>{capitalizeFirstLetter(system.description)}</Text>
@@ -134,7 +134,7 @@ export default function CourseDetailScreen() {
               onPress={() =>
                 navigation.navigate("VideoDetail", {
                   nodeRoute: item,
-                  firestoreRuta,
+                  firestoreRuta: firestoreRuta
                 })
               }
               borderless

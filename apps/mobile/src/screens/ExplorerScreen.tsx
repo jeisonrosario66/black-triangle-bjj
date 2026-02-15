@@ -56,7 +56,7 @@ export default function ExplorerScreen() {
             group.systems.map((system) => ({
               ...system,
               setSystem: group.name,
-              autor: system.instructor,
+              autor: system.coach,
               coverUrl: system.coverUrl || "https://picsum.photos/1500/800",
             }))
         );
@@ -149,7 +149,7 @@ export default function ExplorerScreen() {
               />
               <MetaItem
                 icon="account-heart-outline"
-                text={item.instructor}
+                text={item.coach}
               />
             </View>
           </Card>
