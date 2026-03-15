@@ -4,7 +4,8 @@ export { default as OutlinedAlerts } from "@src/components/Alert";
 export { default as ButtonClose } from "@src/components/ButtonClose";
 export { default as LogoContainer } from "@src/components/LogoComponent";
 export { default as NavigationGestures } from "@src/components/NavigationGestures";
-
+export { default as NodeComponent} from "@src/components/NodeComponent";
+export { default as GraphScene } from "@src/components/GraphScene";
 // Components/icons
 export { default as iconsMap } from "@src/components/icons/IconsMap";
 export {

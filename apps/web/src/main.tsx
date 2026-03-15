@@ -16,11 +16,11 @@ import "./i18n";
  */
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-      <ThemeProvider theme={muiTheme}>
-        <CssBaseline />
-        <BrowserRouter basename="/">
-          <App />
-        </BrowserRouter>
-      </ThemeProvider>
+    <ThemeProvider theme={muiTheme}>
+      <CssBaseline />
+      <BrowserRouter basename="/">
+        <App />
+      </BrowserRouter>
+    </ThemeProvider>
   </StrictMode>,
 );

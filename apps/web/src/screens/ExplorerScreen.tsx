@@ -116,11 +116,11 @@ export default function ExplorerScreen() {
                 )
               }
             >
-              <CardMedia
-                component="img"
-                image={item.coverUrl}
-                sx={{ height: 300, objectFit: "contain" }}
-              />
+                <CardMedia
+                  component="img"
+                  image={item.coverUrl}
+                  sx={{ height: 300, objectFit: "contain" }}
+                />
             </CardActionArea>
 
             <Box sx={{ p: 2 }}>

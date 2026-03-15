@@ -13,6 +13,11 @@ type NodeComponentProps = {
     cameraControlsRef: React.RefObject<CameraControls | null>;
 };
 
+/**
+ * @deprecated Este componente está fuera de uso.
+ * Se mantiene temporalmente por compatibilidad histórica.
+ * Fecha de deprecación: 2026-02
+ */
 const NodeComponent: React.FC<NodeComponentProps> = ({cameraControlsRef}) => { // Configuración global desde el store
     const dagMode = useUIStore((state) => state.dagModeConfig);
     const dagLevel = useUIStore((state) => state.dagLevelDistanceConfig);

@@ -46,7 +46,7 @@ const WindowViewNode: React.FC<WindowViewNodeProps> = ({
   onClose,
   nodeData,
 }) => {
-  const taxonomy = useNodeTaxonomy(nodeData?.id ?? 0);
+  const taxonomy = useNodeTaxonomy(nodeData?.id ?? 0, []);
   const tabs = useTabsByIds(taxonomy?.tab_ids);
   const contentRef = useRef<HTMLDivElement>(null);
   const { t } = useTranslation();

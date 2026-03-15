@@ -20,7 +20,7 @@ import { database } from "@src/hooks";
  * @param {string[]} firestoreRuta - Rutas de Firestore de los sistemas cargados para resolver tabs dinámicos.
  * @returns {any | null} Objeto de taxonomía asociado al nodo o null si no existe.
  */
-export const useNodeTaxonomy = (nodeIndex: number, firestoreRuta: string[]) => {
+export const useNodeTaxonomy = (nodeIndex: number, firestoreRuta: string[] = []) => {
   const [taxonomy, setTaxonomy] = useState<NodeTaxonomy | null>(null);
 
   useEffect(() => {

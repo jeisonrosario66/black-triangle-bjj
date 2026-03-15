@@ -11,7 +11,7 @@ export default defineConfig({
     plugins: [
         react(), svgr()
     ],
-    base: "/",
+    base: '/',
     server: {
         host: true, // Permite conexiones desde la red
         port: 5173,

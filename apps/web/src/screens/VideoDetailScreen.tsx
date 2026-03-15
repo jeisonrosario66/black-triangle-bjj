@@ -90,7 +90,7 @@ export default function VideoDetailScreen() {
           </Typography>
           <List>
             {" "}
-            {nodeData.description.points.map((p, i) => (
+            {nodeData.description.points.map((p: string, i: number) => (
               <ListItem sx={{ py: 0.4 }} key={i}>
                 {" "}
                 {<ArrowRightIcon />}
