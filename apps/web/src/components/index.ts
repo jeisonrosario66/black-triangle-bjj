@@ -31,9 +31,18 @@ export { default as NodeConnectionViewer } from "@src/components/nodeView/NodeCo
 
 export { default as ConfigWindow } from "@src/components/configWindow/ConfigWindow";
 
+// Components/ui
+export { default as PageContainer } from "@src/components/ui/PageContainer";
+export { default as SectionHeader } from "@src/components/ui/SectionHeader";
+export { default as BreadcrumbsBar } from "@src/components/ui/BreadcrumbsBar";
+export { default as TagList } from "@src/components/ui/TagList";
+export { default as DescriptionList } from "@src/components/ui/DescriptionList";
+export { default as ModuleList } from "@src/components/ui/ModuleList";
+export { default as HighlightText } from "@src/components/ui/HighlightText";
+export { default as VirtualizedList } from "@src/components/ui/VirtualizedList";
+
 // Components/header
 export { default as AppBarNewHeader } from "@src/components/header/AppBarNewHeader";
 export { default as getHeaderActions } from "@src/components/header/getHeaderActions";
 export { default as HeaderActions } from "@src/components/header/HeaderActions";
 export { default as HeaderMenu } from "@src/components/header/HeaderMenu";
-
