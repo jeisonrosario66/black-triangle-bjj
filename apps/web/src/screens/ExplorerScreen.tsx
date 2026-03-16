@@ -3,17 +3,29 @@ import { getSystemshared } from "@bt/shared/services/firebaseServiceShared";
 import { capitalizeFirstLetter } from "@bt/shared/utils/capitalizeFirstLetter";
 import LabelOutlinedIcon from "@mui/icons-material/LabelOutlined";
 import PersonPinOutlinedIcon from "@mui/icons-material/PersonPinOutlined";
+import SearchIcon from "@mui/icons-material/Search";
+import CloseIcon from "@mui/icons-material/Close";
 import {
+  Autocomplete,
   Box,
+  Button,
   Card,
   CardActionArea,
+  CardContent,
   CardMedia,
-  Chip,
   CircularProgress,
-  Divider,
-  Stack,
+  FormControl,
+  Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  MenuItem,
+  Select,
+  TextField,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 import { routeList } from "@src/context/configGlobal";
 import { database } from "@src/hooks/index";
 import * as styles from "@src/styles/screens/styleExplorerScreen";
@@ -21,22 +33,143 @@ import * as loadingStyle from "@src/styles/screens/styleLoading";
 import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  AppBarNewHeader,
+  BreadcrumbsBar,
+  HighlightText,
+  PageContainer,
+  SectionHeader,
+  VirtualizedList,
+} from "@src/components/index";
+
+const normalizeText = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
+const scoreField = (field: string | undefined, query: string, weight: number) => {
+  if (!field) return 0;
+  const normalizedField = normalizeText(field);
+  if (normalizedField.startsWith(query)) return weight * 2;
+  if (normalizedField.includes(query)) return weight;
+  return 0;
+};
+
+const scoreSystem = (system: SystemCardUI, query: string) => {
+  if (!query) return 0;
+  return (
+    scoreField(system.name, query, 4) +
+    scoreField(system.label, query, 3) +
+    scoreField(system.coach, query, 2.5) +
+    scoreField(system.setSystem, query, 2) +
+    scoreField(system.description, query, 1)
+  );
+};
+
+interface SystemCardProps {
+  system: SystemCardUI;
+  onClick: () => void;
+  query: string;
+}
+
+function SystemCard({ system, onClick, query }: SystemCardProps) {
+  return (
+    <Card>
+      <CardActionArea onClick={onClick}>
+        <CardMedia
+          component="img"
+          image={system.coverUrl}
+          sx={styles.cardMedia}
+        />
+        <CardContent sx={styles.cardContent}>
+          <Typography variant="h6">
+            <HighlightText text={system.name} query={query} />
+          </Typography>
+          <Box sx={styles.metaRow}>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <LabelOutlinedIcon fontSize="small" color="action" />
+              <Typography variant="body2" color="text.secondary">
+                <HighlightText
+                  text={capitalizeFirstLetter(system.setSystem)}
+                  query={query}
+                />
+              </Typography>
+            </Box>
+            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
+              <PersonPinOutlinedIcon fontSize="small" color="action" />
+              <Typography variant="body2" color="text.secondary">
+                <HighlightText
+                  text={capitalizeFirstLetter(system.coach)}
+                  query={query}
+                />
+              </Typography>
+            </Box>
+          </Box>
+        </CardContent>
+      </CardActionArea>
+    </Card>
+  );
+}
+
+interface SystemListItemProps {
+  system: SystemCardUI;
+  onClick: () => void;
+  query: string;
+}
+
+function SystemListItem({ system, onClick, query }: SystemListItemProps) {
+  return (
+    <Box
+      sx={styles.mobileListItem}
+      onClick={onClick}
+      onKeyDown={(event) => {
+        if (event.key === "Enter") onClick();
+      }}
+      role="button"
+      tabIndex={0}
+    >
+      <Box
+        component="img"
+        src={system.coverUrl}
+        alt={system.name}
+        sx={styles.mobileListMedia}
+      />
+      <Box sx={styles.mobileListContent}>
+        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
+          <HighlightText text={system.name} query={query} />
+        </Typography>
+        <Typography variant="body2" color="text.secondary">
+          <HighlightText
+            text={`${capitalizeFirstLetter(system.setSystem)} · ${capitalizeFirstLetter(
+              system.coach,
+            )}`}
+            query={query}
+          />
+        </Typography>
+      </Box>
+    </Box>
+  );
+}
 
 /**
  * Pantalla de exploración de sistemas en entorno web.
  * Orquesta la carga de sistemas desde Firestore mediante servicios compartidos,
- * gestiona el filtrado por categoría (setSystem) y permite la navegación hacia
+ * gestiona el filtrado por búsqueda y categoría, y permite la navegación hacia
  * la vista de detalle del curso correspondiente.
  *
  * @returns {JSX.Element} Vista de listado de sistemas con filtros y navegación a detalle.
  */
 export default function ExplorerScreen() {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
 
-  const [nivelSeleccionado, setNivelSeleccionado] = useState<string>();
   const [systems, setSystems] = useState<SystemCardUI[]>([]);
   const [tagNavigation, setTagNavigation] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
 
   useEffect(() => {
     const loadSystems = async () => {
@@ -63,10 +196,78 @@ export default function ExplorerScreen() {
     loadSystems();
   }, []);
 
+  const rawQuery = useMemo(() => searchQuery.trim(), [searchQuery]);
+  const normalizedQuery = useMemo(
+    () => normalizeText(rawQuery),
+    [rawQuery],
+  );
+
+  const searchSuggestions = useMemo(() => {
+    const pool = new Set<string>();
+    systems.forEach((system) => {
+      if (system.name) pool.add(system.name);
+      if (system.coach) pool.add(system.coach);
+      if (system.setSystem) pool.add(system.setSystem);
+    });
+    return Array.from(pool).sort();
+  }, [systems]);
+
   const systemsFiltrados = useMemo(() => {
-    if (!nivelSeleccionado) return systems;
-    return systems.filter((s) => s.setSystem === nivelSeleccionado);
-  }, [systems, nivelSeleccionado]);
+    const query = normalizedQuery;
+
+    const filtered = systems.filter((system) => {
+      const matchesCategory = selectedCategory
+        ? system.setSystem === selectedCategory
+        : true;
+
+      if (!query) return matchesCategory;
+
+      const haystack = [
+        system.name,
+        system.coach,
+        system.setSystem,
+        system.label,
+        system.description,
+      ]
+        .filter(Boolean)
+        .join(" ");
+
+      return matchesCategory && normalizeText(haystack).includes(query);
+    });
+
+    if (!query) {
+      return filtered.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    const scored = filtered.map((system) => ({
+      ...system,
+      score: scoreSystem(system, query),
+    }));
+
+    return scored
+      .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+      .map(({ score, ...system }) => system);
+  }, [systems, selectedCategory, normalizedQuery]);
+
+  const handleClear = () => {
+    setSearchQuery("");
+    setSelectedCategory("");
+  };
+
+  const handleNavigate = (item: SystemCardUI) => {
+    navigate(
+      routeList.courseDetailScreen.replace(
+        ":systemName",
+        item.label + "-" + item.coach.replace(/ /g, "_"),
+      ),
+      {
+        state: {
+          system: item,
+          urlLocal: item.label + "-" + item.coach.replace(/ /g, "_"),
+        },
+      },
+    );
+  };
 
   if (loading) {
     return (
@@ -78,77 +279,134 @@ export default function ExplorerScreen() {
 
   return (
     <Box sx={styles.screen}>
-      {/* Chips */}
-      <Stack direction="row" spacing={1} flexWrap="wrap" mb={3}>
-        {tagNavigation.map((tag) => (
-          <Chip
-            key={tag}
-            label={tag}
-            clickable
-            color={nivelSeleccionado === tag ? "primary" : "default"}
-            onClick={() =>
-              setNivelSeleccionado(nivelSeleccionado === tag ? undefined : tag)
-            }
-          />
-        ))}
-      </Stack>
+      <AppBarNewHeader />
+      <PageContainer sx={{ pt: { xs: 2, md: 3 } }}>
+        <BreadcrumbsBar items={[{ label: "Explorar" }]} />
 
-      <Typography variant="h6">Explorar Sistemas</Typography>
-      <Divider sx={{ my: 2 }} />
+        <SectionHeader
+          title="Explorar Sistemas"
+          subtitle="Busca por técnica, coach o sistema"
+        />
 
-      {/* Cards */}
-      <Stack spacing={3}>
-        {systemsFiltrados.map((item) => (
-          <Card key={item.valueNodes} elevation={3}>
-            <CardActionArea
-              onClick={() =>
-                navigate(
-                  routeList.courseDetailScreen.replace(
-                    ":systemName",
-                    item.label + "-" + item.coach.replace(/ /g, "_"),
+        <Box sx={styles.filtersRow}>
+          <Autocomplete
+            freeSolo
+            options={searchSuggestions}
+            inputValue={searchQuery}
+            onInputChange={(_, value) => setSearchQuery(value)}
+            filterOptions={(options, state) => {
+              const value = normalizeText(state.inputValue.trim());
+              if (!value) return options.slice(0, 8);
+
+              return options
+                .map((option) => ({
+                  option,
+                  score: scoreField(option, value, 1),
+                }))
+                .filter((item) => item.score > 0)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 8)
+                .map((item) => item.option);
+            }}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                label="Buscar técnicas, coach o sistema"
+                placeholder="Ej: guard pass, De La Riva"
+                sx={styles.searchField}
+                InputProps={{
+                  ...params.InputProps,
+                  startAdornment: (
+                    <>
+                      <InputAdornment position="start">
+                        <SearchIcon fontSize="small" />
+                      </InputAdornment>
+                      {params.InputProps.startAdornment}
+                    </>
                   ),
-                  {
-                    state: {
-                      system: item,
-                      urlLocal: item.label + "-" + item.coach.replace(/ /g, "_"),
-                    },
-                  },
-                )
+                  endAdornment: (
+                    <>
+                      {searchQuery ? (
+                        <IconButton
+                          size="small"
+                          onClick={() => setSearchQuery("")}
+                        >
+                          <CloseIcon fontSize="small" />
+                        </IconButton>
+                      ) : null}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+              />
+            )}
+          />
+
+          <FormControl sx={styles.selectField}>
+            <InputLabel id="category-select-label">Categoría</InputLabel>
+            <Select
+              labelId="category-select-label"
+              label="Categoría"
+              value={selectedCategory}
+              onChange={(event) =>
+                setSelectedCategory(event.target.value as string)
               }
             >
-                <CardMedia
-                  component="img"
-                  image={item.coverUrl}
-                  sx={{ height: 300, objectFit: "contain" }}
+              <MenuItem value="">Todas</MenuItem>
+              {tagNavigation.map((tag) => (
+                <MenuItem key={tag} value={tag}>
+                  {tag}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+
+          <Button
+            variant="text"
+            onClick={handleClear}
+            disabled={!searchQuery && !selectedCategory}
+            sx={{ alignSelf: { xs: "flex-start", md: "center" } }}
+          >
+            Limpiar filtros
+          </Button>
+        </Box>
+
+        <Typography variant="body2" sx={styles.resultsMeta}>
+          {systemsFiltrados.length} resultados
+        </Typography>
+
+        {systemsFiltrados.length === 0 ? (
+          <Typography variant="body2" color="text.secondary">
+            No encontramos resultados con esos filtros.
+          </Typography>
+        ) : isMobile ? (
+          <VirtualizedList
+            items={systemsFiltrados}
+            itemHeight={styles.mobileItemHeight}
+            height="60vh"
+            renderItem={(item) => (
+              <SystemListItem
+                key={item.valueNodes}
+                system={item}
+                query={rawQuery}
+                onClick={() => handleNavigate(item)}
+              />
+            )}
+          />
+        ) : (
+          <Grid container spacing={3}>
+            {systemsFiltrados.map((item) => (
+              <Grid item xs={12} md={6} key={item.valueNodes}>
+                <SystemCard
+                  system={item}
+                  query={rawQuery}
+                  onClick={() => handleNavigate(item)}
                 />
-            </CardActionArea>
-
-            <Box sx={{ p: 2 }}>
-              <Typography variant="h5" sx={{ mb: 3 }}>
-                {item.name}
-              </Typography>
-
-              <Box sx={{ display: "flex", justifyContent: "space-between" }}>
-                <Typography variant="body2" color="text.secondary">
-                  <LabelOutlinedIcon
-                    fontSize="small"
-                    sx={{ verticalAlign: "middle", mr: 0.5 }}
-                  />
-                  {capitalizeFirstLetter(item.setSystem)}
-                </Typography>
-
-                <Typography variant="body2" color="text.secondary">
-                  <PersonPinOutlinedIcon
-                    fontSize="small"
-                    sx={{ verticalAlign: "middle", mr: 0.5 }}
-                  />
-                  {capitalizeFirstLetter(item.coach)}
-                </Typography>
-              </Box>
-            </Box>
-          </Card>
-        ))}
-      </Stack>
+              </Grid>
+            ))}
+          </Grid>
+        )}
+      </PageContainer>
     </Box>
   );
 }
