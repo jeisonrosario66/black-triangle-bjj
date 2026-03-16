@@ -1,48 +1,52 @@
 import { SxProps, Theme } from "@mui/material";
 
 /** Contenedor principal de la ventana de configuración */
-export const containerConfigWindow: SxProps<Theme> = {
-  width: "80%",
-  height: "90%",
+export const containerConfigWindow: SxProps<Theme> = (theme) => ({
+  width: { xs: "92vw", md: "720px" },
+  height: { xs: "90vh", md: "80vh" },
   padding: "2rem",
-  backgroundColor: "white",
-  borderRadius: "10px",
+  backgroundColor: theme.palette.surface,
+  borderRadius: theme.shape.borderRadius * 2,
+  border: `1px solid ${theme.palette.outlineVariant}`,
+  boxShadow: "0 16px 40px rgba(15, 23, 42, 0.12)",
   display: "flex",
   flexDirection: "column",
   position: "absolute",
-  zIndex: "10",
-  overflow:"auto"
-};
-
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  zIndex: 10,
+  overflow: "auto",
+});
 
 /** Espaciado y formato general de los formularios */
 export const formGeneral: SxProps<Theme> = {
-  marginBottom: "2rem",
+  marginBottom: "1.5rem",
   display: "flex",
-  flexDirection: "row",
-  "& .MuiInputBase-root, .MuiFormControl-root": { width: "100%" },
-  
+  flexDirection: "column",
+  gap: 0.75,
 };
 
 /** Contenedor de la lista de sistemas disponibles */
 export const selectSystemPaper: SxProps<Theme> = {
   width: "100%",
+  maxHeight: 320,
+  overflowY: "auto",
+  borderRadius: 8,
 };
 
 /** Estilo dinámico de cada elemento de sistema (seleccionado / no seleccionado) */
 export const selectSystemItem = (selected: boolean): SxProps<Theme> => ({
-  borderRadius: "10px",
+  borderRadius: 10,
   marginBottom: "0.25rem",
-  transition: "all 0.25s ease",
-  backgroundColor: selected ? "rgba(25, 118, 210, 0.1)" : "transparent",
+  transition: "all 0.2s ease",
+  backgroundColor: selected ? "rgba(25, 118, 210, 0.08)" : "transparent",
   "&:hover": {
     backgroundColor: selected
-      ? "rgba(25, 118, 210, 0.2)"
-      : "rgba(255,255,255,0.05)",
-    transform: "translateX(4px)",
+      ? "rgba(25, 118, 210, 0.12)"
+      : "rgba(15, 23, 42, 0.04)",
   },
   "& .MuiListItemText-root": {
-    fontWeight: selected ? 600 : 400,
-    color: selected ? "primary.main" : "text.primary",
+    fontWeight: selected ? 600 : 500,
   },
 });

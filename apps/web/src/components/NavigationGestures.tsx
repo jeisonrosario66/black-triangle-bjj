@@ -57,7 +57,7 @@ const NavigationGestures: React.FC = () => {
   };
 
   // Maneja el cambio del checkbox y guarda/remueve la preferencia en localStorage
-  const handleCheckboxChange = (e: any) => {
+  const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const checked = e.target.checked;
     setValueCheckBox(checked);
     if (checked) {

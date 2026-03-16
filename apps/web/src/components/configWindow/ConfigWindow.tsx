@@ -261,6 +261,9 @@ const ConfigWindow: React.FC = () => {
                       <MenuItem
                         key={option.valueNodes}
                         selected={tempSystemsNodes.includes(option.valueNodes)}
+                        sx={style.selectSystemItem(
+                          tempSystemsNodes.includes(option.valueNodes)
+                        )}
                         onClick={() =>
                           handleSystemSelect(option.valueNodes, option.valueLinks)
                         }

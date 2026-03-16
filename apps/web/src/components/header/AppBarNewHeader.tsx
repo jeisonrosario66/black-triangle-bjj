@@ -33,7 +33,14 @@ export default function AppBarHeader() {
 
   return (
     <>
-      <AppBar sx={{ background: theme.palette.surface }} elevation={2}>
+      <AppBar
+        position="sticky"
+        sx={{
+          background: theme.palette.surface,
+          borderBottom: `1px solid ${theme.palette.outlineVariant}`,
+        }}
+        elevation={0}
+      >
         <Toolbar>
           <Container
             maxWidth="xl"

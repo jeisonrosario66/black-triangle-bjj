@@ -2,6 +2,8 @@ import { useRef, useCallback } from "react";
 import { Canvas } from "@react-three/fiber";
 import { CameraControls } from "@react-three/drei";
 import { Button } from "@mui/material";
+import ExpandLessIcon from "@mui/icons-material/ExpandLess";
+import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import {
   GraphScene,
@@ -61,19 +63,23 @@ const MainAppLayout = () => {
             <>
             </> :
             <Button
-              style={{
+              variant="outlined"
+              size="small"
+              startIcon={showFullGraph ? <ExpandLessIcon /> : <ExpandMoreIcon />}
+              sx={{
                 position: "absolute",
                 top: 20,
                 left: 20,
                 zIndex: 10,
-                backgroundColor: "white",
-                padding: "0.5rem 1rem",
+                backgroundColor: "background.paper",
+                borderColor: "outlineVariant",
+                color: "text.primary",
               }}
               onClick={toggleGraph}
             >
               {showFullGraph
-                ? `🔽 ${t(textHardcoded + "collapsedNodes")}`
-                : `🔼 ${t(textHardcoded + "expandNodes")}`}
+                ? t(textHardcoded + "collapsedNodes")
+                : t(textHardcoded + "expandNodes")}
             </Button>
           }
           <Canvas

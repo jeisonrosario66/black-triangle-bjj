@@ -3,7 +3,7 @@
    Visual styling lives in MUI theme.
 */
 :root {
-  color-scheme: light dark;
+  color-scheme: light;
 }
 
 html,
