@@ -3,20 +3,29 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import {
   Box,
   Button,
-  Container,
-  Divider,
+  Card,
+  CardContent,
+  Grid,
   LinearProgress,
-  Paper,
+  Stack,
   Typography,
 } from "@mui/material";
 
 import { useTheme } from "@mui/material/styles";
+import { useMemo } from "react";
 import * as style from "@src/styles/screens/styleHomeScreenWeb";
 
 import { testRoutes, testSystems } from "@bt/shared/context/configShared";
 import { shape } from "@bt/shared/design-system/index";
 import { pickRandom } from "@bt/shared/hooks/index";
-import { AppBarNewHeader } from "@src/components/index";
+import {
+  AppBarNewHeader,
+  PageContainer,
+  SectionHeader,
+} from "@src/components/index";
+
+type RouteItem = (typeof testRoutes)[number];
+type SystemItem = (typeof testSystems)[number];
 
 /**
  * Pantalla principal web de inicio de la aplicación.
@@ -28,162 +37,141 @@ import { AppBarNewHeader } from "@src/components/index";
 export default function HomeScreenWeb() {
   const theme = useTheme();
 
-  const randomSystems = pickRandom(testSystems, 3);
-  const randomRoutes = pickRandom(testRoutes, 2);
+  const randomSystems = useMemo(
+    () => pickRandom(testSystems, 3) as SystemItem[],
+    [],
+  );
+  const randomRoutes = useMemo(
+    () => pickRandom(testRoutes, 2) as RouteItem[],
+    [],
+  );
 
   return (
-    <Box sx={style.boxContainer}>
+    <Box sx={style.page}>
       <AppBarNewHeader />
-      {/* CONTENIDO */}
-      <Container maxWidth="lg">
-        {/* ===== Progreso actual ===== */}
-        <Box sx={style.sectionStyle}>
-          <Typography variant="body1" gutterBottom sx={style.cardTitleStyle}>
-            Continúa tu progreso
-          </Typography>
+      <PageContainer sx={{ pt: { xs: 2, md: 3 } }}>
+        <Stack spacing={{ xs: 4, md: 6 }}>
+          {/* ===== Progreso actual ===== */}
+          <Box>
+            <SectionHeader title="Continúa tu progreso" />
+            <Card sx={style.progressCard}>
+              <CardContent sx={style.progressContent}>
+                <Typography variant="subtitle1" gutterBottom>
+                  Analizando “Curso Actual”
+                </Typography>
 
-          <Divider sx={style.dividerStyle} />
+                <Typography variant="body2" sx={style.cardLabelStyle}>
+                  Clase 4 de 10 · 40%
+                </Typography>
 
-          <Paper elevation={1} sx={style.cardStyle}>
-            <Typography variant="subtitle1" gutterBottom>
-              Analizando “Curso Actual”
-            </Typography>
+                <LinearProgress
+                  variant="determinate"
+                  value={40}
+                  sx={style.progressBar}
+                />
 
-            <Typography variant="body2" sx={style.cardLabelStyle}>
-              Clase 4 de 10 · 40%
-            </Typography>
+                <Button
+                  sx={style.cardBottomStyle}
+                  variant="outlined"
+                  onClick={() => console.log("Seguir viendo funcion")}
+                >
+                  Seguir viendo
+                </Button>
+              </CardContent>
+            </Card>
+          </Box>
 
-            <LinearProgress
-              variant="determinate"
-              value={40}
-              sx={style.progressBar}
+          {/* ===== Rutas recomendadas ===== */}
+          <Box>
+            <SectionHeader
+              title="Rutas de Aprendizaje Recomendadas"
+              action={
+                <Button
+                  endIcon={<ArrowForwardIosIcon />}
+                  variant="outlined"
+                  size="small"
+                  sx={style.sectionAction}
+                >
+                  Ver todas
+                </Button>
+              }
             />
 
-            <Button
-              sx={style.cardBottomStyle}
-              variant="outlined"
-              onClick={() => console.log("Seguir viendo funcion")}
-            >
-              Seguir viendo
-            </Button>
-          </Paper>
-        </Box>
+            <Grid container spacing={2}>
+              {randomRoutes.map((item) => (
+                <Grid item xs={12} md={6} key={item.title}>
+                  <Card sx={style.routeCard}>
+                    <CardContent sx={style.routeHeader}>
+                      <Typography sx={style.cardTitleStyle} variant="subtitle1">
+                        {item.title}
+                      </Typography>
+                      <Typography sx={style.routeMeta}>
+                        Nivel · {item.level}
+                      </Typography>
+                    </CardContent>
 
-        {/* ===== Rutas recomendadas ===== */}
-        <Box sx={style.sectionStyle}>
-          <Typography variant="body1" gutterBottom sx={style.cardTitleStyle}>
-            Rutas de Aprendizaje Recomendadas
-          </Typography>
-
-          <Divider sx={style.dividerStyle} />
-
-          <Box sx={style.containerCardRow}>
-            {randomRoutes.map((item) => (
-              <Paper key={item.title} sx={style.cardColumn}>
-                <Paper
-                  elevation={1}
-                  sx={{
-                    borderTopLeftRadius: shape.borderRadius.sm,
-                    borderTopRightRadius: shape.borderRadius.sm,
-                    borderBottomLeftRadius: 0,
-                    borderBottomRightRadius: 0,
-                    padding: 1,
-                  }}
-                >
-                  <Typography sx={style.cardTitleStyle} variant="subtitle1">
-                    {item.title}
-                  </Typography>
-                  <Typography
-                    sx={{fontSize:"0.7rem", color: theme.palette.text.secondary }}
-                  >
-                    Nivel · {item.level}
-                  </Typography>
-                </Paper>
-
-                <Paper elevation={1}>
-                  <Paper
-                    style={{
-                      borderStartEndRadius: 0,
-                      borderStartStartRadius: 0,
-                      borderEndStartRadius: shape.borderRadius.sm,
-                      borderEndEndRadius: shape.borderRadius.sm,
-                      backgroundColor: theme.palette.surfaceVariant,
-                    }}
-                  >
-                    <Button
-                      fullWidth
-                      startIcon={<PlayArrowIcon />}
-                      onClick={() => console.log("Ir a la ruta " + item.title)}
-                      sx={style.cardRouteButtom}
+                    <Box
+                      sx={{
+                        borderStartEndRadius: 0,
+                        borderStartStartRadius: 0,
+                        borderEndStartRadius: shape.borderRadius.md,
+                        borderEndEndRadius: shape.borderRadius.md,
+                        backgroundColor: theme.palette.surfaceVariant,
+                      }}
                     >
-                      {item.lessons} Lecciones
-                    </Button>
-                  </Paper>
-                </Paper>
-              </Paper>
-            ))}
+                      <Button
+                        fullWidth
+                        startIcon={<PlayArrowIcon />}
+                        onClick={() =>
+                          console.log("Ir a la ruta " + item.title)
+                        }
+                        sx={style.cardRouteButtom}
+                      >
+                        {item.lessons} Lecciones
+                      </Button>
+                    </Box>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
           </Box>
 
-          <Box
-            sx={{
-              mt: 3,
-              mb: 4,
-              ml: "auto",
-              mr: "auto",
-              maxWidth: 230,
-            }}
-          >
-            <Button
-              fullWidth
-              endIcon={<ArrowForwardIosIcon />}
-              variant="contained"
-              sx={{
-                backgroundColor: theme.palette.surfaceVariant,
-                color: theme.palette.text.primary,
-                fontSize: "0.7rem",
-              }}
-            >
-              VER TODAS LAS RUTAS
-            </Button>
-          </Box>
-        </Box>
-
-        {/* ===== Explora Sistemas ===== */}
-        <Box sx={style.sectionStyle}>
-          <Typography gutterBottom variant="body1" sx={style.cardTitleStyle}>
-            Explorar Sistemas
-          </Typography>
-          <Divider sx={style.dividerStyle} />
-          <Box sx={style.containerCardRow}>
-            {randomSystems.map((item) => (
-              <Paper key={item.title} elevation={1}>
+          {/* ===== Explora Sistemas ===== */}
+          <Box>
+            <SectionHeader
+              title="Explorar Sistemas"
+              action={
                 <Button
-                  sx={style.cardExplorerButtom}
-                  fullWidth
-                  onClick={() => console.log("Explorar sistema " + item.title)}
+                  endIcon={<ArrowForwardIosIcon />}
+                  variant="outlined"
+                  size="small"
+                  sx={style.sectionAction}
                 >
-                  {item.title}
+                  Ver todos
                 </Button>
-              </Paper>
-            ))}
-          </Box>
+              }
+            />
 
-          <Box sx={style.cardExplorerButtomCentered}>
-            <Button
-              fullWidth
-              endIcon={<ArrowForwardIosIcon />}
-              variant="contained"
-              sx={{
-                backgroundColor: theme.palette.surfaceVariant,
-                color: theme.palette.text.primary,
-                fontSize: "0.7rem",
-              }}
-            >
-              EXPLORAR TODOS LOS SISTEMAS
-            </Button>
+            <Grid container spacing={2}>
+              {randomSystems.map((item) => (
+                <Grid item xs={12} md={4} key={item.title}>
+                  <Card sx={style.systemCard}>
+                    <Button
+                      sx={style.cardExplorerButtom}
+                      fullWidth
+                      onClick={() =>
+                        console.log("Explorar sistema " + item.title)
+                      }
+                    >
+                      {item.title}
+                    </Button>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
           </Box>
-        </Box>
-      </Container>
+        </Stack>
+      </PageContainer>
     </Box>
   );
 }

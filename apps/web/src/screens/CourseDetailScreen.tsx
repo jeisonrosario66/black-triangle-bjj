@@ -11,9 +11,6 @@ import {
   Card,
   CardMedia,
   CircularProgress,
-  Divider,
-  ListItemButton,
-  ListItemText,
   Skeleton,
   Typography,
 } from "@mui/material";
@@ -24,6 +21,14 @@ import * as loadingStyles from "@src/styles/screens/styleLoading";
 import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import {
+  AppBarNewHeader,
+  BreadcrumbsBar,
+  ModuleList,
+  PageContainer,
+  SectionHeader,
+  TagList,
+} from "@src/components/index";
 
 /**
  * Pantalla de detalle de un sistema o curso en entorno web.
@@ -41,7 +46,7 @@ export default function CourseDetailScreen() {
   const [modules, setModules] = useState<NodeOptionFirestore[]>([]);
   const [loadingModules, setLoadingModules] = useState(true);
   const [expanded, setExpanded] = useState(false);
-  const firestoreRuta = system.valueNodes;
+  const firestoreRuta = system?.valueNodes;
   const [imageLoaded, setImageLoaded] = useState(false);
 
   useEffect(() => {
@@ -65,7 +70,11 @@ export default function CourseDetailScreen() {
       }
     };
 
-    loadNodes();
+    if (firestoreRuta) {
+      loadNodes();
+    } else {
+      setLoadingModules(false);
+    }
 
     return () => {
       mounted = false;
@@ -77,7 +86,11 @@ export default function CourseDetailScreen() {
   }, [modules]);
 
   if (!system) {
-    return <Typography>No se encontró el sistema</Typography>;
+    return (
+      <PageContainer>
+        <Typography>No se encontró el sistema</Typography>
+      </PageContainer>
+    );
   }
   if (loadingModules) {
     return (
@@ -89,68 +102,97 @@ export default function CourseDetailScreen() {
 
   return (
     <Box sx={styles.container}>
-      <Card sx={{ position: "relative" }}>
-        {/* Skeleton mientras la imagen NO ha cargado */}
-        {!imageLoaded && (
-          <Skeleton variant="rectangular" width="100%" height={340} />
-        )}
-        <CardMedia
-          component="img"
-          image={system.coverUrl}
-          onLoad={() => setImageLoaded(true)}
-          sx={{
-            height: 340,
-            display: imageLoaded ? "block" : "none",
-            transition: "opacity 0.4s ease",
-          }}
+      <AppBarNewHeader />
+      <PageContainer sx={{ pt: { xs: 2, md: 3 } }}>
+        <BreadcrumbsBar
+          items={[
+            { label: "Explorar", onClick: () => navigate(routeList.root) },
+            { label: capitalizeFirstLetter(system.name) },
+          ]}
         />
-      </Card>
 
-      <Typography variant="h5" style={{ marginTop: 16 }}>
-        {capitalizeFirstLetter(system.name)}
-      </Typography>
-      <Divider sx={{ mb: 2 }} />
+        <Card sx={styles.heroCard}>
+          {!imageLoaded && (
+            <Skeleton
+              variant="rectangular"
+              width="100%"
+              sx={{ height: { xs: 220, md: 340 } }}
+            />
+          )}
+          <CardMedia
+            component="img"
+            image={system.coverUrl}
+            onLoad={() => setImageLoaded(true)}
+            sx={{
+              ...styles.heroMedia,
+              display: imageLoaded ? "block" : "none",
+              transition: "opacity 0.4s ease",
+            }}
+          />
+        </Card>
 
-      <Typography variant="body1" sx={{ marginTop: 2, marginBottom: 3 }}>
-        {capitalizeFirstLetter(system.description)}
-      </Typography>
+        <Box sx={{ mt: 3 }}>
+          <SectionHeader
+            title={capitalizeFirstLetter(system.name)}
+            withDivider={false}
+          />
 
-      <Accordion expanded={expanded} onChange={() => setExpanded(!expanded)}>
-        <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <SchemaOutlinedIcon sx={{ mr: 1 }} />
-          <Typography>
-            {capitalizeFirstLetter(system.setSystem)} · {modules.length} Videos
+          <Box sx={styles.headerMetaRow}>
+            <TagList
+              items={[
+                {
+                  id: "system",
+                  label: `Sistema · ${capitalizeFirstLetter(system.setSystem)}`,
+                },
+                {
+                  id: "coach",
+                  label: `Coach · ${capitalizeFirstLetter(system.coach)}`,
+                },
+                {
+                  id: "count",
+                  label: `${modules.length} videos`,
+                },
+              ]}
+            />
+          </Box>
+
+          <Typography variant="body1" sx={styles.description}>
+            {capitalizeFirstLetter(system.description)}
           </Typography>
-        </AccordionSummary>
+        </Box>
 
-        <AccordionDetails>
-          {orderedModules.map((item, index) => (
-            <Box key={item.id}>
-              <ListItemButton
-                onClick={() =>
-                  navigate(
-                    routeList.videoDetailScreen
-                      .replace(
-                        ":systemName",
-                        system.label + '-' + system.coach.replace(/ /g, '_'),
-                      )
-                      .replace(":nodeId", item.id.toString()),
-                    {
-                      state: {
-                        nodeRoute: item,
-                        firestoreRuta,
-                      },
+        <Accordion expanded={expanded} onChange={() => setExpanded(!expanded)}>
+          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+            <SchemaOutlinedIcon sx={{ mr: 1 }} />
+            <Typography>
+              {capitalizeFirstLetter(system.setSystem)} · {modules.length} Videos
+            </Typography>
+          </AccordionSummary>
+
+          <AccordionDetails sx={styles.moduleList}>
+            <ModuleList
+              modules={orderedModules}
+              onSelect={(item, index) =>
+                navigate(
+                  routeList.videoDetailScreen
+                    .replace(
+                      ":systemName",
+                      system.label + "-" + system.coach.replace(/ /g, "_"),
+                    )
+                    .replace(":nodeId", item.id.toString()),
+                  {
+                    state: {
+                      nodeRoute: item,
+                      firestoreRuta,
+                      systemBreadcrumbLabel: capitalizeFirstLetter(system.name),
                     },
-                  )
-                }
-              >
-                <ListItemText primary={`${index + 1}. ${item.name}`} />
-              </ListItemButton>
-              <Divider />
-            </Box>
-          ))}
-        </AccordionDetails>
-      </Accordion>
+                  },
+                )
+              }
+            />
+          </AccordionDetails>
+        </Accordion>
+      </PageContainer>
     </Box>
   );
 }

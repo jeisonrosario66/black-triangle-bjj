@@ -1,25 +1,23 @@
-import {
-  Box,
-  Chip,
-  Divider,
-  List,
-  ListItem,
-  ListItemText,
-  Stack,
-  Typography,
-} from "@mui/material";
+import { Box, Divider } from "@mui/material";
 
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-import ArrowRightIcon from "@mui/icons-material/ArrowRight";
 import { useNodeTaxonomy, useTabsByIds } from "@src/hooks/index";
-import { useLayoutEffect } from "react";
+import { useLayoutEffect, useMemo } from "react";
 
-import { shape } from "@bt/shared/design-system";
-import { cacheUser } from "@src/context/index";
+import { cacheUser, routeList } from "@src/context/index";
 import { useUIStore } from "@src/store";
 import { capitalizeFirstLetter } from "@src/utils/index";
 import { useTranslation } from "react-i18next";
+import {
+  AppBarNewHeader,
+  BreadcrumbsBar,
+  DescriptionList,
+  PageContainer,
+  SectionHeader,
+  TagList,
+} from "@src/components/index";
+import * as styles from "@src/styles/screens/styleVideoDetailScreen";
 
 const textHardcoded = "components.nodeConnectionViewer.";
 
@@ -33,6 +31,9 @@ const textHardcoded = "components.nodeConnectionViewer.";
  */
 export default function VideoDetailScreen() {
   const location = useLocation();
+  const navigate = useNavigate();
+  const { systemName } = useParams();
+
   const nodeData = location.state?.nodeRoute;
   const firestoreRoute = location.state?.firestoreRuta;
 
@@ -45,61 +46,76 @@ export default function VideoDetailScreen() {
     useUIStore.setState({ connectionViewerActiveStep: null });
   }, [nodeData]);
 
+  const stateSystemLabel = location.state?.systemBreadcrumbLabel as
+    | string
+    | undefined;
+
+  const systemBreadcrumbLabel = useMemo(() => {
+    const fromState = stateSystemLabel;
+    if (fromState) return fromState;
+    if (!systemName) return "Sistema";
+    return decodeURIComponent(systemName)
+      .replace(/_/g, " ")
+      .replace(/-/g, " · ");
+  }, [stateSystemLabel, systemName]);
+
+  const tagItems = useMemo(
+    () =>
+      tabs.map((tab) => ({
+        id: tab.id,
+        label: capitalizeFirstLetter(
+          localStorage.getItem(cacheUser.languageUser) === "es"
+            ? tab.title_es || tab.label
+            : tab.title_en || tab.label,
+        ),
+        color: "success" as const,
+      })),
+    [tabs],
+  );
+
   return (
-    <Box sx={{ margin: 2 }}>
-      <iframe
-        src={`https://drive.google.com/file/d/${nodeData.videoid}/preview`}
-        width="100%"
-        height="340"
-        allow="autoplay"
-        allowFullScreen
-        style={{borderRadius:shape.borderRadius.lg}}
-      />
-      <Box sx={{ margin: 2 }}></Box>
-      <Typography variant="h5" sx={{marginBottom:3}}>
-        {nodeData.name}
-      </Typography>
-      {/* Categorías */}
-      <Stack direction="row" spacing={1} mb={2}>
-        {" "}
-        {tabs.map((tab) => (
-          <Chip
-            key={tab.id}
-            label={capitalizeFirstLetter(
-              localStorage.getItem(cacheUser.languageUser) === "es"
-                ? tab.title_es || tab.label
-                : tab.title_en || tab.label,
-            )}
-            color="success"
-            size="small"
-            variant="outlined"
+    <Box sx={styles.container}>
+      <AppBarNewHeader />
+      <PageContainer sx={{ pt: { xs: 2, md: 3 } }}>
+        <BreadcrumbsBar
+          items={[
+            { label: "Explorar", onClick: () => navigate(routeList.root) },
+            { label: systemBreadcrumbLabel },
+            { label: nodeData?.name ?? "Contenido" },
+          ]}
+        />
+
+        <Box sx={styles.videoFrame}>
+          <Box
+            component="iframe"
+            src={`https://drive.google.com/file/d/${nodeData?.videoid}/preview`}
+            allow="autoplay"
+            allowFullScreen
+            sx={styles.videoIframe}
           />
-        ))}
-      </Stack>
-      <Divider sx={{ my: 2 }} />
-      {/* Descripción */}
-      {nodeData?.description?.summary && (
-        <Box>
-          <Typography variant="h6" gutterBottom>
-            {" "}
-            {t(textHardcoded + "descriptionLabel")}{" "}
-          </Typography>
-          <Typography variant="subtitle2">
-            {" "}
-            {nodeData.description.summary}{" "}
-          </Typography>
-          <List>
-            {" "}
-            {nodeData.description.points.map((p: string, i: number) => (
-              <ListItem sx={{ py: 0.4 }} key={i}>
-                {" "}
-                {<ArrowRightIcon />}
-                <ListItemText primary={p} />
-              </ListItem>
-            ))}{" "}
-          </List>
         </Box>
-      )}
+
+        <SectionHeader
+          title={nodeData?.name ?? "Contenido"}
+          withDivider={false}
+        />
+
+        <Box sx={{ mb: 2 }}>
+          <TagList items={tagItems} />
+        </Box>
+
+        <Divider sx={{ my: 2 }} />
+
+        {nodeData?.description?.summary && (
+          <Box sx={styles.descriptionBox}>
+            <DescriptionList
+              title={t(textHardcoded + "descriptionLabel")}
+              summary={nodeData.description.summary}
+              points={nodeData.description.points}
+            />
+          </Box>
+        )}
+      </PageContainer>
     </Box>
   );
 }
