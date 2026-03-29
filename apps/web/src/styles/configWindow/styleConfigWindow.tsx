@@ -6,7 +6,10 @@ export const containerConfigWindow: SxProps<Theme> = (theme) => ({
   height: { xs: "90vh", md: "80vh" },
   padding: "2rem",
   backgroundColor: theme.palette.surface,
-  borderRadius: theme.shape.borderRadius * 2,
+  borderRadius:
+    typeof theme.shape.borderRadius === "number"
+      ? theme.shape.borderRadius * 2
+      : theme.shape.borderRadius,
   border: `1px solid ${theme.palette.outlineVariant}`,
   boxShadow: "0 16px 40px rgba(15, 23, 42, 0.12)",
   display: "flex",

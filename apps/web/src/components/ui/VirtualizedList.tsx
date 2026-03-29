@@ -1,12 +1,12 @@
 import { Box } from "@mui/material";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 
 interface VirtualizedListProps<T> {
   items: T[];
   itemHeight: number;
   height: number | string;
   overscan?: number;
-  renderItem: (item: T, index: number) => React.ReactNode;
+  renderItem: (item: T, index: number) => ReactNode;
 }
 
 /**

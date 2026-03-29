@@ -5,7 +5,6 @@ import {
   Button,
   Card,
   CardContent,
-  Grid,
   LinearProgress,
   Stack,
   Typography,
@@ -22,6 +21,7 @@ import {
   AppBarNewHeader,
   PageContainer,
   SectionHeader,
+  SimpleGrid,
 } from "@src/components/index";
 
 type RouteItem = (typeof testRoutes)[number];
@@ -97,43 +97,39 @@ export default function HomeScreenWeb() {
               }
             />
 
-            <Grid container spacing={2}>
+            <SimpleGrid columns={{ xs: 1, md: 2 }} gap={2}>
               {randomRoutes.map((item) => (
-                <Grid item xs={12} md={6} key={item.title}>
-                  <Card sx={style.routeCard}>
-                    <CardContent sx={style.routeHeader}>
-                      <Typography sx={style.cardTitleStyle} variant="subtitle1">
-                        {item.title}
-                      </Typography>
-                      <Typography sx={style.routeMeta}>
-                        Nivel · {item.level}
-                      </Typography>
-                    </CardContent>
+                <Card key={item.title} sx={style.routeCard}>
+                  <CardContent sx={style.routeHeader}>
+                    <Typography sx={style.cardTitleStyle} variant="subtitle1">
+                      {item.title}
+                    </Typography>
+                    <Typography sx={style.routeMeta}>
+                      Nivel · {item.level}
+                    </Typography>
+                  </CardContent>
 
-                    <Box
-                      sx={{
-                        borderStartEndRadius: 0,
-                        borderStartStartRadius: 0,
-                        borderEndStartRadius: shape.borderRadius.md,
-                        borderEndEndRadius: shape.borderRadius.md,
-                        backgroundColor: theme.palette.surfaceVariant,
-                      }}
+                  <Box
+                    sx={{
+                      borderStartEndRadius: 0,
+                      borderStartStartRadius: 0,
+                      borderEndStartRadius: shape.borderRadius.md,
+                      borderEndEndRadius: shape.borderRadius.md,
+                      backgroundColor: theme.palette.surfaceVariant,
+                    }}
+                  >
+                    <Button
+                      fullWidth
+                      startIcon={<PlayArrowIcon />}
+                      onClick={() => console.log("Ir a la ruta " + item.title)}
+                      sx={style.cardRouteButtom}
                     >
-                      <Button
-                        fullWidth
-                        startIcon={<PlayArrowIcon />}
-                        onClick={() =>
-                          console.log("Ir a la ruta " + item.title)
-                        }
-                        sx={style.cardRouteButtom}
-                      >
-                        {item.lessons} Lecciones
-                      </Button>
-                    </Box>
-                  </Card>
-                </Grid>
+                      {item.lessons} Lecciones
+                    </Button>
+                  </Box>
+                </Card>
               ))}
-            </Grid>
+            </SimpleGrid>
           </Box>
 
           {/* ===== Explora Sistemas ===== */}
@@ -152,23 +148,21 @@ export default function HomeScreenWeb() {
               }
             />
 
-            <Grid container spacing={2}>
+            <SimpleGrid columns={{ xs: 1, md: 3 }} gap={2}>
               {randomSystems.map((item) => (
-                <Grid item xs={12} md={4} key={item.title}>
-                  <Card sx={style.systemCard}>
-                    <Button
-                      sx={style.cardExplorerButtom}
-                      fullWidth
-                      onClick={() =>
-                        console.log("Explorar sistema " + item.title)
-                      }
-                    >
-                      {item.title}
-                    </Button>
-                  </Card>
-                </Grid>
+                <Card key={item.title} sx={style.systemCard}>
+                  <Button
+                    sx={style.cardExplorerButtom}
+                    fullWidth
+                    onClick={() =>
+                      console.log("Explorar sistema " + item.title)
+                    }
+                  >
+                    {item.title}
+                  </Button>
+                </Card>
               ))}
-            </Grid>
+            </SimpleGrid>
           </Box>
         </Stack>
       </PageContainer>

@@ -40,6 +40,7 @@ export { default as DescriptionList } from "@src/components/ui/DescriptionList";
 export { default as ModuleList } from "@src/components/ui/ModuleList";
 export { default as HighlightText } from "@src/components/ui/HighlightText";
 export { default as VirtualizedList } from "@src/components/ui/VirtualizedList";
+export { default as SimpleGrid } from "@src/components/ui/SimpleGrid";
 
 // Components/header
 export { default as AppBarNewHeader } from "@src/components/header/AppBarNewHeader";

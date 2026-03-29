@@ -172,7 +172,7 @@ export default function CourseDetailScreen() {
           <AccordionDetails sx={styles.moduleList}>
             <ModuleList
               modules={orderedModules}
-              onSelect={(item, index) =>
+              onSelect={(item) =>
                 navigate(
                   routeList.videoDetailScreen
                     .replace(

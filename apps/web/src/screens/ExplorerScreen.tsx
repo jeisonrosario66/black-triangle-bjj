@@ -15,7 +15,6 @@ import {
   CardMedia,
   CircularProgress,
   FormControl,
-  Grid,
   IconButton,
   InputAdornment,
   InputLabel,
@@ -39,6 +38,7 @@ import {
   HighlightText,
   PageContainer,
   SectionHeader,
+  SimpleGrid,
   VirtualizedList,
 } from "@src/components/index";
 
@@ -394,17 +394,16 @@ export default function ExplorerScreen() {
             )}
           />
         ) : (
-          <Grid container spacing={3}>
+          <SimpleGrid columns={{ xs: 1, md: 2 }} gap={3}>
             {systemsFiltrados.map((item) => (
-              <Grid item xs={12} md={6} key={item.valueNodes}>
-                <SystemCard
-                  system={item}
-                  query={rawQuery}
-                  onClick={() => handleNavigate(item)}
-                />
-              </Grid>
+              <SystemCard
+                key={item.valueNodes}
+                system={item}
+                query={rawQuery}
+                onClick={() => handleNavigate(item)}
+              />
             ))}
-          </Grid>
+          </SimpleGrid>
         )}
       </PageContainer>
     </Box>
