@@ -6,9 +6,11 @@ import { debugLog } from "@src/utils/index";
 import {
   ExplorerScreen,
   CourseDetailScreen,
-  VideoDetailScreen
+  VideoDetailScreen, 
+  HomeScreenWeb
 } from "@src/screens/index";
 import { useTranslation } from "react-i18next";
+import { RequireAuth } from "@src/components/index";
 /**
  * Componente principal de la aplicación.
  * Controla la inicialización de idioma, autenticación, alertas globales
@@ -44,7 +46,14 @@ function App() {
   return (
     <Routes>
       <Route path={routeList.root} element={<ExplorerScreen />} />
-      {/* <Route path={routeList.explorerScreen} element={<ExplorerScreen />} /> */}
+      <Route
+        path={routeList.home}
+        element={(
+          <RequireAuth>
+            <HomeScreenWeb />
+          </RequireAuth>
+        )}
+      />
       <Route
         path={routeList.courseDetailScreen}
         element={<CourseDetailScreen />}

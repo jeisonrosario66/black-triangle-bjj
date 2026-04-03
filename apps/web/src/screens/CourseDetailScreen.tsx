@@ -1,4 +1,4 @@
-import { NodeOptionFirestore } from "@bt/shared/context/index";
+import type { NodeOptionFirestore } from "@bt/shared/context/index";
 import {
   getCachedDataNodesShared,
   getDataNodesShared,
@@ -21,6 +21,7 @@ import * as styles from "@src/styles/screens/styleCourseDetailScreen";
 import * as loadingStyles from "@src/styles/screens/styleLoading";
 import { collection, getDocs } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 import {
   AppBarNewHeader,
@@ -41,7 +42,9 @@ import {
 export default function CourseDetailScreen() {
   const navigate = useNavigate();
   const location = useLocation();
+  const { t } = useTranslation();
   const system = location.state?.system;
+  const entryPoint = location.state?.entryPoint === "home" ? "home" : "explorer";
   const firestoreRuta = system?.valueNodes;
   const cachedModules = firestoreRuta
     ? getCachedDataNodesShared([firestoreRuta], "es")
@@ -120,7 +123,14 @@ export default function CourseDetailScreen() {
       <PageContainer sx={{ pt: { xs: 2, md: 3 } }}>
         <BreadcrumbsBar
           items={[
-            { label: "Explorar", onClick: () => navigate(routeList.root) },
+            {
+              label:
+                entryPoint === "home"
+                  ? t("components.home.breadcrumb")
+                  : t("components.videoDetail.explore"),
+              onClick: () =>
+                navigate(entryPoint === "home" ? routeList.home : routeList.root),
+            },
             { label: capitalizeFirstLetter(system.name) },
           ]}
         />
@@ -170,6 +180,7 @@ export default function CourseDetailScreen() {
                     .replace(":nodeId", item.id.toString()),
                   {
                     state: {
+                      entryPoint,
                       nodeRoute: item,
                       firestoreRuta,
                       systemBreadcrumbLabel: capitalizeFirstLetter(system.name),

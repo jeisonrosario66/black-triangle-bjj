@@ -1,7 +1,10 @@
 import {
   tableNameDB,
+} from "../context/index";
+import type {
   NodeOptionFirestore,
   SystemCardOption,
+  SystemCardUI,
 } from "../context/index";
 
 /**
@@ -16,6 +19,8 @@ type testType = {
   systems: SystemCardOption[];
 };
 
+export type SystemsGroupShared = testType;
+
 const systemsCache = new Map<string, Promise<testType[]>>();
 const systemsSnapshotCache = new Map<string, testType[]>();
 const nodeCollectionsCache = new Map<string, Promise<NodeOptionFirestore[]>>();
@@ -26,6 +31,30 @@ const getSystemsCacheKey = (language: string) => `systems:${language}`;
 
 const getNodesCacheKey = (dbNames: string[], language: string) =>
   `nodes:${language}:${[...dbNames].sort().join("|")}`;
+
+export const buildSystemsUIShared = (data: SystemsGroupShared[]) => {
+  const systemsMap = new Map<string, SystemCardUI>();
+
+  data.forEach((group) => {
+    group.systems.forEach((system) => {
+      const systemKey = system.label || system.valueNodes;
+
+      if (!systemsMap.has(systemKey)) {
+        systemsMap.set(systemKey, {
+          ...system,
+          setSystem: group.name,
+          coverUrl: system.coverUrl,
+          name: system.name,
+        });
+      }
+    });
+  });
+
+  return {
+    systems: Array.from(systemsMap.values()),
+    tagNavigation: Array.from(new Set(data.map((group) => group.name))),
+  };
+};
 
 export const getCachedSystemsShared = (language = "es") =>
   systemsSnapshotCache.get(getSystemsCacheKey(language)) ?? null;

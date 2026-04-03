@@ -102,6 +102,7 @@ export const tableNameDB = {
  */
 export const routeList = {
     root: "/",
+    home: "/home",
     loginUser: "/login_user",
     profile: "/profile",
     explorerScreen: "/explorer",

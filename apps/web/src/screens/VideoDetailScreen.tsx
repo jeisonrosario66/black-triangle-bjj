@@ -15,8 +15,8 @@ import {
 
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 
-import { useNodeTaxonomy, useTabsByIds } from "@src/hooks/index";
-import { useLayoutEffect, useMemo, useState } from "react";
+import { database, useNodeTaxonomy, useSession, useTabsByIds } from "@src/hooks/index";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { cacheUser, routeList } from "@src/context/index";
 import { useUIStore } from "@src/store";
@@ -33,7 +33,17 @@ import {
   TagList,
 } from "@src/components/index";
 import * as styles from "@src/styles/screens/styleVideoDetailScreen";
-import { NodeOptionFirestore } from "@bt/shared/context";
+import type { NodeOptionFirestore } from "@bt/shared/context";
+import { trackVideoOpenedShared } from "@bt/shared/services";
+import {
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  increment,
+  setDoc,
+} from "firebase/firestore";
 
 const textHardcoded = "components.nodeConnectionViewer.";
 
@@ -49,7 +59,9 @@ export default function VideoDetailScreen() {
   const location = useLocation();
   const navigate = useNavigate();
   const { systemName, nodeId } = useParams();
+  const { user } = useSession();
   const [navigationExpanded, setNavigationExpanded] = useState(true);
+  const trackedVideoRef = useRef<string>("");
 
   const nodeData = location.state?.nodeRoute as NodeOptionFirestore | undefined;
   const firestoreRoute = location.state?.firestoreRuta;
@@ -81,10 +93,41 @@ export default function VideoDetailScreen() {
 
   const { t } = useTranslation();
   const textVideoDetail = "components.videoDetail.";
+  const entryPoint = location.state?.entryPoint === "home" ? "home" : "explorer";
 
   useLayoutEffect(() => {
     useUIStore.setState({ connectionViewerActiveStep: null });
   }, [currentNode]);
+
+  useEffect(() => {
+    if (!user?.email || !system || !currentNode) {
+      return;
+    }
+
+    const trackKey = `${user.email}:${system.label}:${currentNode.id}`;
+
+    if (trackedVideoRef.current === trackKey) {
+      return;
+    }
+
+    trackedVideoRef.current = trackKey;
+
+    void trackVideoOpenedShared({
+      email: user.email,
+      firestore: {
+        arrayUnion,
+        collection,
+        database,
+        doc,
+        getDoc,
+        getDocs,
+        increment,
+        setDoc,
+      },
+      module: currentNode,
+      system,
+    });
+  }, [currentNode, system, user?.email]);
 
   const stateSystemLabel = location.state?.systemBreadcrumbLabel as
     | string
@@ -107,6 +150,7 @@ export default function VideoDetailScreen() {
       {
         state: {
           ...location.state,
+          entryPoint,
           nodeRoute: module,
           firestoreRuta: firestoreRoute,
           systemBreadcrumbLabel,
@@ -137,7 +181,14 @@ export default function VideoDetailScreen() {
       <PageContainer sx={{ pt: { xs: 2, md: 3 } }}>
         <BreadcrumbsBar
           items={[
-            { label: t(textVideoDetail + "explore"), onClick: () => navigate(routeList.root) },
+            {
+              label:
+                entryPoint === "home"
+                  ? t("components.home.breadcrumb")
+                  : t(textVideoDetail + "explore"),
+              onClick: () =>
+                navigate(entryPoint === "home" ? routeList.home : routeList.root),
+            },
             { label: systemBreadcrumbLabel },
             { label: currentNode?.name ?? t(textVideoDetail + "content") },
           ]}

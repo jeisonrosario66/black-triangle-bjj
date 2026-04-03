@@ -1,8 +1,11 @@
-import { SystemCardOption, SystemCardUI } from "@bt/shared/context";
+import type { SystemCardUI } from "@bt/shared/context";
 import {
+  buildCourseLocationStateShared,
+  buildSystemsUIShared,
   getCachedSystemsShared,
   getSystemshared,
-} from "@bt/shared/services/firebaseServiceShared";
+  trackCourseSelectionShared,
+} from "@bt/shared/services";
 import { capitalizeFirstLetter } from "@bt/shared/utils/capitalizeFirstLetter";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
@@ -25,10 +28,18 @@ import {
 } from "@mui/material";
 import { useTheme } from "@mui/material/styles";
 import { routeList } from "@src/context/configGlobal";
-import { database } from "@src/hooks/index";
+import { database, useSession } from "@src/hooks/index";
 import * as styles from "@src/styles/screens/styleExplorerScreen";
 import * as loadingStyle from "@src/styles/screens/styleLoading";
-import { collection, getDocs } from "firebase/firestore";
+import {
+  arrayUnion,
+  collection,
+  doc,
+  getDoc,
+  getDocs,
+  increment,
+  setDoc,
+} from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
@@ -97,30 +108,6 @@ interface SystemListItemProps {
 
 const language = "es";
 
-const buildSystemsUI = (data: { name: string; systems: SystemCardOption[] }[]) => {
-  const systemsMap = new Map<string, SystemCardUI>();
-
-  data.forEach((group) => {
-    group.systems.forEach((system) => {
-      const systemKey = system.label || system.valueNodes;
-
-      if (!systemsMap.has(systemKey)) {
-        systemsMap.set(systemKey, {
-          ...system,
-          setSystem: group.name,
-          coverUrl: system.coverUrl,
-          name: system.name,
-        });
-      }
-    });
-  });
-
-  return {
-    systems: Array.from(systemsMap.values()),
-    tagNavigation: Array.from(new Set(data.map((group) => group.name))),
-  };
-};
-
 function SystemListItem({ system, onClick }: SystemListItemProps) {
   return (
     <Box
@@ -159,9 +146,10 @@ export default function ExplorerScreen() {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const { user } = useSession();
   const cachedSystemsData = getCachedSystemsShared(language);
   const initialExplorerData = cachedSystemsData
-    ? buildSystemsUI(cachedSystemsData)
+    ? buildSystemsUIShared(cachedSystemsData)
     : null;
 
   const [systems, setSystems] = useState<SystemCardUI[]>(
@@ -178,7 +166,7 @@ export default function ExplorerScreen() {
     const loadSystems = async () => {
       try {
         const data = await getSystemshared(getDocs, collection, database, language);
-        const explorerData = buildSystemsUI(data);
+        const explorerData = buildSystemsUIShared(data);
         setSystems(explorerData.systems);
         setTagNavigation(explorerData.tagNavigation);
       } catch (error) {
@@ -250,16 +238,31 @@ export default function ExplorerScreen() {
   };
 
   const handleNavigate = (item: SystemCardUI) => {
+    if (user?.email) {
+      void trackCourseSelectionShared({
+        email: user.email,
+        firestore: {
+          arrayUnion,
+          collection,
+          database,
+          doc,
+          getDoc,
+          getDocs,
+          increment,
+          setDoc,
+        },
+        source: "explorer",
+        system: item,
+      });
+    }
+
     navigate(
       routeList.courseDetailScreen.replace(
         ":systemName",
         item.label + "-" + item.coach.replace(/ /g, "_"),
       ),
       {
-        state: {
-          system: item,
-          urlLocal: item.label + "-" + item.coach.replace(/ /g, "_"),
-        },
+        state: buildCourseLocationStateShared(item),
       },
     );
   };

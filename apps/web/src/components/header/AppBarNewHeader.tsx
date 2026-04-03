@@ -36,6 +36,7 @@ export default function AppBarHeader() {
   const { t } = useTranslation();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { user, isAuthenticated, isLoading, login, logout } = useSession();
+  const homeTarget = isAuthenticated ? routeList.home : routeList.root;
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
@@ -52,11 +53,11 @@ export default function AppBarHeader() {
             sx={style.toolbarContainer}
           >
             <Box
-              onClick={() => navigate(routeList.root)}
+              onClick={() => navigate(homeTarget)}
               onKeyDown={(event) => {
                 if (event.key === "Enter" || event.key === " ") {
                   event.preventDefault();
-                  navigate(routeList.root);
+                  navigate(homeTarget);
                 }
               }}
               sx={style.brandButton}
