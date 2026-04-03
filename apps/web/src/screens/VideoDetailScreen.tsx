@@ -37,10 +37,7 @@ import type { NodeOptionFirestore } from "@bt/shared/context";
 import { trackVideoOpenedShared } from "@bt/shared/services";
 import {
   arrayUnion,
-  collection,
   doc,
-  getDoc,
-  getDocs,
   increment,
   setDoc,
 } from "firebase/firestore";
@@ -116,11 +113,8 @@ export default function VideoDetailScreen() {
       email: user.email,
       firestore: {
         arrayUnion,
-        collection,
         database,
         doc,
-        getDoc,
-        getDocs,
         increment,
         setDoc,
       },

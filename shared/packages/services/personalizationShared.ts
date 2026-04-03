@@ -5,23 +5,24 @@ import {
 } from "./firebaseServiceShared";
 
 const USERS_COLLECTION = "users";
-const HOME_INSIGHTS_COLLECTION = "insights";
-const HOME_INSIGHTS_DOC = "home";
 const USER_COURSE_STATS_COLLECTION = "course_stats";
 const COURSE_METRICS_COLLECTION = "course_metrics";
 
 type FirestoreReadApi = {
   collection: any;
   database: any;
-  doc: any;
-  getDoc: any;
   getDocs: any;
 };
 
-type FirestoreWriteApi = FirestoreReadApi & {
-  arrayUnion: any;
+type FirestoreTrackCourseApi = {
+  database: any;
+  doc: any;
   increment: any;
   setDoc: any;
+};
+
+type FirestoreTrackVideoApi = FirestoreTrackCourseApi & {
+  arrayUnion: any;
 };
 
 type CourseSnapshot = Pick<
@@ -54,19 +55,6 @@ type CourseMetricDoc = CourseSnapshot & {
   lastActivityAt?: string;
   updatedAt?: string;
   videoViews?: number;
-};
-
-type DashboardHomeDoc = {
-  lastExplorerCourse?: CourseSnapshot & {
-    lastExplorerAt?: string;
-  };
-  lastOpenedVideo?: {
-    courseLabel: string;
-    name: string;
-    nodeId: number;
-    openedAt: string;
-  };
-  updatedAt?: string;
 };
 
 export type HomeRecommendedSystemReason = "coach" | "popular" | "recent" | "set";
@@ -227,7 +215,7 @@ export const trackCourseSelectionShared = async ({
   system,
 }: {
   email: string;
-  firestore: FirestoreWriteApi;
+  firestore: FirestoreTrackCourseApi;
   source: "explorer" | "home";
   system: SystemCardUI;
 }) => {
@@ -238,13 +226,6 @@ export const trackCourseSelectionShared = async ({
   const { database, doc, increment, setDoc } = firestore;
   const timestamp = toDateString();
   const snapshot = toCourseSnapshot(system);
-  const dashboardRef = doc(
-    database,
-    USERS_COLLECTION,
-    email,
-    HOME_INSIGHTS_COLLECTION,
-    HOME_INSIGHTS_DOC,
-  );
   const userStatRef = doc(
     database,
     USERS_COLLECTION,
@@ -252,45 +233,18 @@ export const trackCourseSelectionShared = async ({
     USER_COURSE_STATS_COLLECTION,
     system.label,
   );
-  const metricRef = doc(database, COURSE_METRICS_COLLECTION, system.label);
-
   try {
-    await Promise.all([
-      setDoc(
-        userStatRef,
-        {
-          ...snapshot,
-          courseViews: increment(1),
-          lastCourseAt: timestamp,
-          ...(source === "explorer" ? { lastExplorerAt: timestamp } : {}),
-          updatedAt: timestamp,
-        },
-        { merge: true },
-      ),
-      setDoc(
-        metricRef,
-        {
-          ...snapshot,
-          courseViews: increment(1),
-          lastActivityAt: timestamp,
-          updatedAt: timestamp,
-        },
-        { merge: true },
-      ),
-      source === "explorer"
-        ? setDoc(
-            dashboardRef,
-            {
-              lastExplorerCourse: {
-                ...snapshot,
-                lastExplorerAt: timestamp,
-              },
-              updatedAt: timestamp,
-            },
-            { merge: true },
-          )
-        : Promise.resolve(),
-    ]);
+    await setDoc(
+      userStatRef,
+      {
+        ...snapshot,
+        courseViews: increment(1),
+        lastCourseAt: timestamp,
+        ...(source === "explorer" ? { lastExplorerAt: timestamp } : {}),
+        updatedAt: timestamp,
+      },
+      { merge: true },
+    );
 
     invalidateHomePersonalizationShared(email);
   } catch (error) {
@@ -305,7 +259,7 @@ export const trackVideoOpenedShared = async ({
   system,
 }: {
   email: string;
-  firestore: FirestoreWriteApi;
+  firestore: FirestoreTrackVideoApi;
   module: NodeOptionFirestore;
   system: SystemCardUI;
 }) => {
@@ -316,13 +270,6 @@ export const trackVideoOpenedShared = async ({
   const { arrayUnion, database, doc, increment, setDoc } = firestore;
   const timestamp = toDateString();
   const snapshot = toCourseSnapshot(system);
-  const dashboardRef = doc(
-    database,
-    USERS_COLLECTION,
-    email,
-    HOME_INSIGHTS_COLLECTION,
-    HOME_INSIGHTS_DOC,
-  );
   const userStatRef = doc(
     database,
     USERS_COLLECTION,
@@ -353,20 +300,8 @@ export const trackVideoOpenedShared = async ({
           ...snapshot,
           lastActivityAt: timestamp,
           updatedAt: timestamp,
+          courseViews: increment(1),
           videoViews: increment(1),
-        },
-        { merge: true },
-      ),
-      setDoc(
-        dashboardRef,
-        {
-          lastOpenedVideo: {
-            courseLabel: system.label,
-            name: module.name,
-            nodeId: module.id,
-            openedAt: timestamp,
-          },
-          updatedAt: timestamp,
         },
         { merge: true },
       ),
@@ -395,21 +330,12 @@ export const getPersonalizedHomeShared = async ({
   }
 
   const request = (async () => {
-    const { collection, database, doc, getDoc, getDocs } = firestore;
+    const { collection, database, getDocs } = firestore;
 
     try {
-      const [systemsData, dashboardSnapshot, courseStatsSnapshot, metricsSnapshot] =
+      const [systemsData, courseStatsSnapshot, metricsSnapshot] =
         await Promise.all([
           getSystemshared(getDocs, collection, database, language),
-          getDoc(
-            doc(
-              database,
-              USERS_COLLECTION,
-              email,
-              HOME_INSIGHTS_COLLECTION,
-              HOME_INSIGHTS_DOC,
-            ),
-          ),
           getDocs(
             collection(
               database,
@@ -423,8 +349,6 @@ export const getPersonalizedHomeShared = async ({
 
       const { systems } = buildSystemsUIShared(systemsData);
       const systemsByLabel = new Map(systems.map((system) => [system.label, system]));
-      const dashboard = (dashboardSnapshot.data?.() ??
-        {}) as DashboardHomeDoc;
       const statsMap = new Map<string, UserCourseStatDoc>(
         courseStatsSnapshot.docs.map((courseDoc: any) => [
           courseDoc.id,
@@ -456,10 +380,20 @@ export const getPersonalizedHomeShared = async ({
         }
       });
 
-      const lastCourseLabel = dashboard.lastExplorerCourse?.label;
+      const lastExplorerStatEntry = [...statsMap.entries()]
+        .sort(
+          (a, b) =>
+            new Date(b[1].lastExplorerAt ?? 0).getTime() -
+            new Date(a[1].lastExplorerAt ?? 0).getTime(),
+        )
+        .find(([, stat]) => Boolean(stat.lastExplorerAt));
+      const lastCourseLabel = lastExplorerStatEntry?.[0];
       const lastCourseBase = lastCourseLabel
         ? systemsByLabel.get(lastCourseLabel) ??
-          (dashboard.lastExplorerCourse as SystemCardUI | undefined)
+          ({
+            ...lastExplorerStatEntry?.[1],
+            setSystem: lastExplorerStatEntry?.[1].setSystem ?? "",
+          } as SystemCardUI | undefined)
         : null;
       const lastCourseStat = lastCourseLabel
         ? statsMap.get(lastCourseLabel)

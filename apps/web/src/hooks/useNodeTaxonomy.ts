@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 import {
   collection,
+  documentId,
   query,
   where,
   getDocs,
-  getDoc,
-  doc,
+  limit,
 } from "firebase/firestore";
 
 import { tableNameDB, NodeTaxonomy } from "@bt/shared/context/index";
@@ -29,45 +29,65 @@ export const useNodeTaxonomy = (nodeIndex: number, firestoreRuta: string[] = [])
       return;
     }
 
+    const taxonomyCacheKey = `${nodeIndex}:${[...firestoreRuta].sort().join("|")}`;
+
+    if (taxonomyCache.has(taxonomyCacheKey)) {
+      setTaxonomy(taxonomyCache.get(taxonomyCacheKey) ?? null);
+      return;
+    }
+
     const fetch = async () => {
       const systemsNodes: string[] = firestoreRuta;
       const systemsTabs = systemsNodes.map((path) =>
         path.replace("/nodes", "/tabs"),
       );
 
-      const queries = [
-        // colección principal
-        query(
-          collection(database, tableNameDB.nodeTaxonomy),
-          where("node_index", "==", nodeIndex),
-        ),
+      let firstMatch: NodeTaxonomy | null = null;
 
-        // colecciones dinámicas
-        ...systemsTabs.map((path) =>
+      for (const path of systemsTabs) {
+        const dynamicSnapshot = await getDocs(
           query(
             collection(database, path),
             where("node_index", "==", nodeIndex),
+            limit(1),
           ),
-        ),
-      ];
+        );
 
-      const snapshots = await Promise.all(queries.map((q) => getDocs(q)));
+        const dynamicDoc = dynamicSnapshot.docs[0];
 
-      const firstMatch = snapshots.flatMap((snap) =>
-        snap.docs.map((docSnap) => {
-          const data = docSnap.data() as NodeTaxonomy;
-
-          return {
-            id: docSnap.id,
-            ...data,
+        if (dynamicDoc) {
+          firstMatch = {
+            id: dynamicDoc.id,
+            ...(dynamicDoc.data() as NodeTaxonomy),
           };
-        }),
-      )[0];
+          break;
+        }
+      }
+
+      if (!firstMatch) {
+        const mainSnapshot = await getDocs(
+          query(
+            collection(database, tableNameDB.nodeTaxonomy),
+            where("node_index", "==", nodeIndex),
+            limit(1),
+          ),
+        );
+        const mainDoc = mainSnapshot.docs[0];
+
+        if (mainDoc) {
+          firstMatch = {
+            id: mainDoc.id,
+            ...(mainDoc.data() as NodeTaxonomy),
+          };
+        }
+      }
+
+      taxonomyCache.set(taxonomyCacheKey, firstMatch);
       setTaxonomy(firstMatch ?? null);
     };
 
-    fetch();
-  }, [nodeIndex]);
+    void fetch();
+  }, [firestoreRuta, nodeIndex]);
 
   return taxonomy;
 };
@@ -78,6 +98,18 @@ export interface Tab {
   title_es?: string;
   title_en?: string;
 }
+
+const taxonomyCache = new Map<string, NodeTaxonomy | null>();
+const tabsCache = new Map<string, Tab>();
+const chunkIds = (ids: string[], size: number) => {
+  const chunks: string[][] = [];
+
+  for (let index = 0; index < ids.length; index += size) {
+    chunks.push(ids.slice(index, index + size));
+  }
+
+  return chunks;
+};
 
 /**
  * Hook para resolver pestañas a partir de sus identificadores.
@@ -96,23 +128,46 @@ export const useTabsByIds = (tabIds?: string[]) => {
     }
 
     const fetch = async () => {
-      const snaps = await Promise.all(
-        tabIds.map((id) => getDoc(doc(database, tableNameDB.tabs, id))),
+      const uniqueTabIds = Array.from(new Set(tabIds));
+      const missingIds = uniqueTabIds.filter((id) => !tabsCache.has(id));
+
+      if (missingIds.length === 0) {
+        setTabs(uniqueTabIds.map((id) => tabsCache.get(id)!).filter(Boolean));
+        return;
+      }
+
+      const snapshots = await Promise.all(
+        chunkIds(missingIds, 10).map((idsChunk) =>
+          getDocs(
+            query(
+              collection(database, tableNameDB.tabs),
+              where(documentId(), "in", idsChunk),
+            ),
+          ),
+        ),
       );
 
-      const resolved = snaps
-        .filter((s) => s.exists())
-        .map((s) => ({
-          id: s.id,
-          ...(s.data() as { label: string }),
-          title_es: (s.data() as { title_es?: string }).title_es,
-          title_en: (s.data() as { title_en?: string }).title_en,
+      const fetchedTabs = snapshots
+        .flatMap((snapshot) => snapshot.docs)
+        .map((snapshot) => ({
+          id: snapshot.id,
+          ...(snapshot.data() as { label: string }),
+          title_es: (snapshot.data() as { title_es?: string }).title_es,
+          title_en: (snapshot.data() as { title_en?: string }).title_en,
         }));
+
+      fetchedTabs.forEach((tab) => {
+        tabsCache.set(tab.id, tab);
+      });
+
+      const resolved = uniqueTabIds
+        .map((id) => tabsCache.get(id))
+        .filter(Boolean) as Tab[];
 
       setTabs(resolved);
     };
 
-    fetch();
+    void fetch();
   }, [tabIds]);
   return tabs;
 };

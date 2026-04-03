@@ -28,10 +28,8 @@ import type {
 } from "@bt/shared/services";
 import { capitalizeFirstLetter } from "@bt/shared/utils/index";
 import {
-  arrayUnion,
   collection,
   doc,
-  getDoc,
   getDocs,
   increment,
   setDoc,
@@ -101,8 +99,6 @@ export default function HomeScreenWeb() {
           firestore: {
             collection,
             database,
-            doc,
-            getDoc,
             getDocs,
           },
           language,
@@ -136,12 +132,8 @@ export default function HomeScreenWeb() {
       void trackCourseSelectionShared({
         email: user.email,
         firestore: {
-          arrayUnion,
-          collection,
           database,
           doc,
-          getDoc,
-          getDocs,
           increment,
           setDoc,
         },

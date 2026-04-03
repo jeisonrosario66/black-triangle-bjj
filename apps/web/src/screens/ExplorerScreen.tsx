@@ -32,10 +32,8 @@ import { database, useSession } from "@src/hooks/index";
 import * as styles from "@src/styles/screens/styleExplorerScreen";
 import * as loadingStyle from "@src/styles/screens/styleLoading";
 import {
-  arrayUnion,
   collection,
   doc,
-  getDoc,
   getDocs,
   increment,
   setDoc,
@@ -242,12 +240,8 @@ export default function ExplorerScreen() {
       void trackCourseSelectionShared({
         email: user.email,
         firestore: {
-          arrayUnion,
-          collection,
           database,
           doc,
-          getDoc,
-          getDocs,
           increment,
           setDoc,
         },

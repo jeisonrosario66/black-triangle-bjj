@@ -25,12 +25,54 @@ const systemsCache = new Map<string, Promise<testType[]>>();
 const systemsSnapshotCache = new Map<string, testType[]>();
 const nodeCollectionsCache = new Map<string, Promise<NodeOptionFirestore[]>>();
 const nodeCollectionsSnapshotCache = new Map<string, NodeOptionFirestore[]>();
-const nodeCountCache = new Map<string, Promise<number>>();
+const nodeCountSnapshotCache = new Map<string, number>();
+const VIDEO_COUNT_STORAGE_KEY = "bt_course_video_counts";
 
 const getSystemsCacheKey = (language: string) => `systems:${language}`;
 
 const getNodesCacheKey = (dbNames: string[], language: string) =>
   `nodes:${language}:${[...dbNames].sort().join("|")}`;
+
+const readStoredVideoCounts = () => {
+  if (typeof localStorage === "undefined") {
+    return {} as Record<string, number>;
+  }
+
+  try {
+    const raw = localStorage.getItem(VIDEO_COUNT_STORAGE_KEY);
+
+    if (!raw) {
+      return {} as Record<string, number>;
+    }
+
+    return JSON.parse(raw) as Record<string, number>;
+  } catch (error) {
+    console.error("No se pudo leer el cache local de conteos de videos:", error);
+    return {} as Record<string, number>;
+  }
+};
+
+const persistStoredVideoCount = (dbName: string, size: number) => {
+  nodeCountSnapshotCache.set(dbName, size);
+
+  if (typeof localStorage === "undefined") {
+    return;
+  }
+
+  try {
+    const nextCounts = {
+      ...readStoredVideoCounts(),
+      [dbName]: size,
+    };
+
+    localStorage.setItem(VIDEO_COUNT_STORAGE_KEY, JSON.stringify(nextCounts));
+  } catch (error) {
+    console.error("No se pudo persistir el cache local de conteos de videos:", error);
+  }
+};
+
+const getCachedVideoCount = (dbName: string) =>
+  nodeCountSnapshotCache.get(dbName) ?? readStoredVideoCounts()[dbName];
 
 export const buildSystemsUIShared = (data: SystemsGroupShared[]) => {
   const systemsMap = new Map<string, SystemCardUI>();
@@ -64,30 +106,6 @@ export const getCachedDataNodesShared = (
   language = "es",
 ) => nodeCollectionsSnapshotCache.get(getNodesCacheKey(dbNames, language)) ?? null;
 
-const getNodeCount = async (
-  getDocs: any,
-  database: any,
-  collectionRef: any,
-  dbName: string,
-) => {
-  const cachedRequest = nodeCountCache.get(dbName);
-
-  if (cachedRequest) {
-    return cachedRequest;
-  }
-
-  const request = getDocs(collectionRef(database, dbName))
-    .then((snapshot: { size: number }) => snapshot.size)
-    .catch((error: unknown) => {
-      nodeCountCache.delete(dbName);
-      throw error;
-    });
-
-  nodeCountCache.set(dbName, request);
-
-  return request;
-};
-
 export const getSystemshared = async (
   getDocs: any,
   collection: any,
@@ -118,6 +136,12 @@ export const getSystemshared = async (
         const description = language === "es" ? docData.descrip_es : docData.descrip_en;
         const valueNodes = `${tableNameDB.systemsCollections}/${docData.label}/nodes`;
         const valueLinks = `${tableNameDB.systemsCollections}/${docData.label}/links`;
+        const cachedVideoCount = getCachedVideoCount(valueNodes);
+        const videoCount =
+          docData.videoCount ??
+          docData.videosCount ??
+          docData.totalVideos ??
+          cachedVideoCount;
 
         return {
           label,
@@ -127,7 +151,7 @@ export const getSystemshared = async (
           coach,
           coverUrl,
           description,
-          videoCount: await getNodeCount(getDocs, database, collection, valueNodes),
+          videoCount,
         };
       }),
     );
@@ -219,8 +243,10 @@ export const getDataNodesShared = async (
     const snapshots = await Promise.all(promises);
 
     const results: NodeOptionFirestore[] = snapshots
-      .map((querySnapshot) =>
-        querySnapshot.docs.map((doc: { data: () => any; }) => {
+      .map((querySnapshot, index) => {
+        persistStoredVideoCount(dbNames[index], querySnapshot.size);
+
+        return querySnapshot.docs.map((doc: { data: () => any; }) => {
           const docData = doc.data();
           return {
             id: docData.index,
@@ -231,8 +257,8 @@ export const getDataNodesShared = async (
             description:
               language === "es" ? docData.descrip_es : docData.descrip_en,
           };
-        }),
-      )
+        });
+      })
       .flat();
     // useUIStore.setState({ documentsFirestore: results });
     // debugLog(
