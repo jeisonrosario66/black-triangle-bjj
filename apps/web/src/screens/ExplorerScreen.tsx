@@ -175,17 +175,25 @@ export default function ExplorerScreen() {
     const loadSystems = async () => {
       try {
         const data = await getSystemshared(getDocs, collection, database);
-        const systemsWithExtras = data.flatMap(
-          (group: { name: string; systems: SystemCardOption[] }) =>
-            group.systems.map((system) => ({
-              ...system,
-              setSystem: group.name,
-              coverUrl: `https://picsum.photos/1500/800?random=${Math.random()}`,
-              name: system.name,
-            })),
-        );
-        setSystems(systemsWithExtras);
-        setTagNavigation(data.map((s) => s.name));
+        const systemsMap = new Map<string, SystemCardUI>();
+
+        data.forEach((group: { name: string; systems: SystemCardOption[] }) => {
+          group.systems.forEach((system) => {
+            const systemKey = system.label || system.valueNodes;
+
+            if (!systemsMap.has(systemKey)) {
+              systemsMap.set(systemKey, {
+                ...system,
+                setSystem: group.name,
+                coverUrl: `https://picsum.photos/1500/800?random=${Math.random()}`,
+                name: system.name,
+              });
+            }
+          });
+        });
+
+        setSystems(Array.from(systemsMap.values()));
+        setTagNavigation(Array.from(new Set(data.map((group) => group.name))));
       } catch (error) {
         console.error("Error cargando sistemas:", error);
       } finally {
@@ -386,7 +394,7 @@ export default function ExplorerScreen() {
             height="60vh"
             renderItem={(item) => (
               <SystemListItem
-                key={item.valueNodes}
+                key={item.label}
                 system={item}
                 query={rawQuery}
                 onClick={() => handleNavigate(item)}
@@ -397,7 +405,7 @@ export default function ExplorerScreen() {
           <SimpleGrid columns={{ xs: 1, md: 2 }} gap={3}>
             {systemsFiltrados.map((item) => (
               <SystemCard
-                key={item.valueNodes}
+                key={item.label}
                 system={item}
                 query={rawQuery}
                 onClick={() => handleNavigate(item)}

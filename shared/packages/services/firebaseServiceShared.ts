@@ -46,6 +46,9 @@ export const getSystemshared = async (
         description
       };
     });
+    const systemsById = new Map(
+      systems.map((system) => [system.label, system]),
+    );
 
     // 2. Obtener los sets de sistemas
     const setsSnapshot = await getDocs(
@@ -53,13 +56,12 @@ export const getSystemshared = async (
     );
     const systemSets: testType[] = setsSnapshot.docs.map((doc: any) => {
       const docData = doc.data();
-      const mappedSystems = docData.systems.map((sId: string) => {
-        const systemObj = systems.find((s) => s.valueNodes.includes(sId));
-        if (!systemObj) {
-          return { label: sId, valueNodes: "", valueLinks: "" };
-        }
-        return systemObj;
-      });
+      const uniqueSystemIds = Array.from(
+        new Set<string>(docData.systems as string[]),
+      );
+      const mappedSystems = uniqueSystemIds
+        .map((systemId: string) => systemsById.get(systemId))
+        .filter(Boolean) as SystemCardOption[];
 
       return {
         label: docData.label,
@@ -71,12 +73,12 @@ export const getSystemshared = async (
     // 3. Identificar sistemas que no están en ningún set
     const usedSystemIds = new Set(
       systemSets.flatMap(
-        (set) => set.systems.map((s) => s.valueNodes.split("/")[1]), // extraemos el id
+        (set) => set.systems.map((system) => system.label),
       ),
     );
 
     const unclassifiedSystems = systems.filter(
-      (s) => !usedSystemIds.has(s.valueNodes.split("/")[1]),
+      (system) => !usedSystemIds.has(system.label),
     );
 
     if (unclassifiedSystems.length > 0) {
