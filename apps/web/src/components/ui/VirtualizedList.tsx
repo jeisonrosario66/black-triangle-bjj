@@ -6,6 +6,7 @@ interface VirtualizedListProps<T> {
   itemHeight: number;
   height: number | string;
   overscan?: number;
+  contentPadding?: number;
   renderItem: (item: T, index: number) => ReactNode;
 }
 
@@ -18,6 +19,7 @@ export default function VirtualizedList<T>({
   itemHeight,
   height,
   overscan = 4,
+  contentPadding = 0,
   renderItem,
 }: VirtualizedListProps<T>) {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -73,8 +75,15 @@ export default function VirtualizedList<T>({
         backgroundColor: "background.paper",
       }}
     >
-      <Box sx={{ height: totalHeight, position: "relative" }}>
-        <Box sx={{ position: "absolute", top: offsetTop, left: 0, right: 0 }}>
+      <Box sx={{ height: totalHeight + contentPadding * 2, position: "relative" }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: offsetTop + contentPadding,
+            left: 0,
+            right: 0,
+          }}
+        >
           {visibleItems.map((item, index) =>
             renderItem(item, startIndex + index),
           )}

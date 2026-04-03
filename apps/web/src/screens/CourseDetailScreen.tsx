@@ -1,5 +1,8 @@
 import { NodeOptionFirestore } from "@bt/shared/context/index";
-import { getDataNodesShared } from "@bt/shared/services/index";
+import {
+  getCachedDataNodesShared,
+  getDataNodesShared,
+} from "@bt/shared/services/index";
 import { capitalizeFirstLetter } from "@bt/shared/utils/index";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import SchemaOutlinedIcon from "@mui/icons-material/SchemaOutlined";
@@ -9,9 +12,7 @@ import {
   AccordionSummary,
   Box,
   Card,
-  CardMedia,
   CircularProgress,
-  Skeleton,
   Typography,
 } from "@mui/material";
 import { routeList } from "@src/context/index";
@@ -26,8 +27,7 @@ import {
   BreadcrumbsBar,
   ModuleList,
   PageContainer,
-  SectionHeader,
-  TagList,
+  SystemCover,
 } from "@src/components/index";
 
 /**
@@ -42,12 +42,18 @@ export default function CourseDetailScreen() {
   const navigate = useNavigate();
   const location = useLocation();
   const system = location.state?.system;
-
-  const [modules, setModules] = useState<NodeOptionFirestore[]>([]);
-  const [loadingModules, setLoadingModules] = useState(true);
-  const [expanded, setExpanded] = useState(false);
   const firestoreRuta = system?.valueNodes;
-  const [imageLoaded, setImageLoaded] = useState(false);
+  const cachedModules = firestoreRuta
+    ? getCachedDataNodesShared([firestoreRuta], "es")
+    : null;
+
+  const [modules, setModules] = useState<NodeOptionFirestore[]>(
+    () => cachedModules ?? [],
+  );
+  const [loadingModules, setLoadingModules] = useState(
+    Boolean(firestoreRuta && !cachedModules),
+  );
+  const [expanded, setExpanded] = useState(false);
 
   useEffect(() => {
     let mounted = true;
@@ -71,6 +77,14 @@ export default function CourseDetailScreen() {
     };
 
     if (firestoreRuta) {
+      if (cachedModules) {
+        setModules(cachedModules);
+        setLoadingModules(false);
+        return () => {
+          mounted = false;
+        };
+      }
+
       loadNodes();
     } else {
       setLoadingModules(false);
@@ -79,7 +93,7 @@ export default function CourseDetailScreen() {
     return () => {
       mounted = false;
     };
-  }, [firestoreRuta]);
+  }, [cachedModules, firestoreRuta]);
 
   const orderedModules = useMemo(() => {
     return [...modules].sort((a, b) => Number(a.id) - Number(b.id));
@@ -112,54 +126,25 @@ export default function CourseDetailScreen() {
         />
 
         <Card sx={styles.heroCard}>
-          {!imageLoaded && (
-            <Skeleton
-              variant="rectangular"
-              width="100%"
-              sx={{ height: { xs: 220, md: 340 } }}
-            />
-          )}
-          <CardMedia
-            component="img"
-            image={system.coverUrl}
-            onLoad={() => setImageLoaded(true)}
-            sx={{
-              ...styles.heroMedia,
-              display: imageLoaded ? "block" : "none",
-              transition: "opacity 0.4s ease",
-            }}
-          />
-        </Card>
-
-        <Box sx={{ mt: 3 }}>
-          <SectionHeader
-            title={capitalizeFirstLetter(system.name)}
-            withDivider={false}
-          />
-
-          <Box sx={styles.headerMetaRow}>
-            <TagList
-              items={[
-                {
-                  id: "system",
-                  label: `Sistema · ${capitalizeFirstLetter(system.setSystem)}`,
-                },
-                {
-                  id: "coach",
-                  label: `Coach · ${capitalizeFirstLetter(system.coach)}`,
-                },
-                {
-                  id: "count",
-                  label: `${modules.length} videos`,
-                },
-              ]}
+          <Box sx={styles.heroMedia}>
+            <SystemCover
+              title={capitalizeFirstLetter(system.name)}
+              subtitle={capitalizeFirstLetter(system.setSystem)}
+              coach={capitalizeFirstLetter(system.coach)}
+              coverUrl={system.coverUrl}
+              videoCount={modules.length || system.videoCount}
+              variant="hero"
             />
           </Box>
+        </Card>
 
+        {system.description ? (
+          <Box sx={{ mt: 3 }}>
           <Typography variant="body1" sx={styles.description}>
             {capitalizeFirstLetter(system.description)}
           </Typography>
-        </Box>
+          </Box>
+        ) : null}
 
         <Accordion expanded={expanded} onChange={() => setExpanded(!expanded)}>
           <AccordionSummary expandIcon={<ExpandMoreIcon />}>

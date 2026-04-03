@@ -1,2 +1,7 @@
-// shred/packages/services
-export { getDataNodesShared, getSystemshared } from "./firebaseServiceShared";
+// shared/packages/services
+export {
+  getCachedDataNodesShared,
+  getCachedSystemsShared,
+  getDataNodesShared,
+  getSystemshared,
+} from "./firebaseServiceShared";

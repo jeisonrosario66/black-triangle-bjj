@@ -1,3 +1,4 @@
+import { groupColor as sharedGroupColor } from "@bt/shared/context";
 import { DagMode } from "@src/context/index";
 import { parseCacheArray } from "@src/utils/index";
 
@@ -16,15 +17,10 @@ export const configGlobal = {
 
 /**
  * Paleta de colores asociada a los tipos de nodos del sistema BJJ.
- * Cada tipo tiene un color específico para facilitar su identificación visual.
+ * Se consume desde shared para mantener la misma fuente de verdad
+ * entre nodos, covers y otros acentos visuales de la plataforma.
  */
-export const groupColor: Record<string,
-    string> = {
-    system: "rgb(159, 159, 159)",
-    submission: "rgb(200, 0, 0)",
-    pass: "rgb(0 , 128, 128)",
-    switch: "rgb(255, 215, 0)", transition: "rgb(128, 0, 128)", control: "rgb(0, 102, 204)", takedown: "rgb(255, 140, 0)", defence: "rgb(34, 139, 34)", guard: "rgb(139, 69, 19)", defense_escape: "rgba(255, 185, 135, 1)"
-};
+export const groupColor: Record<string, string> = sharedGroupColor;
 
 /**
  * Propiedades de la cámara utilizadas en modo de desarrollo.

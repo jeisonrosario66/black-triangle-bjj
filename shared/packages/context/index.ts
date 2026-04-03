@@ -10,6 +10,12 @@ export {
   tableNameDB,
   coverUrlDefault
 } from "./configShared";
+export {
+  getCoverPalette,
+  groupColor,
+  visualThemes,
+} from "./visualShared";
+export type { VisualThemeKey } from "./visualShared";
 
 export type {
   GroupOptionFirestore,

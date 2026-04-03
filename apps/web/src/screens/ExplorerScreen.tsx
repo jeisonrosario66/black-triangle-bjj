@@ -1,8 +1,9 @@
 import { SystemCardOption, SystemCardUI } from "@bt/shared/context";
-import { getSystemshared } from "@bt/shared/services/firebaseServiceShared";
+import {
+  getCachedSystemsShared,
+  getSystemshared,
+} from "@bt/shared/services/firebaseServiceShared";
 import { capitalizeFirstLetter } from "@bt/shared/utils/capitalizeFirstLetter";
-import LabelOutlinedIcon from "@mui/icons-material/LabelOutlined";
-import PersonPinOutlinedIcon from "@mui/icons-material/PersonPinOutlined";
 import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
 import {
@@ -11,8 +12,6 @@ import {
   Button,
   Card,
   CardActionArea,
-  CardContent,
-  CardMedia,
   CircularProgress,
   FormControl,
   IconButton,
@@ -35,10 +34,10 @@ import { useNavigate } from "react-router-dom";
 import {
   AppBarNewHeader,
   BreadcrumbsBar,
-  HighlightText,
   PageContainer,
   SectionHeader,
   SimpleGrid,
+  SystemCover,
   VirtualizedList,
 } from "@src/components/index";
 
@@ -70,43 +69,22 @@ const scoreSystem = (system: SystemCardUI, query: string) => {
 interface SystemCardProps {
   system: SystemCardUI;
   onClick: () => void;
-  query: string;
 }
 
-function SystemCard({ system, onClick, query }: SystemCardProps) {
+function SystemCard({ system, onClick }: SystemCardProps) {
   return (
-    <Card>
+    <Card sx={styles.systemCard}>
       <CardActionArea onClick={onClick}>
-        <CardMedia
-          component="img"
-          image={system.coverUrl}
-          sx={styles.cardMedia}
-        />
-        <CardContent sx={styles.cardContent}>
-          <Typography variant="h6">
-            <HighlightText text={system.name} query={query} />
-          </Typography>
-          <Box sx={styles.metaRow}>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-              <LabelOutlinedIcon fontSize="small" color="action" />
-              <Typography variant="body2" color="text.secondary">
-                <HighlightText
-                  text={capitalizeFirstLetter(system.setSystem)}
-                  query={query}
-                />
-              </Typography>
-            </Box>
-            <Box sx={{ display: "flex", alignItems: "center", gap: 0.5 }}>
-              <PersonPinOutlinedIcon fontSize="small" color="action" />
-              <Typography variant="body2" color="text.secondary">
-                <HighlightText
-                  text={capitalizeFirstLetter(system.coach)}
-                  query={query}
-                />
-              </Typography>
-            </Box>
-          </Box>
-        </CardContent>
+        <Box sx={styles.cardMedia}>
+          <SystemCover
+            title={capitalizeFirstLetter(system.name)}
+            subtitle={capitalizeFirstLetter(system.setSystem)}
+            coach={capitalizeFirstLetter(system.coach)}
+            coverUrl={system.coverUrl}
+            videoCount={system.videoCount}
+            variant="card"
+          />
+        </Box>
       </CardActionArea>
     </Card>
   );
@@ -115,10 +93,35 @@ function SystemCard({ system, onClick, query }: SystemCardProps) {
 interface SystemListItemProps {
   system: SystemCardUI;
   onClick: () => void;
-  query: string;
 }
 
-function SystemListItem({ system, onClick, query }: SystemListItemProps) {
+const language = "es";
+
+const buildSystemsUI = (data: { name: string; systems: SystemCardOption[] }[]) => {
+  const systemsMap = new Map<string, SystemCardUI>();
+
+  data.forEach((group) => {
+    group.systems.forEach((system) => {
+      const systemKey = system.label || system.valueNodes;
+
+      if (!systemsMap.has(systemKey)) {
+        systemsMap.set(systemKey, {
+          ...system,
+          setSystem: group.name,
+          coverUrl: system.coverUrl,
+          name: system.name,
+        });
+      }
+    });
+  });
+
+  return {
+    systems: Array.from(systemsMap.values()),
+    tagNavigation: Array.from(new Set(data.map((group) => group.name))),
+  };
+};
+
+function SystemListItem({ system, onClick }: SystemListItemProps) {
   return (
     <Box
       sx={styles.mobileListItem}
@@ -128,25 +131,17 @@ function SystemListItem({ system, onClick, query }: SystemListItemProps) {
       }}
       role="button"
       tabIndex={0}
+      aria-label={capitalizeFirstLetter(system.name)}
     >
-      <Box
-        component="img"
-        src={system.coverUrl}
-        alt={system.name}
-        sx={styles.mobileListMedia}
-      />
-      <Box sx={styles.mobileListContent}>
-        <Typography variant="subtitle1" sx={{ fontWeight: 600 }}>
-          <HighlightText text={system.name} query={query} />
-        </Typography>
-        <Typography variant="body2" color="text.secondary">
-          <HighlightText
-            text={`${capitalizeFirstLetter(system.setSystem)} · ${capitalizeFirstLetter(
-              system.coach,
-            )}`}
-            query={query}
-          />
-        </Typography>
+      <Box sx={styles.mobileListMedia}>
+        <SystemCover
+          title={capitalizeFirstLetter(system.name)}
+          subtitle={capitalizeFirstLetter(system.setSystem)}
+          coach={capitalizeFirstLetter(system.coach)}
+          coverUrl={system.coverUrl}
+          videoCount={system.videoCount}
+          variant="list"
+        />
       </Box>
     </Box>
   );
@@ -164,36 +159,28 @@ export default function ExplorerScreen() {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const cachedSystemsData = getCachedSystemsShared(language);
+  const initialExplorerData = cachedSystemsData
+    ? buildSystemsUI(cachedSystemsData)
+    : null;
 
-  const [systems, setSystems] = useState<SystemCardUI[]>([]);
-  const [tagNavigation, setTagNavigation] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [systems, setSystems] = useState<SystemCardUI[]>(
+    () => initialExplorerData?.systems ?? [],
+  );
+  const [tagNavigation, setTagNavigation] = useState<string[]>(
+    () => initialExplorerData?.tagNavigation ?? [],
+  );
+  const [loading, setLoading] = useState(!initialExplorerData);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
 
   useEffect(() => {
     const loadSystems = async () => {
       try {
-        const data = await getSystemshared(getDocs, collection, database);
-        const systemsMap = new Map<string, SystemCardUI>();
-
-        data.forEach((group: { name: string; systems: SystemCardOption[] }) => {
-          group.systems.forEach((system) => {
-            const systemKey = system.label || system.valueNodes;
-
-            if (!systemsMap.has(systemKey)) {
-              systemsMap.set(systemKey, {
-                ...system,
-                setSystem: group.name,
-                coverUrl: `https://picsum.photos/1500/800?random=${Math.random()}`,
-                name: system.name,
-              });
-            }
-          });
-        });
-
-        setSystems(Array.from(systemsMap.values()));
-        setTagNavigation(Array.from(new Set(data.map((group) => group.name))));
+        const data = await getSystemshared(getDocs, collection, database, language);
+        const explorerData = buildSystemsUI(data);
+        setSystems(explorerData.systems);
+        setTagNavigation(explorerData.tagNavigation);
       } catch (error) {
         console.error("Error cargando sistemas:", error);
       } finally {
@@ -392,11 +379,11 @@ export default function ExplorerScreen() {
             items={systemsFiltrados}
             itemHeight={styles.mobileItemHeight}
             height="60vh"
+            contentPadding={8}
             renderItem={(item) => (
               <SystemListItem
                 key={item.label}
                 system={item}
-                query={rawQuery}
                 onClick={() => handleNavigate(item)}
               />
             )}
@@ -407,7 +394,6 @@ export default function ExplorerScreen() {
               <SystemCard
                 key={item.label}
                 system={item}
-                query={rawQuery}
                 onClick={() => handleNavigate(item)}
               />
             ))}

@@ -1,5 +1,5 @@
 import { SxProps } from "@mui/system";
-import { Theme } from "@mui/material/styles";
+import { alpha, Theme } from "@mui/material/styles";
 
 export const screen: SxProps<Theme> = (theme) => ({
   minHeight: "100vh",
@@ -28,13 +28,28 @@ export const resultsMeta: SxProps<Theme> = (theme) => ({
   marginBottom: 2,
 });
 
+export const systemCard: SxProps<Theme> = (theme) => ({
+  overflow: "hidden",
+  borderRadius: { xs: 3.5, md: 3 },
+  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.9)}`,
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
+  transition: "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease",
+  "&:hover": {
+    transform: "translateY(-3px)",
+    boxShadow: "0 22px 48px rgba(15, 23, 42, 0.1)",
+    borderColor: theme.palette.outline,
+  },
+});
+
 export const cardMedia: SxProps = {
-  height: { xs: 200, md: 260 },
-  objectFit: "cover",
+  height: { xs: 212, md: 260 },
+  borderBottom: "1px solid",
+  borderColor: "rgba(148, 163, 184, 0.16)",
 };
 
 export const cardContent: SxProps = {
-  padding: 2,
+  padding: 2.25,
   display: "flex",
   flexDirection: "column",
   gap: 1.5,
@@ -48,24 +63,26 @@ export const metaRow: SxProps = {
   flexWrap: "wrap",
 };
 
-export const mobileItemHeight = 96;
+export const mobileItemHeight = 182;
 
-export const mobileListItem: SxProps = {
-  display: "flex",
-  gap: 1.5,
-  padding: 1.5,
-  alignItems: "center",
-  borderBottom: "1px solid",
-  borderColor: "outlineVariant",
-  height: mobileItemHeight,
-};
+export const mobileListItem: SxProps<Theme> = (theme) => ({
+  display: "block",
+  padding: 0,
+  overflow: "hidden",
+  height: 160,
+  marginX: 1.25,
+  marginBottom: 2,
+  border: "1px solid",
+  borderColor: alpha(theme.palette.outlineVariant, 0.95),
+  borderRadius: 3.5,
+  backgroundColor: "background.paper",
+  boxShadow: "0 14px 32px rgba(15, 23, 42, 0.06)",
+});
 
 export const mobileListMedia: SxProps = {
-  width: 84,
-  height: 64,
-  borderRadius: 1,
-  objectFit: "cover",
-  flexShrink: 0,
+  width: "100%",
+  height: "100%",
+  overflow: "hidden",
 };
 
 export const mobileListContent: SxProps = {

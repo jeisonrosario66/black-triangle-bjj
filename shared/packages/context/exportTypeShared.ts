@@ -116,6 +116,7 @@ export type SystemCardOption = {
   coach: string;
   description: string;
   name: string;
+  videoCount?: number;
 };
 
 export type HeaderAction =

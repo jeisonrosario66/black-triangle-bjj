@@ -16,36 +16,92 @@ type testType = {
   systems: SystemCardOption[];
 };
 
+const systemsCache = new Map<string, Promise<testType[]>>();
+const systemsSnapshotCache = new Map<string, testType[]>();
+const nodeCollectionsCache = new Map<string, Promise<NodeOptionFirestore[]>>();
+const nodeCollectionsSnapshotCache = new Map<string, NodeOptionFirestore[]>();
+const nodeCountCache = new Map<string, Promise<number>>();
+
+const getSystemsCacheKey = (language: string) => `systems:${language}`;
+
+const getNodesCacheKey = (dbNames: string[], language: string) =>
+  `nodes:${language}:${[...dbNames].sort().join("|")}`;
+
+export const getCachedSystemsShared = (language = "es") =>
+  systemsSnapshotCache.get(getSystemsCacheKey(language)) ?? null;
+
+export const getCachedDataNodesShared = (
+  dbNames: string[],
+  language = "es",
+) => nodeCollectionsSnapshotCache.get(getNodesCacheKey(dbNames, language)) ?? null;
+
+const getNodeCount = async (
+  getDocs: any,
+  database: any,
+  collectionRef: any,
+  dbName: string,
+) => {
+  const cachedRequest = nodeCountCache.get(dbName);
+
+  if (cachedRequest) {
+    return cachedRequest;
+  }
+
+  const request = getDocs(collectionRef(database, dbName))
+    .then((snapshot: { size: number }) => snapshot.size)
+    .catch((error: unknown) => {
+      nodeCountCache.delete(dbName);
+      throw error;
+    });
+
+  nodeCountCache.set(dbName, request);
+
+  return request;
+};
+
 export const getSystemshared = async (
   getDocs: any,
   collection: any,
   database: any,
   language = "es",
 ) => {
+  const cacheKey = getSystemsCacheKey(language);
+  const cachedRequest = systemsCache.get(cacheKey);
+
+  if (cachedRequest) {
+    return cachedRequest;
+  }
+
+  const request = (async () => {
   const dbName = tableNameDB.systemsCollections;
   // const language = localStorage.getItem(cacheUser.languageUser);
 
   try {
     // 1. Obtener todos los sistemas
     const querySnapshot = await getDocs(collection(database, dbName));
-    const systems: SystemCardOption[] = querySnapshot.docs.map((doc: any) => {
-      const docData = doc.data();
-      const label = docData.label;
-      const name = language === "es" ? docData.name_es : docData.name_en;
-      const coach = docData.coach.replaceAll("_", " "); 
-      const coverUrl = docData.coverUrl
-      const description = language === "es" ? docData.descrip_es : docData.descrip_en;
+    const systems: SystemCardOption[] = await Promise.all(
+      querySnapshot.docs.map(async (doc: any) => {
+        const docData = doc.data();
+        const label = docData.label;
+        const name = language === "es" ? docData.name_es : docData.name_en;
+        const coach = docData.coach.replaceAll("_", " ");
+        const coverUrl = docData.coverUrl;
+        const description = language === "es" ? docData.descrip_es : docData.descrip_en;
+        const valueNodes = `${tableNameDB.systemsCollections}/${docData.label}/nodes`;
+        const valueLinks = `${tableNameDB.systemsCollections}/${docData.label}/links`;
 
-      return {
-        label,
-        name,
-        valueNodes: `${tableNameDB.systemsCollections}/${docData.label}/nodes`,
-        valueLinks: `${tableNameDB.systemsCollections}/${docData.label}/links`,
-        coach,
-        coverUrl,
-        description
-      };
-    });
+        return {
+          label,
+          name,
+          valueNodes,
+          valueLinks,
+          coach,
+          coverUrl,
+          description,
+          videoCount: await getNodeCount(getDocs, database, collection, valueNodes),
+        };
+      }),
+    );
     const systemsById = new Map(
       systems.map((system) => [system.label, system]),
     );
@@ -91,9 +147,18 @@ export const getSystemshared = async (
 
     return systemSets;
   } catch (error) {
+    systemsCache.delete(cacheKey);
     console.error("Error obteniendo sistemas desde Firestore:", error);
     return [];
   }
+  })();
+
+  request.then((data) => {
+    systemsSnapshotCache.set(cacheKey, data);
+  });
+  systemsCache.set(cacheKey, request);
+
+  return request;
 };
 
 /**
@@ -110,6 +175,14 @@ export const getDataNodesShared = async (
   database: any,
   language = "es",
 ) => {
+  const cacheKey = getNodesCacheKey(dbNames, language);
+  const cachedRequest = nodeCollectionsCache.get(cacheKey);
+
+  if (cachedRequest) {
+    return cachedRequest;
+  }
+
+  const request = (async () => {
   try {
     const promises = dbNames.map((dbName) =>
       getDocs(collection(database, dbName)),
@@ -142,7 +215,16 @@ export const getDataNodesShared = async (
     // );7
     return results;
   } catch (error) {
+    nodeCollectionsCache.delete(cacheKey);
     console.error("Error obteniendo documentos desde Firestore:", error);
     return [];
   }
+  })();
+
+  request.then((data) => {
+    nodeCollectionsSnapshotCache.set(cacheKey, data);
+  });
+  nodeCollectionsCache.set(cacheKey, request);
+
+  return request;
 };
