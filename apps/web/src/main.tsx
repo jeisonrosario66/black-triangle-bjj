@@ -4,6 +4,7 @@ import { BrowserRouter } from "react-router-dom";
 import { ThemeProvider, CssBaseline } from "@mui/material";
 import { muiTheme } from "../theme/theme.mui";
 import App from "./App.tsx";
+import AuthProvider from "@src/providers/AuthProvider";
 import "./index.css";
 
 import "./i18n";
@@ -18,9 +19,11 @@ createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ThemeProvider theme={muiTheme}>
       <CssBaseline />
-      <BrowserRouter basename="/">
-        <App />
-      </BrowserRouter>
+      <AuthProvider>
+        <BrowserRouter basename="/">
+          <App />
+        </BrowserRouter>
+      </AuthProvider>
     </ThemeProvider>
   </StrictMode>,
 );

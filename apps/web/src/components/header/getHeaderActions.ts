@@ -1,4 +1,4 @@
-import { HeaderAction, userIniciales } from "@bt/shared/context/index";
+import { HeaderAction } from "@bt/shared/context/index";
 /**
  * Genera la lista de acciones visibles en el encabezado de la aplicación.
  * Esta función centraliza la lógica de decisión sobre qué acciones de UI
@@ -17,22 +17,24 @@ import { HeaderAction, userIniciales } from "@bt/shared/context/index";
 export default function getHeaderActions({
   isMobile,
   isLogin,
+  userInitials,
 }: {
   isMobile: boolean;
   isLogin: boolean;
+  userInitials?: string;
 }): HeaderAction[] {
+  const actions: HeaderAction[] = [
+    { type: "search" },
+  ];
 
-  if (isMobile) {
-    return [{ type: "avatar", initials: isLogin ? userIniciales : undefined }];
+  if (!isMobile) {
+    actions.push(
+      { type: "divider" },
+      { type: "avatar", initials: isLogin ? userInitials : undefined },
+    );
+  } else {
+    actions.push({ type: "avatar", initials: isLogin ? userInitials : undefined });
   }
 
-  return [
-    { type: "search" },
-    { type: "divider" },
-    { type: "explorer" },
-    { type: "divider" },
-    { type: "notifications", unread: 3 },
-    { type: "divider" },
-    { type: "avatar", initials: isLogin ? userIniciales : undefined },
-  ];
+  return actions;
 }

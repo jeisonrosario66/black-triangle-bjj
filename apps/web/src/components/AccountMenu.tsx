@@ -11,12 +11,11 @@ import {
 } from "@mui/material";
 import { Settings } from "@mui/icons-material";
 import LoginIcon from "@mui/icons-material/Login";
+import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
-import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { useUIStore } from "@src/store/index";
-import { routeList } from "@src/context/index";
 import { useSession } from "@src/hooks/index";
 import { debugLog } from "@src/utils/index";
 
@@ -32,11 +31,9 @@ const textHardcoded = "components.accountMenu.";
  * @returns {JSX.Element} Menú interactivo de cuenta.
  */
 export default function AccountMenu() {
-  // const { user, isAuthenticated, logout } = useSession();
-  const { user, isAuthenticated } = useSession();
+  const { user, isAuthenticated, login, logout, isLoading } = useSession();
 
   const { t } = useTranslation();
-  const navigate = useNavigate();
 
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
@@ -69,17 +66,17 @@ export default function AccountMenu() {
   /**
    * Cierra sesión del usuario autenticado.
    */
-  // const handleLogout = () => {
-  //   setAnchorEl(null);
-  //   logout();
-  // };
+  const handleLogout = async () => {
+    setAnchorEl(null);
+    await logout();
+  };
 
   /**
    * Abre la ventana de inicio de sesión y redirige al usuario.
    */
-  const handleLoginWindow = () => {
-    useUIStore.setState({ isLoginWindowActive: true });
-    navigate(routeList.loginUser);
+  const handleLoginWindow = async () => {
+    setAnchorEl(null);
+    await login();
   };
 
   /**
@@ -102,7 +99,11 @@ export default function AccountMenu() {
             aria-expanded={open ? "true" : undefined}
           >
             <Avatar sx={style.containerAccountAvatar}>
-              <PersonOutlineOutlinedIcon sx={style.accountAvatarSvg} />
+              {isAuthenticated && user?.initials ? (
+                user.initials
+              ) : (
+                <PersonOutlineOutlinedIcon sx={style.accountAvatarSvg} />
+              )}
             </Avatar>
           </IconButton>
         </Tooltip>
@@ -158,7 +159,7 @@ export default function AccountMenu() {
           </MenuItem>
         ) : (
           // Si no está logueado, muestra la opción para iniciar sesión
-          <MenuItem onClick={handleLoginWindow} disabled>
+          <MenuItem onClick={() => void handleLoginWindow()} disabled={isLoading}>
             <ListItemIcon>
               <LoginIcon fontSize="small" />
             </ListItemIcon>
@@ -177,13 +178,13 @@ export default function AccountMenu() {
         </MenuItem>
 
         {/* Opción para cerrar sesión */}
-        {/* <MenuItem onClick={handleLogout}>
+        <MenuItem onClick={() => void handleLogout()} disabled={!isAuthenticated || isLoading}>
           <ListItemIcon>
-            <Logout fontSize="small" />
+            <LogoutOutlinedIcon fontSize="small" />
           </ListItemIcon>
 
           {t(textHardcoded + "optionsMenu.logOut")}
-        </MenuItem> */}
+        </MenuItem>
       </Menu>
     </React.Fragment>
   );

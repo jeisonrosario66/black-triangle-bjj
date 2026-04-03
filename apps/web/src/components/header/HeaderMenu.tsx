@@ -3,22 +3,20 @@ import {
   MenuItem,
   Avatar,
   Divider,
-  Badge,
+  Box,
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
-import NotificationsIcon from "@mui/icons-material/Notifications";
-import LoginOutlinedIcon from "@mui/icons-material/LoginOutlined";
-import SettingsOutlinedIcon from "@mui/icons-material/SettingsOutlined";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import { useTheme } from "@mui/material/styles";
+import { useTranslation } from "react-i18next";
 
-import { userIniciales, userName } from "@bt/shared/context";
+import type { SessionUser } from "@src/context/index";
 
 /**
  * Menú contextual del encabezado de la aplicación.
- * Gestiona la visualización de opciones relacionadas con el perfil del usuario,
- * autenticación, notificaciones y configuración, adaptándose al estado de sesión.
+ * Gestiona la visualización de opciones relacionadas con el perfil del usuario
+ * y autenticación, adaptándose al estado de sesión.
  *
  * @param {Object} props - Propiedades de control del menú.
  * @param {HTMLElement | null} props.anchorEl - Elemento ancla que determina la posición y visibilidad del menú.
@@ -30,12 +28,31 @@ export default function HeaderMenu({
   anchorEl,
   onClose,
   isLogin,
+  isLoading,
+  user,
+  onLogin,
+  onLogout,
 }: {
   anchorEl: HTMLElement | null;
   onClose: () => void;
   isLogin: boolean;
+  isLoading: boolean;
+  user: SessionUser | null;
+  onLogin: () => Promise<void>;
+  onLogout: () => Promise<void>;
 }) {
   const theme = useTheme();
+  const { t } = useTranslation();
+
+  const handleLogin = async () => {
+    onClose();
+    await onLogin();
+  };
+
+  const handleLogout = async () => {
+    onClose();
+    await onLogout();
+  };
 
   return (
     <Menu
@@ -55,46 +72,39 @@ export default function HeaderMenu({
                 height: 24,
               }}
             >
-              {userIniciales}
+              {user?.initials}
             </Avatar>
           </ListItemIcon>
-          <ListItemText primary={userName} />
+          <ListItemText
+            primary={user?.name}
+            secondary={user?.email}
+          />
         </MenuItem>
       ) : (
-        <MenuItem onClick={onClose}>
+        <MenuItem onClick={() => void handleLogin()} disabled={isLoading}>
           <ListItemIcon>
-            <LoginOutlinedIcon fontSize="small" />
+            <Box
+              component="img"
+              src="/google-logo.png"
+              alt="Google"
+              sx={{ width: 18, height: 18 }}
+            />
           </ListItemIcon>
-          <ListItemText primary="Perfil" />
+          <ListItemText primary={t("components.header.continueWithGoogle")} />
         </MenuItem>
       )}
-
-      {isLogin && (
-        <MenuItem onClick={onClose}>
-          <ListItemIcon>
-            <Badge badgeContent={3} color="error">
-              <NotificationsIcon fontSize="small" />
-            </Badge>
-          </ListItemIcon>
-          <ListItemText primary="Notificaciones" />
-        </MenuItem>
-      )}
-
-      <MenuItem onClick={onClose}>
-        <ListItemIcon>
-          <SettingsOutlinedIcon fontSize="small" />
-        </ListItemIcon>
-        <ListItemText primary="Configuración" />
-      </MenuItem>
 
       {isLogin && <Divider />}
 
       {isLogin && (
-        <MenuItem onClick={onClose}>
+        <MenuItem onClick={() => void handleLogout()} disabled={isLoading}>
           <ListItemIcon>
             <LogoutOutlinedIcon fontSize="small" />
           </ListItemIcon>
-          <ListItemText primary="Cerrar sesión" sx={{ color: "error.main" }} />
+          <ListItemText
+            primary={t("components.header.logOut")}
+            sx={{ color: "error.main" }}
+          />
         </MenuItem>
       )}
     </Menu>

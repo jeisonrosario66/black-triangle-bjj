@@ -61,6 +61,17 @@
       "title": "Login to your account",
       "loginGoogle": "Log in with Google"
     },
+    "header": {
+      "searchPlaceholder": "Search…",
+      "goHome": "Go to home",
+      "continueWithGoogle": "Continue with Google",
+      "logOut": "Log out"
+    },
+    "profile": {
+      "loading": "Loading...",
+      "notLoggedIn": "You are not logged in",
+      "greeting": "Hi, {{name}}"
+    },
     "nodeView": {
       "title": "Video Player",
       "subTitle": "View and analyze the video content below.",

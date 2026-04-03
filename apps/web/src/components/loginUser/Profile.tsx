@@ -1,9 +1,10 @@
-import { useAuth0 } from "@auth0/auth0-react";
 import {
   Box,
   Avatar,
   Typography,
 } from "@mui/material";
+import { useTranslation } from "react-i18next";
+import { useSession } from "@src/hooks/index";
 
 /**
  * Componente que muestra el estado del usuario autenticado.
@@ -12,16 +13,17 @@ import {
  * @returns {JSX.Element} Interfaz de estado del usuario.
  */
 export default function UserStatus() {
-  const { user, isAuthenticated, isLoading } = useAuth0();
+  const { t } = useTranslation();
+  const { user, isAuthenticated, isLoading } = useSession();
 
-  if (isLoading) return <p>Loading...</p>;
+  if (isLoading) return <p>{t("components.profile.loading")}</p>;
 
-  if (!isAuthenticated) return <p>No estás logeado</p>;
+  if (!isAuthenticated) return <p>{t("components.profile.notLoggedIn")}</p>;
 
   return (
     <Box>
       <Typography>
-        Hola, {user?.name}
+        {t("components.profile.greeting", { name: user?.name ?? "User" })}
       </Typography>
       <Avatar
         alt={user?.name ?? "User"}

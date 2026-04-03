@@ -61,6 +61,17 @@
       "title": "Inicia sesión en tu cuenta",
       "loginGoogle": "Iniciar sesión con Google"
     },
+    "header": {
+      "searchPlaceholder": "Buscar…",
+      "goHome": "Ir al inicio",
+      "continueWithGoogle": "Continuar con Google",
+      "logOut": "Cerrar sesión"
+    },
+    "profile": {
+      "loading": "Cargando...",
+      "notLoggedIn": "No has iniciado sesión",
+      "greeting": "Hola, {{name}}"
+    },
     "nodeView": {
       "title": "Reproductor de Video",
       "subTitle": "Visualice y analice el contenido del video a continuación.",

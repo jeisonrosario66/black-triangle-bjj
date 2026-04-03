@@ -9,6 +9,7 @@ import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { ButtonClose, LogoContainer, LoginButton } from "@src/components/index";
+import { useSession } from "@src/hooks/index";
 import { useUIStore } from "@src/store/index";
 import { routeList } from "@src/context/index";
 
@@ -19,6 +20,7 @@ const textHardcoded = "components.loginUser.";
 export default function Login() {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { user, isAuthenticated } = useSession();
 
   const buttonCloseFunction = () => {
     useUIStore.setState({ isLoginWindowActive: false });
@@ -43,7 +45,13 @@ export default function Login() {
               variant="middle"
             />
 
-            <LoginButton label={t(textHardcoded + "loginGoogle")} />
+            {isAuthenticated ? (
+              <Typography textAlign="center">
+                {user?.name ?? user?.email}
+              </Typography>
+            ) : (
+              <LoginButton label={t(textHardcoded + "loginGoogle")} />
+            )}
           </Box>
         </Card>
       </Box>

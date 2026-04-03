@@ -19,4 +19,7 @@ const database = getFirestore(app);
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
+auth.useDeviceLanguage();
+provider.setCustomParameters({ prompt: "select_account" });
+
 export { auth, provider, database };
