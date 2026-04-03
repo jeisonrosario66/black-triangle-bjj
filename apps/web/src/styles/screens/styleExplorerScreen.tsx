@@ -1,5 +1,6 @@
 import { SxProps } from "@mui/system";
 import { alpha, Theme } from "@mui/material/styles";
+import { shape } from "@bt/shared/design-system";
 
 export const screen: SxProps<Theme> = (theme) => ({
   minHeight: "100vh",
@@ -30,7 +31,7 @@ export const resultsMeta: SxProps<Theme> = (theme) => ({
 
 export const systemCard: SxProps<Theme> = (theme) => ({
   overflow: "hidden",
-  borderRadius: { xs: 3.5, md: 3 },
+  borderRadius: { xs: shape.borderRadius.lg, md: shape.borderRadius.md },
   border: `1px solid ${alpha(theme.palette.outlineVariant, 0.9)}`,
   backgroundColor: theme.palette.background.paper,
   boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
@@ -74,7 +75,7 @@ export const mobileListItem: SxProps<Theme> = (theme) => ({
   marginBottom: 2,
   border: "1px solid",
   borderColor: alpha(theme.palette.outlineVariant, 0.95),
-  borderRadius: 3.5,
+  borderRadius: shape.borderRadius.lg,
   backgroundColor: "background.paper",
   boxShadow: "0 14px 32px rgba(15, 23, 42, 0.06)",
 });

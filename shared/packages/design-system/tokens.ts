@@ -101,9 +101,9 @@ export const colors = {
 export const shape = {
   borderRadius: {
     xs: 2,  // Chips pequeños
-    sm: 4,  // Inputs, badges
-    md: 8,  // Cards estándar
-    lg: 12, // Modales
-    xl: 16, // Hero cards / covers
+    sm: 3,  // Inputs, badges
+    md: 6,  // Cards estándar
+    lg: 8, // Modales
+    xl: 10, // Hero cards / covers
   },
 };

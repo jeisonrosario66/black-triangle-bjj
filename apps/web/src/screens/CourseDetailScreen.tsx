@@ -53,7 +53,7 @@ export default function CourseDetailScreen() {
   const [loadingModules, setLoadingModules] = useState(
     Boolean(firestoreRuta && !cachedModules),
   );
-  const [expanded, setExpanded] = useState(false);
+  const [expanded, setExpanded] = useState(true);
 
   useEffect(() => {
     let mounted = true;
@@ -132,22 +132,25 @@ export default function CourseDetailScreen() {
               subtitle={capitalizeFirstLetter(system.setSystem)}
               coach={capitalizeFirstLetter(system.coach)}
               coverUrl={system.coverUrl}
-              videoCount={modules.length || system.videoCount}
               variant="hero"
             />
           </Box>
         </Card>
 
         {system.description ? (
-          <Box sx={{ mt: 3 }}>
-          <Typography variant="body1" sx={styles.description}>
-            {capitalizeFirstLetter(system.description)}
-          </Typography>
+          <Box sx={styles.descriptionCard}>
+            <Typography variant="body1" sx={styles.description}>
+              {capitalizeFirstLetter(system.description)}
+            </Typography>
           </Box>
         ) : null}
 
-        <Accordion expanded={expanded} onChange={() => setExpanded(!expanded)}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
+        <Accordion
+          expanded={expanded}
+          onChange={() => setExpanded(!expanded)}
+          sx={styles.modulesAccordion}
+        >
+          <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={styles.accordionSummary}>
             <SchemaOutlinedIcon sx={{ mr: 1 }} />
             <Typography>
               {capitalizeFirstLetter(system.setSystem)} · {modules.length} Videos
@@ -170,6 +173,8 @@ export default function CourseDetailScreen() {
                       nodeRoute: item,
                       firestoreRuta,
                       systemBreadcrumbLabel: capitalizeFirstLetter(system.name),
+                      courseModules: orderedModules,
+                      system,
                     },
                   },
                 )

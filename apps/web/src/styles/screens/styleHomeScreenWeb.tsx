@@ -42,6 +42,7 @@ export const sectionAction: SxProps<Theme> = (theme) => ({
 });
 
 export const routeCard: SxProps = {
+  borderRadius: shape.borderRadius.md,
   overflow: "hidden",
 };
 

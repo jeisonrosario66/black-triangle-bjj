@@ -72,6 +72,14 @@
       "notLoggedIn": "You are not logged in",
       "greeting": "Hi, {{name}}"
     },
+    "videoDetail": {
+      "explore": "Explore",
+      "system": "System",
+      "content": "Content",
+      "courseVideos": "Course videos · {{current}} of {{total}}",
+      "previousVideo": "Previous video",
+      "nextVideo": "Next video"
+    },
     "nodeView": {
       "title": "Video Player",
       "subTitle": "View and analyze the video content below.",

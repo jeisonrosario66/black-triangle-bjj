@@ -72,6 +72,14 @@
       "notLoggedIn": "No has iniciado sesión",
       "greeting": "Hola, {{name}}"
     },
+    "videoDetail": {
+      "explore": "Explorar",
+      "system": "Sistema",
+      "content": "Contenido",
+      "courseVideos": "Videos del curso · {{current}} de {{total}}",
+      "previousVideo": "Video anterior",
+      "nextVideo": "Siguiente video"
+    },
     "nodeView": {
       "title": "Reproductor de Video",
       "subTitle": "Visualice y analice el contenido del video a continuación.",

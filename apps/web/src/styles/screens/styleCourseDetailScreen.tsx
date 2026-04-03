@@ -1,5 +1,5 @@
 import { SxProps } from "@mui/system";
-import { Theme } from "@mui/material/styles";
+import { Theme, alpha } from "@mui/material/styles";
 import { shape } from "@bt/shared/design-system/index";
 
 export const container: SxProps<Theme> = (theme) => ({
@@ -7,13 +7,14 @@ export const container: SxProps<Theme> = (theme) => ({
   backgroundColor: theme.palette.background.default,
 });
 
-export const heroCard: SxProps = {
+export const heroCard: SxProps<Theme> = (theme) => ({
   position: "relative",
   borderRadius: shape.borderRadius.lg,
   overflow: "hidden",
-  border: "1px solid rgba(148, 163, 184, 0.16)",
+  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
+  backgroundColor: theme.palette.background.paper,
   boxShadow: "0 22px 52px rgba(15, 23, 42, 0.08)",
-};
+});
 
 export const heroMedia: SxProps = {
   height: { xs: 220, md: 340 },
@@ -28,11 +29,39 @@ export const headerMetaRow: SxProps = {
 
 export const description: SxProps<Theme> = (theme) => ({
   color: theme.palette.text.secondary,
-  marginTop: 1,
-  marginBottom: 3,
   maxWidth: 760,
 });
 
+export const descriptionCard: SxProps<Theme> = (theme) => ({
+  marginTop: 3,
+  padding: { xs: 2, md: 2.5 },
+  borderRadius: shape.borderRadius.md,
+  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
+  backgroundColor: alpha(theme.palette.background.paper, 0.92),
+  boxShadow: "0 16px 36px rgba(15, 23, 42, 0.05)",
+});
+
+export const modulesAccordion: SxProps<Theme> = (theme) => ({
+  marginTop: 3,
+  overflow: "hidden",
+  borderRadius: shape.borderRadius.md,
+  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
+  backgroundColor: theme.palette.background.paper,
+  boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
+  "&::before": {
+    display: "none",
+  },
+});
+
+export const accordionSummary: SxProps<Theme> = (theme) => ({
+  minHeight: 64,
+  borderBottom: `1px solid ${alpha(theme.palette.outlineVariant, 0.72)}`,
+  backgroundColor: alpha(theme.palette.background.default, 0.5),
+  "& .MuiAccordionSummary-content": {
+    marginY: 1.25,
+  },
+});
+
 export const moduleList: SxProps = {
-  marginTop: 1,
+  paddingTop: 1,
 };
