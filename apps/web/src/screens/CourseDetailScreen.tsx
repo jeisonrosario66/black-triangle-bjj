@@ -1,5 +1,7 @@
-import type { NodeOptionFirestore } from "@bt/shared/context/index";
+import { editorialMedia, type NodeOptionFirestore } from "@bt/shared/context/index";
 import {
+  getCachedCourseStatShared,
+  getCourseStatShared,
   getCachedDataNodesShared,
   getDataNodesShared,
 } from "@bt/shared/services/index";
@@ -11,12 +13,13 @@ import {
   AccordionDetails,
   AccordionSummary,
   Box,
+  Button,
   Card,
   CircularProgress,
   Typography,
 } from "@mui/material";
 import { routeList } from "@src/context/index";
-import { database } from "@src/hooks/index";
+import { database, useSession } from "@src/hooks/index";
 import * as styles from "@src/styles/screens/styleCourseDetailScreen";
 import * as loadingStyles from "@src/styles/screens/styleLoading";
 import { collection, getDocs } from "firebase/firestore";
@@ -26,9 +29,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import {
   AppBarNewHeader,
   BreadcrumbsBar,
+  EditorialImagePanel,
   ModuleList,
   PageContainer,
-  SystemCover,
 } from "@src/components/index";
 
 /**
@@ -43,12 +46,18 @@ export default function CourseDetailScreen() {
   const navigate = useNavigate();
   const location = useLocation();
   const { t } = useTranslation();
+  const textCourseDetail = "components.courseDetail.";
+  const { user } = useSession();
   const system = location.state?.system;
   const entryPoint = location.state?.entryPoint === "home" ? "home" : "explorer";
   const firestoreRuta = system?.valueNodes;
   const cachedModules = firestoreRuta
     ? getCachedDataNodesShared([firestoreRuta], "es")
     : null;
+  const cachedCourseStat =
+    user?.email && system?.label
+      ? getCachedCourseStatShared(user.email, system.label)
+      : null;
 
   const [modules, setModules] = useState<NodeOptionFirestore[]>(
     () => cachedModules ?? [],
@@ -57,6 +66,9 @@ export default function CourseDetailScreen() {
     Boolean(firestoreRuta && !cachedModules),
   );
   const [expanded, setExpanded] = useState(true);
+  const [visitedModuleIds, setVisitedModuleIds] = useState<number[]>(
+    () => cachedCourseStat?.watchedVideoIds ?? [],
+  );
 
   useEffect(() => {
     let mounted = true;
@@ -98,15 +110,71 @@ export default function CourseDetailScreen() {
     };
   }, [cachedModules, firestoreRuta]);
 
+  useEffect(() => {
+    let mounted = true;
+
+    const loadCourseStat = async () => {
+      if (!user?.email || !system?.label) {
+        if (mounted) {
+          setVisitedModuleIds([]);
+        }
+        return;
+      }
+
+      try {
+        const courseStat = await getCourseStatShared({
+          email: user.email,
+          courseLabel: system.label,
+          firestore: {
+            collection,
+            database,
+            getDocs,
+          },
+        });
+
+        if (!mounted) {
+          return;
+        }
+
+        setVisitedModuleIds(courseStat?.watchedVideoIds ?? []);
+      } catch (error) {
+        console.error("No se pudo cargar el estado visto del curso:", error);
+      }
+    };
+
+    void loadCourseStat();
+
+    return () => {
+      mounted = false;
+    };
+  }, [system?.label, user?.email]);
+
   const orderedModules = useMemo(() => {
     return [...modules].sort((a, b) => Number(a.id) - Number(b.id));
   }, [modules]);
 
   if (!system) {
     return (
-      <PageContainer>
-        <Typography>No se encontró el sistema</Typography>
-      </PageContainer>
+      <Box sx={styles.container}>
+        <AppBarNewHeader />
+        <PageContainer sx={{ pt: { xs: 2, md: 3 } }}>
+          <Card sx={styles.descriptionCard}>
+            <Typography variant="h6">
+              {t(textCourseDetail + "missingCourseTitle")}
+            </Typography>
+            <Typography sx={styles.description}>
+              {t(textCourseDetail + "missingCourseDescription")}
+            </Typography>
+            <Button
+              sx={{ mt: 2, alignSelf: "flex-start" }}
+              variant="contained"
+              onClick={() => navigate(routeList.explorerScreen)}
+            >
+              {t(textCourseDetail + "backToExplore")}
+            </Button>
+          </Card>
+        </PageContainer>
+      </Box>
     );
   }
   if (loadingModules) {
@@ -129,23 +197,24 @@ export default function CourseDetailScreen() {
                   ? t("components.home.breadcrumb")
                   : t("components.videoDetail.explore"),
               onClick: () =>
-                navigate(entryPoint === "home" ? routeList.home : routeList.root),
+                navigate(
+                  entryPoint === "home" ? routeList.home : routeList.explorerScreen,
+                ),
             },
             { label: capitalizeFirstLetter(system.name) },
           ]}
         />
 
-        <Card sx={styles.heroCard}>
-          <Box sx={styles.heroMedia}>
-            <SystemCover
-              title={capitalizeFirstLetter(system.name)}
-              subtitle={capitalizeFirstLetter(system.setSystem)}
-              coach={capitalizeFirstLetter(system.coach)}
-              coverUrl={system.coverUrl}
-              variant="hero"
-            />
-          </Box>
-        </Card>
+
+        <EditorialImagePanel
+          src={editorialMedia.courseContext.src}
+          alt={capitalizeFirstLetter(system.name)}
+          eyebrow={capitalizeFirstLetter(system.setSystem)}
+          title={capitalizeFirstLetter(system.name)}
+          description={`Coach ${capitalizeFirstLetter(system.coach)}`}
+          objectPosition={editorialMedia.courseContext.objectPosition}
+          sx={styles.contextMedia}
+        />
 
         {system.description ? (
           <Box sx={styles.descriptionCard}>
@@ -154,7 +223,6 @@ export default function CourseDetailScreen() {
             </Typography>
           </Box>
         ) : null}
-
         <Accordion
           expanded={expanded}
           onChange={() => setExpanded(!expanded)}
@@ -163,13 +231,17 @@ export default function CourseDetailScreen() {
           <AccordionSummary expandIcon={<ExpandMoreIcon />} sx={styles.accordionSummary}>
             <SchemaOutlinedIcon sx={{ mr: 1 }} />
             <Typography>
-              {capitalizeFirstLetter(system.setSystem)} · {modules.length} Videos
+              {t(textCourseDetail + "courseVideos", {
+                topic: capitalizeFirstLetter(system.setSystem),
+                total: modules.length,
+              })}
             </Typography>
           </AccordionSummary>
 
           <AccordionDetails sx={styles.moduleList}>
             <ModuleList
               modules={orderedModules}
+              visitedModuleIds={visitedModuleIds}
               onSelect={(item) =>
                 navigate(
                   routeList.videoDetailScreen
