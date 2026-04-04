@@ -67,6 +67,32 @@
       "continueWithGoogle": "Continuar con Google",
       "logOut": "Cerrar sesión"
     },
+    "landing": {
+      "eyebrow": "Aprende sin perder el hilo",
+      "title": "Tus cursos de BJJ, claros y listos para seguir",
+      "subtitle": "Encuentra qué estudiar, vuelve justo donde te quedaste y avanza con una experiencia simple y enfocada.",
+      "primaryCta": "Entrar con Google",
+      "helper": "Inicia sesión para acceder a todos los cursos, videos y tu progreso.",
+      "blockedNotice": "Necesitas iniciar sesión para acceder a {{path}}.",
+      "metricGraphValue": "Sistemas",
+      "metricGraphLabel": "Ordenados para entender mejor",
+      "metricRoutesValue": "Cursos",
+      "metricRoutesLabel": "Listos para seguir paso a paso",
+      "metricProgressValue": "Videos",
+      "metricProgressLabel": "Fáciles de retomar después",
+      "visualTitle": "Estudia BJJ con más claridad.",
+      "visualBody": "Abre un curso, sigue tu progreso y vuelve a entrenar sin perder contexto.",
+      "featurePersonalizedTitle": "Hecho para ti",
+      "featurePersonalizedDescription": "Primero ves lo que más te conviene seguir estudiando.",
+      "featureContinuityTitle": "Retoma rápido",
+      "featureContinuityDescription": "Vuelve a tu último curso y reconoce enseguida lo que ya viste.",
+      "featurePrecisionTitle": "Menos ruido",
+      "featurePrecisionDescription": "Una experiencia enfocada en técnica, secuencia y detalle.",
+      "featureRoutesTitle": "Orden real",
+      "featureRoutesDescription": "Explora sistemas y cursos con una estructura fácil de entender.",
+      "featureTrackingTitle": "Progreso claro",
+      "featureTrackingDescription": "Identifica tus videos vistos y sigue avanzando sin adivinar."
+    },
     "profile": {
       "loading": "Cargando...",
       "notLoggedIn": "No has iniciado sesión",
@@ -111,7 +137,18 @@
       "content": "Contenido",
       "courseVideos": "Videos del curso · {{current}} de {{total}}",
       "previousVideo": "Video anterior",
-      "nextVideo": "Siguiente video"
+      "nextVideo": "Siguiente video",
+      "viewsCount": "{{value}} vistas",
+      "seen": "Ya visto",
+      "missingVideoTitle": "No se encontró el video",
+      "missingVideoDescription": "Abre el contenido desde un curso válido para mantener contexto y navegación.",
+      "backToExplore": "Volver a explorar"
+    },
+    "courseDetail": {
+      "missingCourseTitle": "No se encontró el curso",
+      "missingCourseDescription": "Vuelve a explorar para abrir el curso desde una navegación válida.",
+      "backToExplore": "Ir a explorar",
+      "courseVideos": "{{topic}} · {{total}} videos"
     },
     "nodeView": {
       "title": "Reproductor de Video",

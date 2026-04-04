@@ -67,6 +67,32 @@
       "continueWithGoogle": "Continue with Google",
       "logOut": "Log out"
     },
+    "landing": {
+      "eyebrow": "Learn without losing your place",
+      "title": "Your BJJ courses, clear and ready to follow",
+      "subtitle": "Find what you want to study, jump back in where you left off, and keep moving with a simple focused experience.",
+      "primaryCta": "Continue with Google",
+      "helper": "Log in to unlock all courses, videos, and your progress.",
+      "blockedNotice": "You need to log in to access {{path}}.",
+      "metricGraphValue": "Systems",
+      "metricGraphLabel": "Organized to make study easier",
+      "metricRoutesValue": "Courses",
+      "metricRoutesLabel": "Ready to follow step by step",
+      "metricProgressValue": "Videos",
+      "metricProgressLabel": "Easy to resume later",
+      "visualTitle": "Study BJJ with more clarity.",
+      "visualBody": "Open a course, track your progress, and come back without losing context.",
+      "featurePersonalizedTitle": "Made for you",
+      "featurePersonalizedDescription": "You see first what makes the most sense for you to keep studying.",
+      "featureContinuityTitle": "Jump back in fast",
+      "featureContinuityDescription": "Return to your last course and instantly spot what you already watched.",
+      "featurePrecisionTitle": "Less noise",
+      "featurePrecisionDescription": "A focused experience built around technique, sequence, and detail.",
+      "featureRoutesTitle": "Real structure",
+      "featureRoutesDescription": "Explore systems and courses through a structure that is easy to understand.",
+      "featureTrackingTitle": "Clear progress",
+      "featureTrackingDescription": "Spot watched videos quickly and keep moving without guessing."
+    },
     "profile": {
       "loading": "Loading...",
       "notLoggedIn": "You are not logged in",
@@ -111,7 +137,18 @@
       "content": "Content",
       "courseVideos": "Course videos · {{current}} of {{total}}",
       "previousVideo": "Previous video",
-      "nextVideo": "Next video"
+      "nextVideo": "Next video",
+      "viewsCount": "{{value}} views",
+      "seen": "Seen",
+      "missingVideoTitle": "Video not found",
+      "missingVideoDescription": "Open the content from a valid course to keep navigation context.",
+      "backToExplore": "Back to explore"
+    },
+    "courseDetail": {
+      "missingCourseTitle": "Course not found",
+      "missingCourseDescription": "Return to Explore to open the course from a valid navigation flow.",
+      "backToExplore": "Go to explore",
+      "courseVideos": "{{topic}} · {{total}} videos"
     },
     "nodeView": {
       "title": "Video Player",
