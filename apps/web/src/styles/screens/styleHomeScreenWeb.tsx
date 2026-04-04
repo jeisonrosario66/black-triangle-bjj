@@ -1,16 +1,22 @@
 import { SxProps } from "@mui/system";
 import { Theme, alpha } from "@mui/material/styles";
-import { shape } from "@bt/shared/design-system/index";
+import { shape, surfaceRecipes } from "@bt/shared/design-system/index";
 
 export const page: SxProps<Theme> = (theme) => ({
-  minHeight: "100vh",
-  backgroundColor: theme.palette.background.default,
+  ...surfaceRecipes.page(theme),
 });
 
 export const intro: SxProps = {
   display: "flex",
   flexDirection: "column",
   gap: 0.75,
+};
+
+export const introGrid: SxProps = {
+  display: "grid",
+  gridTemplateColumns: { xs: "1fr", lg: "minmax(0, 1fr) minmax(320px, 0.78fr)" },
+  gap: { xs: 2.5, md: 3 },
+  alignItems: "stretch",
 };
 
 export const introEyebrow: SxProps<Theme> = (theme) => ({
@@ -21,12 +27,13 @@ export const introEyebrow: SxProps<Theme> = (theme) => ({
   color: theme.palette.text.secondary,
 });
 
+export const introVisual: SxProps = {
+  minHeight: { xs: 220, md: 260 },
+};
+
 export const progressCard: SxProps<Theme> = (theme) => ({
+  ...surfaceRecipes.panel(theme),
   overflow: "hidden",
-  borderRadius: shape.borderRadius.md,
-  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
 });
 
 export const progressMedia: SxProps = {
@@ -65,7 +72,7 @@ export const progressStat: SxProps<Theme> = (theme) => ({
   fontSize: "0.75rem",
   fontWeight: 600,
   color: theme.palette.text.secondary,
-  backgroundColor: alpha(theme.palette.surfaceVariant, 0.65),
+  backgroundColor: alpha(theme.palette.surfaceVariant, 0.92),
 });
 
 export const progressBar: SxProps = {
@@ -82,11 +89,8 @@ export const cardBottomStyle: SxProps = {
 };
 
 export const emptyCard: SxProps<Theme> = (theme) => ({
+  ...surfaceRecipes.panel(theme),
   padding: { xs: 2, md: 2.5 },
-  borderRadius: shape.borderRadius.md,
-  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: "0 16px 36px rgba(15, 23, 42, 0.05)",
 });
 
 export const sectionAction: SxProps<Theme> = (theme) => ({
@@ -95,11 +99,8 @@ export const sectionAction: SxProps<Theme> = (theme) => ({
 });
 
 export const routeCard: SxProps<Theme> = (theme) => ({
+  ...surfaceRecipes.panel(theme),
   padding: { xs: 2, md: 2.25 },
-  borderRadius: shape.borderRadius.md,
-  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: "0 16px 36px rgba(15, 23, 42, 0.05)",
 });
 
 export const routeHeader: SxProps = {
@@ -127,12 +128,54 @@ export const cardRouteButtom: SxProps<Theme> = () => ({
   paddingX: 0,
 });
 
-export const systemCard: SxProps<Theme> = (theme) => ({
+export const routeCourseList: SxProps = {
+  gap: 1.25,
+  marginTop: 1.5,
+};
+
+export const routeCourseCard: SxProps<Theme> = (theme) => ({
+  borderRadius: shape.borderRadius.sm,
+  border: "1px solid",
+  borderColor: alpha(theme.palette.outlineVariant, 0.9),
+  backgroundColor: alpha(theme.palette.surfaceVariant, 0.28),
   overflow: "hidden",
-  borderRadius: shape.borderRadius.md,
-  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
+});
+
+export const routeCourseLayout: SxProps = {
+  display: "block",
+};
+
+export const routeCourseContent: SxProps = {
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "flex-start",
+  gap: 0.75,
+  padding: { xs: 1.15, sm: 1.35 },
+  minWidth: 0,
+};
+
+export const routeCourseTitle: SxProps = {
+  fontSize: "0.95rem",
+  fontWeight: 700,
+  lineHeight: 1.2,
+};
+
+export const routeCourseMeta: SxProps<Theme> = (theme) => ({
+  color: theme.palette.text.secondary,
+  lineHeight: 1.25,
+  fontSize: "0.82rem",
+});
+
+export const routeCourseButton: SxProps<Theme> = () => ({
+  justifyContent: "flex-start",
+  paddingX: 0,
+  minHeight: 32,
+  fontWeight: 700,
+});
+
+export const systemCard: SxProps<Theme> = (theme) => ({
+  ...surfaceRecipes.panel(theme, { interactive: true }),
+  overflow: "hidden",
 });
 
 export const systemMedia: SxProps = {

@@ -18,6 +18,6 @@ export const title: SxProps = {
   fontStyle: "italic",
 };
 export const logo = {
-  width: "50px",
-  marginRight: "20px",
+  width: "120px",
+  height: "auto",
 };

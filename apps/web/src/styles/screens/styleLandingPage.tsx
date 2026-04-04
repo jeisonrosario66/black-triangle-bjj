@@ -130,6 +130,10 @@ export const heroBrand: SxProps = {
   alignSelf: "center",
 };
 
+export const heroEditorialMedia: SxProps = {
+  minHeight: { xs: 188, md: 220 },
+};
+
 export const heroVisualTitle: SxProps = {
   fontWeight: 800,
   fontSize: { xs: "1.35rem", md: "1.9rem" },

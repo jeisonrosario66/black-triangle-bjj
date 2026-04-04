@@ -1,35 +1,36 @@
 import { SxProps } from "@mui/system";
 import { Theme, alpha } from "@mui/material/styles";
-import { shape } from "@bt/shared/design-system/index";
+import { shape, surfaceRecipes } from "@bt/shared/design-system/index";
 
 export const container: SxProps<Theme> = (theme) => ({
-  minHeight: "100vh",
-  backgroundColor: theme.palette.background.default,
+  ...surfaceRecipes.page(theme),
 });
 
 export const heroCard: SxProps<Theme> = (theme) => ({
+  ...surfaceRecipes.hero(theme),
   position: "relative",
-  marginBottom: 3,
-  borderRadius: shape.borderRadius.lg,
-  overflow: "hidden",
-  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: "0 22px 52px rgba(15, 23, 42, 0.08)",
+  marginBottom: { xs: 2.5, md: 3 },
 });
 
 export const heroMedia: SxProps = {
-  height: { xs: 188, md: 240 },
+  height: { xs: 156, md: 240 },
 };
 
-export const videoFrame: SxProps = {
-  width: "100%",
-  aspectRatio: "16 / 9",
-  borderRadius: shape.borderRadius.lg,
+export const videoFrame: SxProps<Theme> = () => ({
+  width: { xs: "calc(100% + 32px)", sm: "100%" },
+  marginLeft: { xs: -2, sm: 0 },
+  marginRight: { xs: -2, sm: 0 },
+  aspectRatio: { xs: "16 / 10", md: "16 / 9" },
+  minHeight: { xs: 244, sm: "unset" },
+  borderRadius: { xs: shape.borderRadius.sm, sm: shape.borderRadius.lg },
   overflow: "hidden",
   backgroundColor: "#000",
   border: "1px solid rgba(148, 163, 184, 0.16)",
-  boxShadow: "0 22px 52px rgba(15, 23, 42, 0.12)",
-};
+  boxShadow: {
+    xs: "0 18px 34px rgba(0, 0, 0, 0.34)",
+    md: "0 22px 52px rgba(0, 0, 0, 0.42)",
+  },
+});
 
 export const videoIframe: SxProps = {
   width: "100%",
@@ -37,22 +38,21 @@ export const videoIframe: SxProps = {
   border: 0,
 };
 
+export const contextMedia: SxProps = {
+  minHeight: { xs: 210, md: 240 },
+  marginTop: 3,
+};
+
 export const metaCard: SxProps<Theme> = (theme) => ({
+  ...surfaceRecipes.panel(theme),
   marginTop: 3,
   padding: { xs: 2, md: 2.5 },
-  borderRadius: shape.borderRadius.md,
-  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
 });
 
 export const navigationAccordion: SxProps<Theme> = (theme) => ({
+  ...surfaceRecipes.panel(theme),
   marginTop: 3,
   overflow: "hidden",
-  borderRadius: shape.borderRadius.md,
-  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
   "&::before": {
     display: "none",
   },
@@ -77,3 +77,29 @@ export const navigationControls: SxProps = {
 export const descriptionBox: SxProps = {
   marginTop: 2,
 };
+
+export const videoMetaRow: SxProps = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "space-between",
+  gap: 1.5,
+  flexWrap: "wrap",
+  marginBottom: 1.5,
+};
+
+export const viewsLabel: SxProps<Theme> = (theme) => ({
+  color: theme.palette.text.secondary,
+});
+
+export const seenLabel: SxProps<Theme> = (theme) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  paddingX: 1,
+  paddingY: 0.5,
+  borderRadius: 999,
+  fontWeight: 600,
+  fontSize: "0.76rem",
+  color: theme.palette.primary.main,
+  backgroundColor: alpha(theme.palette.primary.main, 0.12),
+  border: `1px solid ${alpha(theme.palette.primary.main, 0.2)}`,
+});

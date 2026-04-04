@@ -1,19 +1,14 @@
 import { SxProps } from "@mui/system";
 import { Theme, alpha } from "@mui/material/styles";
-import { shape } from "@bt/shared/design-system/index";
+import { surfaceRecipes } from "@bt/shared/design-system/index";
 
 export const container: SxProps<Theme> = (theme) => ({
-  minHeight: "100vh",
-  backgroundColor: theme.palette.background.default,
+  ...surfaceRecipes.page(theme),
 });
 
 export const heroCard: SxProps<Theme> = (theme) => ({
+  ...surfaceRecipes.hero(theme),
   position: "relative",
-  borderRadius: shape.borderRadius.lg,
-  overflow: "hidden",
-  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: "0 22px 52px rgba(15, 23, 42, 0.08)",
 });
 
 export const heroMedia: SxProps = {
@@ -33,21 +28,22 @@ export const description: SxProps<Theme> = (theme) => ({
 });
 
 export const descriptionCard: SxProps<Theme> = (theme) => ({
+  ...surfaceRecipes.panel(theme, { muted: true }),
   marginTop: 3,
   padding: { xs: 2, md: 2.5 },
-  borderRadius: shape.borderRadius.md,
-  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
-  backgroundColor: alpha(theme.palette.background.paper, 0.92),
-  boxShadow: "0 16px 36px rgba(15, 23, 42, 0.05)",
+  display: "flex",
+  flexDirection: "column",
 });
 
+export const contextMedia: SxProps = {
+  marginTop: 3,
+  minHeight: { xs: 210, md: 250 },
+};
+
 export const modulesAccordion: SxProps<Theme> = (theme) => ({
+  ...surfaceRecipes.panel(theme),
   marginTop: 3,
   overflow: "hidden",
-  borderRadius: shape.borderRadius.md,
-  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
   "&::before": {
     display: "none",
   },

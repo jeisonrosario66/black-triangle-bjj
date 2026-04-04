@@ -1,10 +1,9 @@
 import { SxProps } from "@mui/system";
 import { alpha, Theme } from "@mui/material/styles";
-import { shape } from "@bt/shared/design-system";
+import { shape, surfaceRecipes } from "@bt/shared/design-system";
 
 export const screen: SxProps<Theme> = (theme) => ({
-  minHeight: "100vh",
-  backgroundColor: theme.palette.background.default,
+  ...surfaceRecipes.page(theme),
 });
 
 export const filtersRow: SxProps = {
@@ -29,18 +28,15 @@ export const resultsMeta: SxProps<Theme> = (theme) => ({
   marginBottom: 2,
 });
 
+export const heroVisual: SxProps = {
+  minHeight: { xs: 210, md: 250 },
+  marginBottom: 2.5,
+};
+
 export const systemCard: SxProps<Theme> = (theme) => ({
+  ...surfaceRecipes.panel(theme, { interactive: true }),
   overflow: "hidden",
   borderRadius: { xs: shape.borderRadius.lg, md: shape.borderRadius.md },
-  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.9)}`,
-  backgroundColor: theme.palette.background.paper,
-  boxShadow: "0 18px 40px rgba(15, 23, 42, 0.06)",
-  transition: "transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease",
-  "&:hover": {
-    transform: "translateY(-3px)",
-    boxShadow: "0 22px 48px rgba(15, 23, 42, 0.1)",
-    borderColor: theme.palette.outline,
-  },
 });
 
 export const cardMedia: SxProps = {
@@ -73,11 +69,10 @@ export const mobileListItem: SxProps<Theme> = (theme) => ({
   height: 160,
   marginX: 1.25,
   marginBottom: 2,
-  border: "1px solid",
-  borderColor: alpha(theme.palette.outlineVariant, 0.95),
+  border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
   borderRadius: shape.borderRadius.lg,
   backgroundColor: "background.paper",
-  boxShadow: "0 14px 32px rgba(15, 23, 42, 0.06)",
+  boxShadow: "0 14px 32px rgba(0, 0, 0, 0.28)",
 });
 
 export const mobileListMedia: SxProps = {

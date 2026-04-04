@@ -1,10 +1,11 @@
 import type { SxProps } from "@mui/system";
 import InputBase from "@mui/material/InputBase";
-import { styled, type Theme } from "@mui/material/styles";
+import { alpha, styled, type Theme } from "@mui/material/styles";
 
 export const appBar: SxProps<Theme> = (theme) => ({
-  background: theme.palette.surface,
+  background: alpha(theme.palette.background.default, 0.92),
   borderBottom: `1px solid ${theme.palette.outlineVariant}`,
+  backdropFilter: "blur(18px)",
 });
 
 export const toolbarContainer: SxProps = {
@@ -22,7 +23,7 @@ export const brandButton: SxProps = {
   mr: 1,
   py: 0.5,
   "&:hover": {
-    opacity: 0.92,
+    opacity: 0.96,
   },
 };
 
@@ -30,24 +31,32 @@ export const brandLogo: SxProps = {
   mr: 1,
   display: "flex",
   alignItems: "center",
+  flexShrink: 0,
 };
 
-export const brandTitle: SxProps<Theme> = (theme) => ({
-  color: theme.palette.text.primary,
-  fontSize: 19,
+export const brandLogoImage: SxProps = {
+  display: "block",
+  width: { xs: 24, sm: 28 },
+  height: "auto",
+};
+
+export const brandWordmark: SxProps<Theme> = (theme) => ({
+  display: "block",
+  width: { xs: "min(44vw, 122px)", sm: 150, md: 170 },
+  maxWidth: "100%",
+  height: "auto",
   minWidth: 0,
   overflow: "hidden",
-  textOverflow: "ellipsis",
-  whiteSpace: "nowrap",
   pr: 1,
+  filter: `drop-shadow(0 0 12px ${alpha(theme.palette.primary.main, 0.1)})`,
 });
 
 export const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: 999,
-  backgroundColor: theme.palette.background.paper,
-  border: `1px solid ${theme.palette.outline}`,
-  boxShadow: `0 0 0 1px ${theme.palette.outlineVariant}`,
+  backgroundColor: alpha(theme.palette.surfaceVariant, 0.92),
+  border: `1px solid ${theme.palette.outlineVariant}`,
+  boxShadow: `0 0 0 1px ${alpha(theme.palette.primary.main, 0.06)}`,
   height: 42,
   minWidth: 132,
   width: "clamp(132px, 24vw, 280px)",
@@ -58,12 +67,12 @@ export const Search = styled("div")(({ theme }) => ({
     duration: theme.transitions.duration.shorter,
   }),
   "&:hover": {
-    backgroundColor: theme.palette.background.default,
-    borderColor: theme.palette.primary.light,
+    backgroundColor: alpha(theme.palette.surfaceVariant, 1),
+    borderColor: alpha(theme.palette.primary.main, 0.54),
   },
   "&:focus-within": {
     borderColor: theme.palette.primary.main,
-    boxShadow: `0 0 0 3px rgba(25, 118, 210, 0.16)`,
+    boxShadow: `0 0 0 3px ${alpha(theme.palette.primary.main, 0.16)}`,
   },
   [theme.breakpoints.down("md")]: {
     width: "min(44vw, 176px)",
