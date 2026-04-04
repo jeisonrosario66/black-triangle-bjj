@@ -10,9 +10,11 @@ import {
   LinearProgress,
   Stack,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
+import { useTheme } from "@mui/material/styles";
 
-import { useEffect, useMemo, useState } from "react";
+import { startTransition, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
@@ -26,6 +28,7 @@ import type {
   HomeRecommendedRoute,
   HomeRecommendedSystem,
 } from "@bt/shared/services";
+import { editorialMedia } from "@bt/shared/context";
 import { capitalizeFirstLetter } from "@bt/shared/utils/index";
 import {
   collection,
@@ -41,6 +44,7 @@ import { routeList } from "@src/context/index";
 import { database, useSession } from "@src/hooks/index";
 import {
   AppBarNewHeader,
+  EditorialImagePanel,
   PageContainer,
   SectionHeader,
   SimpleGrid,
@@ -61,6 +65,8 @@ const buildCoursePath = (label: string, coach: string) =>
  */
 export default function HomeScreenWeb() {
   const navigate = useNavigate();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { t, i18n } = useTranslation();
   const { user } = useSession();
   const language = i18n.language.startsWith("en") ? "en" : "es";
@@ -72,6 +78,7 @@ export default function HomeScreenWeb() {
     () => cachedHomeData,
   );
   const [loading, setLoading] = useState(!cachedHomeData);
+  const [expandedRouteId, setExpandedRouteId] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -193,6 +200,14 @@ export default function HomeScreenWeb() {
     [user?.firstName, user?.name],
   );
 
+  const toggleRoute = (routeId: string) => {
+    startTransition(() => {
+      setExpandedRouteId((currentRouteId) =>
+        currentRouteId === routeId ? null : routeId,
+      );
+    });
+  };
+
   if (loading && !homeData) {
     return (
       <Box sx={loadingStyles.loading}>
@@ -206,22 +221,27 @@ export default function HomeScreenWeb() {
       <AppBarNewHeader />
       <PageContainer sx={{ pt: { xs: 2, md: 3 } }}>
         <Stack spacing={{ xs: 4, md: 6 }}>
-          <Box sx={style.intro}>
-            <Typography sx={style.introEyebrow}>
-              {t(HOME_TEXT + "eyebrow")}
-            </Typography>
-            <SectionHeader
-              title={t(HOME_TEXT + "title", { name: greetingName })}
-              subtitle={t(HOME_TEXT + "subtitle")}
-              withDivider={false}
-            />
+          <Box sx={style.introGrid}>
+            <Box sx={style.intro}>
+              <SectionHeader
+                title={t(HOME_TEXT + "title", { name: greetingName })}
+                withDivider={false}
+              />
+            </Box>
+
+            {!isMobile ? (
+              <EditorialImagePanel
+                src={editorialMedia.homeIntro.src}
+                alt={t(HOME_TEXT + "title", { name: greetingName })}
+                eyebrow={t(HOME_TEXT + "continueTitle")}
+                title={t(HOME_TEXT + "continueSubtitle")}
+                objectPosition={editorialMedia.homeIntro.objectPosition}
+                sx={style.introVisual}
+              />
+            ) : null}
           </Box>
 
           <Box>
-            <SectionHeader
-              title={t(HOME_TEXT + "continueTitle")}
-              subtitle={t(HOME_TEXT + "continueSubtitle")}
-            />
 
             {homeData?.lastCourse ? (
               <Card sx={style.progressCard}>
@@ -300,7 +320,7 @@ export default function HomeScreenWeb() {
                   <Button
                     variant="outlined"
                     sx={style.cardBottomStyle}
-                    onClick={() => navigate(routeList.root)}
+                    onClick={() => navigate(routeList.explorerScreen)}
                   >
                     {t(HOME_TEXT + "startExploring")}
                   </Button>
@@ -319,7 +339,7 @@ export default function HomeScreenWeb() {
                   variant="outlined"
                   size="small"
                   sx={style.sectionAction}
-                  onClick={() => navigate(routeList.root)}
+                  onClick={() => navigate(routeList.explorerScreen)}
                 >
                   {t(HOME_TEXT + "seeAllSystems")}
                 </Button>
@@ -349,11 +369,41 @@ export default function HomeScreenWeb() {
                   <Button
                     fullWidth
                     startIcon={<PlayArrowIcon />}
-                    onClick={() => openCourse(route.focusCourse)}
+                    onClick={() => toggleRoute(route.id)}
                     sx={style.cardRouteButtom}
                   >
-                    {t(HOME_TEXT + "openRoute")}
+                    {expandedRouteId === route.id
+                      ? t(HOME_TEXT + "hideRoute")
+                      : t(HOME_TEXT + "openRoute")}
                   </Button>
+
+                  {expandedRouteId === route.id ? (
+                    <Stack sx={style.routeCourseList}>
+                      {route.courses.map((course) => (
+                        <Box key={`${route.id}:${course.label}`} sx={style.routeCourseCard}>
+                          <Box sx={style.routeCourseLayout}>
+                            <Box sx={style.routeCourseContent}>
+                              <Typography sx={style.routeCourseTitle}>
+                                {capitalizeFirstLetter(course.name)}
+                              </Typography>
+
+                              <Typography variant="body2" sx={style.routeCourseMeta}>
+                                {`${capitalizeFirstLetter(course.setSystem)} · ${capitalizeFirstLetter(course.coach)}`}
+                              </Typography>
+
+                              <Button
+                                variant="text"
+                                onClick={() => openCourse(course)}
+                                sx={style.routeCourseButton}
+                              >
+                                {t(HOME_TEXT + "openCourse")}
+                              </Button>
+                            </Box>
+                          </Box>
+                        </Box>
+                      ))}
+                    </Stack>
+                  ) : null}
                 </Card>
               ))}
             </SimpleGrid>
@@ -369,7 +419,7 @@ export default function HomeScreenWeb() {
                   variant="outlined"
                   size="small"
                   sx={style.sectionAction}
-                  onClick={() => navigate(routeList.root)}
+                  onClick={() => navigate(routeList.explorerScreen)}
                 >
                   {t(HOME_TEXT + "seeAllSystems")}
                 </Button>
