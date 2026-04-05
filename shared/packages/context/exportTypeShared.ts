@@ -122,9 +122,7 @@ export type SystemCardOption = {
 };
 
 export type HeaderAction =
-  | { type: "search" }
-  | { type: "avatar"; initials?: string }
-  | { type: "divider" };
+  | { type: "avatar"; initials?: string };
 
 export type SystemCardUI = SystemCardOption & {
   setSystem: string;

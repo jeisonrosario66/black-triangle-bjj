@@ -1,15 +1,11 @@
 import {
   IconButton,
-  Divider,
   Avatar,
   CircularProgress,
 } from "@mui/material";
-import SearchIcon from "@mui/icons-material/Search";
 import PersonOutlineOutlinedIcon from "@mui/icons-material/PersonOutlineOutlined";
 import { useTheme } from "@mui/material/styles";
-import { useTranslation } from "react-i18next";
 
-import { Search, SearchIconWrapper, StyledInputBase } from "@src/styles/header/stylesAppBarNewheader";
 import { getHeaderActions } from "@src/components/index";
 
 /**
@@ -27,35 +23,22 @@ export default function HeaderActions({
   isMobile,
   isLogin,
   isLoading,
-  showSearch,
   userInitials,
   onAvatarClick,
 }: {
   isMobile: boolean;
   isLogin: boolean;
   isLoading: boolean;
-  showSearch: boolean;
   userInitials?: string;
   onAvatarClick: (e: React.MouseEvent<HTMLElement>) => void;
 }) {
   const theme = useTheme();
-  const { t } = useTranslation();
-  const actions = getHeaderActions({ isMobile, isLogin, showSearch, userInitials });
+  const actions = getHeaderActions({ isMobile, isLogin, userInitials });
 
   return (
     <>
       {actions.map((action, index) => {
         switch (action.type) {
-          case "search":
-            return (
-              <Search key={index}>
-                <SearchIconWrapper>
-                  <SearchIcon fontSize="small" />
-                </SearchIconWrapper>
-                <StyledInputBase placeholder={t("components.header.searchPlaceholder")} />
-              </Search>
-            );
-
           case "avatar":
             return (
               <IconButton key={index} onClick={onAvatarClick} disabled={isLoading}>
@@ -79,9 +62,6 @@ export default function HeaderActions({
                 </Avatar>
               </IconButton>
             );
-
-          case "divider":
-            return <Divider key={index} orientation="vertical" flexItem />;
 
           default:
             return null;

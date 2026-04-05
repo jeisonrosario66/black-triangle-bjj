@@ -6,7 +6,7 @@ import {
   useMediaQuery,
   Container,
 } from "@mui/material";
-import { useLocation, useNavigate } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { useTheme } from "@mui/material/styles";
@@ -34,12 +34,10 @@ import * as style from "@src/styles/header/stylesAppBarNewheader";
 export default function AppBarHeader() {
   const theme = useTheme();
   const navigate = useNavigate();
-  const location = useLocation();
   const { t } = useTranslation();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { user, isAuthenticated, isLoading, login, logout } = useSession();
   const homeTarget = isAuthenticated ? routeList.home : routeList.root;
-  const showSearch = isAuthenticated && location.pathname !== routeList.root;
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
@@ -89,7 +87,6 @@ export default function AppBarHeader() {
               isMobile={isMobile}
               isLogin={isAuthenticated}
               isLoading={isLoading}
-              showSearch={showSearch}
               userInitials={user?.initials}
               onAvatarClick={(e) => setAnchorEl(e.currentTarget)}
             />

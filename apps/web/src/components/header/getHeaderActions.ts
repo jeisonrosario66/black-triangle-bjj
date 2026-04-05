@@ -17,25 +17,15 @@ import { HeaderAction } from "@bt/shared/context/index";
 export default function getHeaderActions({
   isMobile,
   isLogin,
-  showSearch,
   userInitials,
 }: {
   isMobile: boolean;
   isLogin: boolean;
-  showSearch: boolean;
   userInitials?: string;
 }): HeaderAction[] {
   const actions: HeaderAction[] = [];
 
-  if (showSearch) {
-    actions.push({ type: "search" });
-  }
-
   if (!isMobile) {
-    if (showSearch) {
-      actions.push({ type: "divider" });
-    }
-
     actions.push({ type: "avatar", initials: isLogin ? userInitials : undefined });
   } else {
     actions.push({ type: "avatar", initials: isLogin ? userInitials : undefined });
