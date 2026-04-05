@@ -1,6 +1,6 @@
 import { Box, Divider, Typography } from "@mui/material";
 import { ReactNode } from "react";
-
+import { capitalizeFirstLetter } from "@src/utils";
 interface SectionHeaderProps {
   title: string;
   subtitle?: string;
@@ -30,7 +30,7 @@ export default function SectionHeader({
       >
         <Box>
           <Typography variant="h6" sx={{ fontWeight: 600 }}>
-            {title}
+            {capitalizeFirstLetter(title)}
           </Typography>
           {subtitle ? (
             <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5 }}>

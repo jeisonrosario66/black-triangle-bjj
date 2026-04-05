@@ -1,4 +1,4 @@
-import {defineConfig} from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import path from 'path'
 import svgr from "vite-plugin-svgr";
@@ -15,6 +15,9 @@ export default defineConfig({
     server: {
         host: true, // Permite conexiones desde la red
         port: 5173,
+        allowedHosts: [
+            '.trycloudflare.com'
+        ]
     },
     build: {
         target: "es2022",

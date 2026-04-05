@@ -2,8 +2,9 @@ import { getCoverPalette } from "@bt/shared/context";
 import { Box, Typography } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
 import { useState } from "react";
+import { shape } from "@bt/shared/design-system/index";
 
-type SystemCoverVariant = "hero" | "card" | "list";
+type SystemCoverVariant = "hero" | "card" | "list" | "header";
 
 interface SystemCoverProps {
   title: string;
@@ -11,6 +12,7 @@ interface SystemCoverProps {
   coach?: string;
   coverUrl?: string;
   videoCount?: number;
+  showVisitedIndicator?: boolean;
   variant?: SystemCoverVariant;
 }
 
@@ -25,6 +27,7 @@ const getVariantStyles = (variant: SystemCoverVariant) => {
         countSize: "0.82rem",
         padding: { xs: 2, md: 3 },
         badgeSpacing: 1,
+        sectionGap: { xs: 2.25, md: 3 },
       };
     case "list":
       return {
@@ -35,6 +38,18 @@ const getVariantStyles = (variant: SystemCoverVariant) => {
         countSize: "0.68rem",
         padding: 1.25,
         badgeSpacing: 0.75,
+        sectionGap: 1.25,
+      };
+    case "header":
+      return {
+        titleVariant: "h6" as const,
+        titleSize: { xs: "1rem", md: "1.2rem" },
+        subtitleSize: "0.68rem",
+        coachSize: "0.76rem",
+        countSize: "0.68rem",
+        padding: { xs: 1.25, md: 1.5 },
+        badgeSpacing: 0.45,
+        sectionGap: { xs: 1.6, md: 1.85 },
       };
     default:
       return {
@@ -45,6 +60,7 @@ const getVariantStyles = (variant: SystemCoverVariant) => {
         countSize: "0.72rem",
         padding: 2,
         badgeSpacing: 1,
+        sectionGap: 2,
       };
   }
 };
@@ -63,6 +79,7 @@ export default function SystemCover({
   coach,
   coverUrl,
   videoCount,
+  showVisitedIndicator = false,
   variant = "card",
 }: SystemCoverProps) {
   const theme = useTheme();
@@ -95,14 +112,18 @@ export default function SystemCover({
             linear-gradient(${alpha("#FFFFFF", 0.06)} 1px, transparent 1px),
             linear-gradient(90deg, ${alpha("#FFFFFF", 0.06)} 1px, transparent 1px)
           `,
-          backgroundSize: variant === "hero" ? "46px 46px" : "28px 28px",
-          opacity: 0.24,
+          backgroundSize:
+            variant === "hero" ? "46px 46px" : variant === "header" ? "22px 22px" : "28px 28px",
+          opacity: variant === "header" ? 0.18 : 0.24,
         },
         "&::after": {
           content: '""',
           position: "absolute",
           inset: 0,
-          background: `linear-gradient(180deg, transparent 0%, ${alpha("#020617", 0.2)} 45%, ${alpha("#020617", 0.76)} 100%)`,
+          background:
+            variant === "header"
+              ? `linear-gradient(180deg, ${alpha("#020617", 0.08)} 0%, ${alpha("#020617", 0.44)} 100%)`
+              : `linear-gradient(180deg, transparent 0%, ${alpha("#020617", 0.2)} 45%, ${alpha("#020617", 0.76)} 100%)`,
         },
       }}
     >
@@ -132,8 +153,9 @@ export default function SystemCover({
           zIndex: 1,
           display: "flex",
           flexDirection: "column",
-          justifyContent: "space-between",
+          justifyContent: variant === "header" ? "center" : "space-between",
           padding: variantStyles.padding,
+          gap: variantStyles.sectionGap,
         }}
       >
         <Box
@@ -142,6 +164,7 @@ export default function SystemCover({
             alignItems: "flex-start",
             justifyContent: "space-between",
             gap: 1,
+            flexWrap: variant === "header" ? "wrap" : "nowrap",
           }}
         >
           <Box
@@ -150,7 +173,7 @@ export default function SystemCover({
               alignSelf: "flex-start",
               px: 1,
               py: 0.5,
-              borderRadius: 999,
+              borderRadius: shape.borderRadius,
               fontSize: variantStyles.subtitleSize,
               fontWeight: 700,
               letterSpacing: "0.14em",
@@ -164,27 +187,48 @@ export default function SystemCover({
             {subtitle || "Black Triangle"}
           </Box>
 
-          {typeof videoCount === "number" ? (
-            <Box
-              sx={{
-                display: "inline-flex",
-                alignSelf: "flex-start",
-                px: 1,
-                py: 0.5,
-                borderRadius: 999,
-                fontSize: variantStyles.countSize,
-                fontWeight: 700,
-                letterSpacing: "0.08em",
-                textTransform: "uppercase",
-                color: alpha("#F8FAFC", 0.94),
-                backgroundColor: alpha(theme.palette.common.black, 0.28),
-                border: `1px solid ${alpha("#FFFFFF", 0.16)}`,
-                backdropFilter: "blur(8px)",
-              }}
-            >
-              {videoCount} videos
-            </Box>
-          ) : null}
+          <Box
+            sx={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 0.75,
+              alignSelf: "flex-start",
+            }}
+          >
+            {showVisitedIndicator ? (
+              <Box
+                sx={{
+                  width: 10,
+                  height: 10,
+                  borderRadius: "50%",
+                  backgroundColor: theme.palette.primary.main,
+                  boxShadow: `0 0 0 4px ${alpha(theme.palette.primary.main, 0.18)}`,
+                }}
+              />
+            ) : null}
+
+            {typeof videoCount === "number" ? (
+              <Box
+                sx={{
+                  display: "inline-flex",
+                  alignSelf: "flex-start",
+                  px: 1,
+                  py: 0.5,
+                  borderRadius: 999,
+                  fontSize: variantStyles.countSize,
+                  fontWeight: 700,
+                  letterSpacing: "0.08em",
+                  textTransform: "uppercase",
+                  color: alpha("#F8FAFC", 0.94),
+                  backgroundColor: alpha(theme.palette.common.black, 0.28),
+                  border: `1px solid ${alpha("#FFFFFF", 0.16)}`,
+                  backdropFilter: "blur(8px)",
+                }}
+              >
+                {videoCount} videos
+              </Box>
+            ) : null}
+          </Box>
         </Box>
 
         <Box sx={{ display: "flex", flexDirection: "column", gap: variantStyles.badgeSpacing }}>
@@ -193,8 +237,13 @@ export default function SystemCover({
             sx={{
               fontWeight: 800,
               fontSize: variantStyles.titleSize,
-              lineHeight: 1.02,
-              maxWidth: variant === "list" ? "90%" : "80%",
+              lineHeight: variant === "header" ? 1.08 : 1.02,
+              maxWidth:
+                variant === "list"
+                  ? "90%"
+                  : variant === "header"
+                    ? "100%"
+                    : "80%",
               textWrap: "balance",
               textShadow: "0 10px 22px rgba(2, 6, 23, 0.42)",
             }}

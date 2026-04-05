@@ -27,18 +27,20 @@ export default function HeaderActions({
   isMobile,
   isLogin,
   isLoading,
+  showSearch,
   userInitials,
   onAvatarClick,
 }: {
   isMobile: boolean;
   isLogin: boolean;
   isLoading: boolean;
+  showSearch: boolean;
   userInitials?: string;
   onAvatarClick: (e: React.MouseEvent<HTMLElement>) => void;
 }) {
   const theme = useTheme();
   const { t } = useTranslation();
-  const actions = getHeaderActions({ isMobile, isLogin, userInitials });
+  const actions = getHeaderActions({ isMobile, isLogin, showSearch, userInitials });
 
   return (
     <>

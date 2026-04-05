@@ -42,6 +42,7 @@ export { default as HighlightText } from "@src/components/ui/HighlightText";
 export { default as VirtualizedList } from "@src/components/ui/VirtualizedList";
 export { default as SimpleGrid } from "@src/components/ui/SimpleGrid";
 export { default as SystemCover } from "@src/components/ui/SystemCover";
+export { default as EditorialImagePanel } from "@src/components/ui/EditorialImagePanel";
 export { default as RequireAuth } from "@src/components/ui/RequireAuth";
 
 // Components/header

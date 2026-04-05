@@ -13,9 +13,14 @@ import { useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import { projectName } from "@bt/shared/context";
+import { editorialMedia, projectName } from "@bt/shared/context";
 import { logoBlackTriangleFull } from "@bt/shared/assets";
-import { AppBarNewHeader, PageContainer, SimpleGrid } from "@src/components/index";
+import {
+  AppBarNewHeader,
+  EditorialImagePanel,
+  PageContainer,
+  SimpleGrid,
+} from "@src/components/index";
 import { routeList } from "@src/context/index";
 import { useSession } from "@src/hooks/index";
 import * as styles from "@src/styles/screens/styleLandingPage";
@@ -126,6 +131,12 @@ export default function LandingPage() {
                   <Typography sx={styles.heroVisualBody}>
                     {t(LANDING_TEXT + "visualBody")}
                   </Typography>
+                  <EditorialImagePanel
+                    src={editorialMedia.landingHero.src}
+                    alt={t(LANDING_TEXT + "visualTitle")}
+                    objectPosition={editorialMedia.landingHero.objectPosition}
+                    sx={styles.heroEditorialMedia}
+                  />
                 </Box>
 
                 <Box sx={styles.heroFeatureStack}>

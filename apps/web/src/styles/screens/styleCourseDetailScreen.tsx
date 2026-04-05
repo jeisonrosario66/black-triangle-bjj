@@ -6,14 +6,6 @@ export const container: SxProps<Theme> = (theme) => ({
   ...surfaceRecipes.page(theme),
 });
 
-export const heroCard: SxProps<Theme> = (theme) => ({
-  ...surfaceRecipes.hero(theme),
-  position: "relative",
-});
-
-export const heroMedia: SxProps = {
-  height: { xs: 220, md: 340 },
-};
 
 export const headerMetaRow: SxProps = {
   display: "flex",

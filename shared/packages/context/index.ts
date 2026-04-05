@@ -16,6 +16,8 @@ export {
   visualThemes,
 } from "./visualShared";
 export type { VisualThemeKey } from "./visualShared";
+export { editorialMedia } from "./editorialMediaShared";
+export type { EditorialMediaKey } from "./editorialMediaShared";
 
 export type {
   GroupOptionFirestore,

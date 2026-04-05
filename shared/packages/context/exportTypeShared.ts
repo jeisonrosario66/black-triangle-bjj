@@ -1,4 +1,5 @@
 type NodeIdentity = {
+  docId?: string;
   id: number;
   index?: number;
 };
@@ -16,6 +17,7 @@ type NodeMetadata = {
   group: string;
   videoid: string;
   color?: string;
+  viewsCount?: number;
   description: StructuredDescription;
 };
 type CoreNode = NodeIdentity & NodeMetadata;

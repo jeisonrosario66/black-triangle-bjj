@@ -1,8 +1,10 @@
-import type { SystemCardUI } from "@bt/shared/context";
+import { editorialMedia, type SystemCardUI } from "@bt/shared/context";
 import {
   buildCourseLocationStateShared,
   buildSystemsUIShared,
+  getCachedUserCourseStatsShared,
   getCachedSystemsShared,
+  getUserCourseStatsShared,
   getSystemshared,
   trackCourseSelectionShared,
 } from "@bt/shared/services";
@@ -43,6 +45,7 @@ import { useNavigate } from "react-router-dom";
 import {
   AppBarNewHeader,
   BreadcrumbsBar,
+  EditorialImagePanel,
   PageContainer,
   SectionHeader,
   SimpleGrid,
@@ -77,10 +80,15 @@ const scoreSystem = (system: SystemCardUI, query: string) => {
 
 interface SystemCardProps {
   system: SystemCardUI;
+  isVisited?: boolean;
   onClick: () => void;
 }
 
-function SystemCard({ system, onClick }: SystemCardProps) {
+function SystemCard({
+  system,
+  isVisited = false,
+  onClick,
+}: SystemCardProps) {
   return (
     <Card sx={styles.systemCard}>
       <CardActionArea onClick={onClick}>
@@ -91,6 +99,7 @@ function SystemCard({ system, onClick }: SystemCardProps) {
             coach={capitalizeFirstLetter(system.coach)}
             coverUrl={system.coverUrl}
             videoCount={system.videoCount}
+            showVisitedIndicator={isVisited}
             variant="card"
           />
         </Box>
@@ -101,12 +110,17 @@ function SystemCard({ system, onClick }: SystemCardProps) {
 
 interface SystemListItemProps {
   system: SystemCardUI;
+  isVisited?: boolean;
   onClick: () => void;
 }
 
 const language = "es";
 
-function SystemListItem({ system, onClick }: SystemListItemProps) {
+function SystemListItem({
+  system,
+  isVisited = false,
+  onClick,
+}: SystemListItemProps) {
   return (
     <Box
       sx={styles.mobileListItem}
@@ -125,6 +139,7 @@ function SystemListItem({ system, onClick }: SystemListItemProps) {
           coach={capitalizeFirstLetter(system.coach)}
           coverUrl={system.coverUrl}
           videoCount={system.videoCount}
+          showVisitedIndicator={isVisited}
           variant="list"
         />
       </Box>
@@ -146,6 +161,9 @@ export default function ExplorerScreen() {
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { user } = useSession();
   const cachedSystemsData = getCachedSystemsShared(language);
+  const cachedUserStats = user?.email
+    ? getCachedUserCourseStatsShared(user.email)
+    : null;
   const initialExplorerData = cachedSystemsData
     ? buildSystemsUIShared(cachedSystemsData)
     : null;
@@ -159,6 +177,14 @@ export default function ExplorerScreen() {
   const [loading, setLoading] = useState(!initialExplorerData);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [visitedCourseLabels, setVisitedCourseLabels] = useState<string[]>(
+    () =>
+      cachedUserStats
+        ? Array.from(cachedUserStats.values())
+            .filter((stat) => Boolean(stat.watchedVideoIds?.length || stat.lastVideoAt))
+            .map((stat) => stat.label)
+        : [],
+  );
 
   useEffect(() => {
     const loadSystems = async () => {
@@ -176,6 +202,48 @@ export default function ExplorerScreen() {
 
     loadSystems();
   }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadVisitedCourses = async () => {
+      if (!user?.email) {
+        if (mounted) {
+          setVisitedCourseLabels([]);
+        }
+        return;
+      }
+
+      try {
+        const statsMap = await getUserCourseStatsShared({
+          email: user.email,
+          firestore: {
+            collection,
+            database,
+            getDocs,
+          },
+        });
+
+        if (!mounted) {
+          return;
+        }
+
+        setVisitedCourseLabels(
+          Array.from(statsMap.values())
+            .filter((stat) => Boolean(stat.watchedVideoIds?.length || stat.lastVideoAt))
+            .map((stat) => stat.label),
+        );
+      } catch (error) {
+        console.error("No se pudieron cargar los cursos vistos del usuario:", error);
+      }
+    };
+
+    void loadVisitedCourses();
+
+    return () => {
+      mounted = false;
+    };
+  }, [user?.email]);
 
   const rawQuery = useMemo(() => searchQuery.trim(), [searchQuery]);
   const normalizedQuery = useMemo(
@@ -230,6 +298,11 @@ export default function ExplorerScreen() {
       .map(({ score, ...system }) => system);
   }, [systems, selectedCategory, normalizedQuery]);
 
+  const visitedCourseSet = useMemo(
+    () => new Set(visitedCourseLabels),
+    [visitedCourseLabels],
+  );
+
   const handleClear = () => {
     setSearchQuery("");
     setSelectedCategory("");
@@ -278,6 +351,16 @@ export default function ExplorerScreen() {
         <SectionHeader
           title="Explorar Sistemas"
           subtitle="Busca por técnica, coach o sistema"
+        />
+
+        <EditorialImagePanel
+          src={editorialMedia.explorerHero.src}
+          alt="Explorar sistemas de BJJ"
+          eyebrow="Black Triangle"
+          title="Busca por sistema, coach o técnica"
+          description="Encuentra rutas de estudio más claras con una exploración visual más guiada."
+          objectPosition={editorialMedia.explorerHero.objectPosition}
+          sx={styles.heroVisual}
         />
 
         <Box sx={styles.filtersRow}>
@@ -381,6 +464,7 @@ export default function ExplorerScreen() {
               <SystemListItem
                 key={item.label}
                 system={item}
+                isVisited={visitedCourseSet.has(item.label)}
                 onClick={() => handleNavigate(item)}
               />
             )}
@@ -391,6 +475,7 @@ export default function ExplorerScreen() {
               <SystemCard
                 key={item.label}
                 system={item}
+                isVisited={visitedCourseSet.has(item.label)}
                 onClick={() => handleNavigate(item)}
               />
             ))}

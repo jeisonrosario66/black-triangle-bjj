@@ -4,19 +4,20 @@ import {
   AppBar,
   Toolbar,
   useMediaQuery,
-  Typography,
   Container,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
 import { useTheme } from "@mui/material/styles";
+import {
+  logoBlackTriangleNoText,
+  logoBlackTriangleOnlyText,
+} from "@bt/shared/assets";
 
 import { HeaderActions, HeaderMenu } from "@src/components/index";
 import { routeList } from "@src/context/index";
 import { useSession } from "@src/hooks/index";
-import { projectName } from "@bt/shared/context/configShared";
-import logo from "@bt/shared/assets/logo.png";
 import * as style from "@src/styles/header/stylesAppBarNewheader";
 
 /**
@@ -33,10 +34,12 @@ import * as style from "@src/styles/header/stylesAppBarNewheader";
 export default function AppBarHeader() {
   const theme = useTheme();
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
   const { user, isAuthenticated, isLoading, login, logout } = useSession();
   const homeTarget = isAuthenticated ? routeList.home : routeList.root;
+  const showSearch = isAuthenticated && location.pathname !== routeList.root;
 
   const [anchorEl, setAnchorEl] = React.useState<HTMLElement | null>(null);
 
@@ -66,21 +69,27 @@ export default function AppBarHeader() {
               aria-label={t("components.header.goHome")}
             >
               <Box sx={style.brandLogo}>
-                <img src={logo} alt="Logo" width={28} />
+                <Box
+                  component="img"
+                  src={logoBlackTriangleNoText}
+                  alt="Black Triangle icon"
+                  sx={style.brandLogoImage}
+                />
               </Box>
 
-              <Typography
-                sx={style.brandTitle}
-                variant={isMobile ? "subtitle1" : "h6"}
-              >
-                {projectName}
-              </Typography>
+              <Box
+                component="img"
+                src={logoBlackTriangleOnlyText}
+                alt="Black Triangle"
+                sx={style.brandWordmark}
+              />
             </Box>
 
             <HeaderActions
               isMobile={isMobile}
               isLogin={isAuthenticated}
               isLoading={isLoading}
+              showSearch={showSearch}
               userInitials={user?.initials}
               onAvatarClick={(e) => setAnchorEl(e.currentTarget)}
             />

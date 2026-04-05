@@ -33,11 +33,18 @@ import {
   TagList,
 } from "@src/components/index";
 import * as styles from "@src/styles/screens/styleVideoDetailScreen";
-import type { NodeOptionFirestore } from "@bt/shared/context";
-import { trackVideoOpenedShared } from "@bt/shared/services";
+import { type NodeOptionFirestore } from "@bt/shared/context";
+import {
+  getCachedCourseStatShared,
+  getCourseStatShared,
+  trackVideoOpenedShared,
+} from "@bt/shared/services";
+import { formatCompactNumber } from "@bt/shared/utils";
 import {
   arrayUnion,
+  collection,
   doc,
+  getDocs,
   increment,
   setDoc,
 } from "firebase/firestore";
@@ -64,6 +71,10 @@ export default function VideoDetailScreen() {
   const firestoreRoute = location.state?.firestoreRuta;
   const courseModules = (location.state?.courseModules as NodeOptionFirestore[] | undefined) ?? [];
   const system = location.state?.system;
+  const cachedCourseStat =
+    user?.email && system?.label
+      ? getCachedCourseStatShared(user.email, system.label)
+      : null;
 
   const orderedModules = useMemo(
     () => [...courseModules].sort((a, b) => Number(a.id) - Number(b.id)),
@@ -81,6 +92,10 @@ export default function VideoDetailScreen() {
     currentIndex >= 0 && currentIndex < orderedModules.length - 1
       ? orderedModules[currentIndex + 1]
       : undefined;
+  const [visitedModuleIds, setVisitedModuleIds] = useState<number[]>(
+    () => cachedCourseStat?.watchedVideoIds ?? [],
+  );
+  const [viewsCount, setViewsCount] = useState<number>(currentNode?.viewsCount ?? 0);
 
   const taxonomy = useNodeTaxonomy(
     currentNode?.id ?? 0,
@@ -97,6 +112,49 @@ export default function VideoDetailScreen() {
   }, [currentNode]);
 
   useEffect(() => {
+    setViewsCount(currentNode?.viewsCount ?? 0);
+  }, [currentNode?.id, currentNode?.viewsCount]);
+
+  useEffect(() => {
+    let mounted = true;
+
+    const loadCourseStat = async () => {
+      if (!user?.email || !system?.label) {
+        if (mounted) {
+          setVisitedModuleIds([]);
+        }
+        return;
+      }
+
+      try {
+        const courseStat = await getCourseStatShared({
+          email: user.email,
+          courseLabel: system.label,
+          firestore: {
+            collection,
+            database,
+            getDocs,
+          },
+        });
+
+        if (!mounted) {
+          return;
+        }
+
+        setVisitedModuleIds(courseStat?.watchedVideoIds ?? []);
+      } catch (error) {
+        console.error("No se pudo cargar el historial del curso:", error);
+      }
+    };
+
+    void loadCourseStat();
+
+    return () => {
+      mounted = false;
+    };
+  }, [system?.label, user?.email]);
+
+  useEffect(() => {
     if (!user?.email || !system || !currentNode) {
       return;
     }
@@ -109,18 +167,34 @@ export default function VideoDetailScreen() {
 
     trackedVideoRef.current = trackKey;
 
-    void trackVideoOpenedShared({
-      email: user.email,
-      firestore: {
-        arrayUnion,
-        database,
-        doc,
-        increment,
-        setDoc,
-      },
-      module: currentNode,
-      system,
+    setVisitedModuleIds((currentVisitedIds) => {
+      if (currentVisitedIds.includes(currentNode.id)) {
+        return currentVisitedIds;
+      }
+
+      return [...currentVisitedIds, currentNode.id].sort((a, b) => a - b);
     });
+
+    void (async () => {
+      const wasTracked = await trackVideoOpenedShared({
+        email: user.email,
+        firestore: {
+          arrayUnion,
+          database,
+          doc,
+          increment,
+          setDoc,
+        },
+        module: currentNode,
+        system,
+      });
+
+      if (!wasTracked) {
+        return;
+      }
+
+      setViewsCount((currentViews) => currentViews + 1);
+    })();
   }, [currentNode, system, user?.email]);
 
   const stateSystemLabel = location.state?.systemBreadcrumbLabel as
@@ -169,6 +243,59 @@ export default function VideoDetailScreen() {
     [tabs],
   );
 
+  const videoPlayer = (
+    <Box sx={styles.videoFrame}>
+      <Box
+        component="iframe"
+        src={`https://drive.google.com/file/d/${currentNode?.videoid}/preview`}
+        allow="autoplay; fullscreen; picture-in-picture"
+        allowFullScreen
+        title={currentNode?.name ?? t(textVideoDetail + "content")}
+        sx={styles.videoIframe}
+      />
+    </Box>
+  );
+
+  const heroCard = system ? (
+    <Card sx={styles.heroCard}>
+      <Box sx={styles.heroMedia}>
+        <SystemCover
+          title={capitalizeFirstLetter(system.name)}
+          subtitle={capitalizeFirstLetter(system.setSystem)}
+          coach={capitalizeFirstLetter(system.coach)}
+          coverUrl={system.coverUrl}
+          showVisitedIndicator={visitedModuleIds.length > 0}
+          variant="header"
+        />
+      </Box>
+    </Card>
+  ) : null;
+
+  if (!currentNode) {
+    return (
+      <Box sx={styles.container}>
+        <AppBarNewHeader />
+        <PageContainer sx={{ pt: { xs: 2, md: 3 } }}>
+          <Card sx={styles.metaCard}>
+            <Typography variant="h6">
+              {t(textVideoDetail + "missingVideoTitle")}
+            </Typography>
+            <Typography sx={{ color: "text.secondary", mt: 1 }}>
+              {t(textVideoDetail + "missingVideoDescription")}
+            </Typography>
+            <Button
+              sx={{ mt: 2 }}
+              variant="contained"
+              onClick={() => navigate(routeList.explorerScreen)}
+            >
+              {t(textVideoDetail + "backToExplore")}
+            </Button>
+          </Card>
+        </PageContainer>
+      </Box>
+    );
+  }
+
   return (
     <Box sx={styles.container}>
       <AppBarNewHeader />
@@ -181,43 +308,31 @@ export default function VideoDetailScreen() {
                   ? t("components.home.breadcrumb")
                   : t(textVideoDetail + "explore"),
               onClick: () =>
-                navigate(entryPoint === "home" ? routeList.home : routeList.root),
+                navigate(
+                  entryPoint === "home" ? routeList.home : routeList.explorerScreen,
+                ),
             },
             { label: systemBreadcrumbLabel },
             { label: currentNode?.name ?? t(textVideoDetail + "content") },
           ]}
         />
 
-        {system ? (
-          <Card sx={styles.heroCard}>
-            <Box sx={styles.heroMedia}>
-              <SystemCover
-                title={capitalizeFirstLetter(system.name)}
-                subtitle={capitalizeFirstLetter(system.setSystem)}
-                coach={capitalizeFirstLetter(system.coach)}
-                coverUrl={system.coverUrl}
-                variant="hero"
-              />
-            </Box>
-          </Card>
-        ) : null}
-
-        <Box sx={styles.videoFrame}>
-          <Box
-            component="iframe"
-            src={`https://drive.google.com/file/d/${currentNode?.videoid}/preview`}
-            allow="autoplay"
-            allowFullScreen
-            sx={styles.videoIframe}
-          />
-        </Box>
-
+        {heroCard}
+        {videoPlayer}
         <SectionHeader
           title={currentNode?.name ?? t(textVideoDetail + "content")}
           withDivider={false}
         />
 
         <Box sx={styles.metaCard}>
+          <Box sx={styles.videoMetaRow}>
+            <Typography variant="body2" sx={styles.viewsLabel}>
+              {t(textVideoDetail + "viewsCount", {
+                value: formatCompactNumber(viewsCount),
+              })}
+            </Typography>
+          </Box>
+
           <Box sx={{ mb: 2 }}>
             <TagList items={tagItems} />
           </Box>
@@ -278,6 +393,7 @@ export default function VideoDetailScreen() {
               <ModuleList
                 modules={orderedModules}
                 selectedModuleId={currentNode?.id}
+                visitedModuleIds={visitedModuleIds}
                 onSelect={(module) => navigateToModule(module)}
               />
             </AccordionDetails>

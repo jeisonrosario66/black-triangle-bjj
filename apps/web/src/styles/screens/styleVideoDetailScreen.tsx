@@ -9,14 +9,16 @@ export const container: SxProps<Theme> = (theme) => ({
 export const heroCard: SxProps<Theme> = (theme) => ({
   ...surfaceRecipes.hero(theme),
   position: "relative",
-  marginBottom: { xs: 2.5, md: 3 },
+  marginBottom: { xs: 1.5, md: 2.25 },
+  overflow: "hidden",
 });
 
 export const heroMedia: SxProps = {
-  height: { xs: 156, md: 240 },
+  height: { xs: 108, sm: 116, md: 132 },
 };
 
 export const videoFrame: SxProps<Theme> = () => ({
+  marginTop: { xs: 0, md: 0.5 },
   width: { xs: "calc(100% + 32px)", sm: "100%" },
   marginLeft: { xs: -2, sm: 0 },
   marginRight: { xs: -2, sm: 0 },

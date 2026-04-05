@@ -15,11 +15,11 @@ export const colors = {
    * highlights importantes, navegación activa
    * ───────────────────────────────────────────── */
 
-  primary: "#1E3A8A", // Azul profundo (marca principal)
-  onPrimary: "#FFFFFF",
+  primary: "#B38A4B", // Dorado metalico
+  onPrimary: "#0A0A0A",
 
-  primaryContainer: "#E0E7FF", // Fondos suaves (chips, cards activas)
-  onPrimaryContainer: "#1E293B",
+  primaryContainer: "#2A2114", // Fondos suaves para acentos
+  onPrimaryContainer: "#F4E7CF",
 
   /* ─────────────────────────────────────────────
    * SECONDARY COLORS
@@ -27,70 +27,70 @@ export const colors = {
    * acciones menos prioritarias
    * ───────────────────────────────────────────── */
 
-  secondary: "#475569", // Gris azulado técnico
-  onSecondary: "#FFFFFF",
+  secondary: "#2B2B2B", // Gris oscuro tecnico
+  onSecondary: "#F6F1E8",
 
-  secondaryContainer: "#E2E8F0",
-  onSecondaryContainer: "#1F2937",
+  secondaryContainer: "#1A1A1A",
+  onSecondaryContainer: "#E5D6BB",
 
   /* ─────────────────────────────────────────────
    * BACKGROUND & SURFACES
    * Controla profundidad visual (layers)
    * ───────────────────────────────────────────── */
 
-  background: "#F8FAFC", // Fondo principal app
-  onBackground: "#0F172A",
+  background: "#050505", // Fondo principal
+  onBackground: "#F7F1E8",
 
-  surface: "#FFFFFF", // Cards principales
-  onSurface: "#0F172A",
+  surface: "#131313", // Cards principales
+  onSurface: "#F7F1E8",
 
-  surfaceVariant: "#F1F5F9", // Cards secundarias / secciones
-  onSurfaceVariant: "#475569",
+  surfaceVariant: "#1B1B1B", // Cards secundarias
+  onSurfaceVariant: "#C7B79B",
 
-  surfaceContainer: "#F1F5F9", // Agrupaciones
-  surfaceContainerHigh: "#E2E8F0", // Headers / footers
-  surfaceContainerHighest: "#CBD5E1", // Separaciones fuertes
+  surfaceContainer: "#161616",
+  surfaceContainerHigh: "#1E1E1E",
+  surfaceContainerHighest: "#262626",
 
   /* ─────────────────────────────────────────────
    * TEXT COLORS
    * Separados por intención semántica
    * ───────────────────────────────────────────── */
 
-  textPrimary: "#0F172A", // Títulos, labels importantes
-  textSecondary: "#475569", // Descripciones, metadata
-  textDisabled: "#94A3B8", // Estados inactivos
+  textPrimary: "#F7F1E8",
+  textSecondary: "#C7B79B",
+  textDisabled: "#7B6A4C",
 
   /* ─────────────────────────────────────────────
    * OUTLINES & BORDERS
    * ───────────────────────────────────────────── */
 
-  outline: "#CBD5E1", // Bordes estándar
-  outlineVariant: "#E2E8F0", // Dividers suaves
+  outline: "#6A5430",
+  outlineVariant: "#342A1C",
 
   /* ─────────────────────────────────────────────
    * SEMANTIC COLORS
    * Feedback del sistema
    * ───────────────────────────────────────────── */
 
-  success: "#16A34A", // Confirmaciones, progreso
-  onSuccess: "#FFFFFF",
+  success: "#D6B173",
+  onSuccess: "#0A0A0A",
 
-  warning: "#D97706", // Advertencias
-  onWarning: "#FFFFFF",
+  warning: "#C79A5B",
+  onWarning: "#0A0A0A",
 
-  error: "#DC2626", // Errores críticos
-  onError: "#FFFFFF",
+  error: "#8C6A3D",
+  onError: "#F7F1E8",
 
-  info: "#0284C7", // Información contextual
-  onInfo: "#FFFFFF",
+  info: "#E1C48C",
+  onInfo: "#0A0A0A",
 
   /* ─────────────────────────────────────────────
    * BRAND EXTENSIONS
    * Para futuras expansiones visuales
    * ───────────────────────────────────────────── */
 
-  brandPrimary: "#1E3A8A",
-  brandSecondary: "#0F172A",
+  brandPrimary: "#B38A4B",
+  brandSecondary: "#0A0A0A",
 };
 
 /**
@@ -100,10 +100,10 @@ export const colors = {
 
 export const shape = {
   borderRadius: {
-    xs: 2,  // Chips pequeños
-    sm: 3,  // Inputs, badges
-    md: 6,  // Cards estándar
-    lg: 8, // Modales
-    xl: 10, // Hero cards / covers
+    xs: 1,
+    sm: 0.7,
+    md: 6,
+    lg: 8,
+    xl: 10,
   },
 };

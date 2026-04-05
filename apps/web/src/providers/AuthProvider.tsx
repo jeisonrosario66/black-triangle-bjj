@@ -15,7 +15,10 @@ import { SessionContext, type SessionUser } from "@src/context/authSession";
 import { auth, database, provider } from "@src/hooks/fireBase";
 
 const USERS_COLLECTION = "users";
-const MOBILE_BREAKPOINT = 900;
+const POPUP_REDIRECT_FALLBACK_CODES = new Set([
+  "auth/popup-blocked",
+  "auth/operation-not-supported-in-this-environment",
+]);
 
 /**
  * Normaliza el correo electrónico para garantizar consistencia
@@ -109,15 +112,43 @@ const syncUserRecord = async (firebaseUser: User): Promise<SessionUser | null> =
   };
 };
 
+const isFirebaseAuthError = (
+  error: unknown,
+): error is { code: string; message?: string } =>
+  typeof error === "object" &&
+  error !== null &&
+  "code" in error &&
+  typeof (error as { code?: unknown }).code === "string";
+
 /**
- * Detecta si el viewport actual debe priorizar un flujo mobile-first.
- * Se utiliza para alternar entre popup en desktop y redirect en mobile.
+ * Determina si un error del popup amerita fallback al flujo por redirect.
+ * Se usa para cubrir navegadores o contextos donde el popup no puede abrirse,
+ * manteniendo el login funcional sin romper desktop.
  *
- * @returns {boolean} true cuando el ancho actual coincide con el breakpoint mobile.
+ * @param {unknown} error - Error recibido al intentar abrir el popup.
+ * @returns {boolean} true cuando el redirect puede resolver el intento de login.
  */
-const isMobileViewport = () =>
-  typeof window !== "undefined" &&
-  window.matchMedia(`(max-width: ${MOBILE_BREAKPOINT - 0.05}px)`).matches;
+const shouldFallbackToRedirect = (error: unknown) =>
+  isFirebaseAuthError(error) && POPUP_REDIRECT_FALLBACK_CODES.has(error.code);
+
+/**
+ * Registra una pista útil cuando el entorno de ejecución puede bloquear
+ * la autenticación de Google en mobile, especialmente durante desarrollo local.
+ *
+ * @param {unknown} error - Error devuelto por Firebase Auth.
+ */
+const logLoginEnvironmentHint = (error: unknown) => {
+  if (!isFirebaseAuthError(error) || typeof window === "undefined") {
+    return;
+  }
+
+  if (error.code === "auth/unauthorized-domain") {
+    console.error(
+      `El origen actual (${window.location.origin}) no está autorizado en Firebase Auth. ` +
+        "En móvil suele ocurrir al abrir la app desde la IP local del servidor de Vite.",
+    );
+  }
+};
 
 /**
  * Provider global de autenticación para la aplicación web.
@@ -202,28 +233,38 @@ export default function AuthProvider({ children }: { children: ReactNode }) {
 
   /**
    * Inicia sesión con Google.
-   * Usa redirect en mobile para una experiencia más robusta y popup en desktop
-   * para mantener el flujo dentro del contexto actual de navegación.
+   * Intenta abrir primero un popup para evitar los problemas frecuentes del
+   * redirect en navegadores móviles actuales, y usa redirect como fallback
+   * cuando el navegador no permite ese popup.
    *
    * @returns {Promise<void>} Promesa del flujo de autenticación.
    */
   const login = async () => {
+    const popupLoginPromise = signInWithPopup(auth, provider);
     setIsLoading(true);
 
     try {
-      if (isMobileViewport()) {
-        await signInWithRedirect(auth, provider);
-        return;
-      }
-
-      const credential = await signInWithPopup(auth, provider);
+      const credential = await popupLoginPromise;
       const nextUser = await syncUserRecord(credential.user);
       setUser(nextUser);
       setIsLoading(false);
-    } catch (error) {
-      console.error("No se pudo iniciar sesión con Google:", error);
+      return;
+    } catch (popupError) {
+      if (!shouldFallbackToRedirect(popupError)) {
+        logLoginEnvironmentHint(popupError);
+        console.error("No se pudo iniciar sesión con Google:", popupError);
+        setIsLoading(false);
+        throw popupError;
+      }
+    }
+
+    try {
+      await signInWithRedirect(auth, provider);
+    } catch (redirectError) {
+      logLoginEnvironmentHint(redirectError);
+      console.error("No se pudo iniciar sesión con Google:", redirectError);
       setIsLoading(false);
-      throw error;
+      throw redirectError;
     }
   };
 

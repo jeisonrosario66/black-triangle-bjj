@@ -4,6 +4,8 @@ import { useUIStore } from "@src/store/index";
 import { cacheUser, routeList } from "@src/context/index";
 import { debugLog } from "@src/utils/index";
 import {
+  LandingPage,
+  NotFoundPage,
   ExplorerScreen,
   CourseDetailScreen,
   VideoDetailScreen, 
@@ -45,7 +47,7 @@ function App() {
 
   return (
     <Routes>
-      <Route path={routeList.root} element={<ExplorerScreen />} />
+      <Route path={routeList.root} element={<LandingPage />} />
       <Route
         path={routeList.home}
         element={(
@@ -55,13 +57,30 @@ function App() {
         )}
       />
       <Route
+        path={routeList.explorerScreen}
+        element={(
+          <RequireAuth>
+            <ExplorerScreen />
+          </RequireAuth>
+        )}
+      />
+      <Route
         path={routeList.courseDetailScreen}
-        element={<CourseDetailScreen />}
+        element={(
+          <RequireAuth>
+            <CourseDetailScreen />
+          </RequireAuth>
+        )}
       />
       <Route
         path={routeList.videoDetailScreen}
-        element={<VideoDetailScreen />}
+        element={(
+          <RequireAuth>
+            <VideoDetailScreen />
+          </RequireAuth>
+        )}
       />
+      <Route path="*" element={<NotFoundPage />} />
       {/* <Route path={routeList.nodeViewer} element={<MainAppLayout />} /> */}
       {/* <Route path={routeList.addNode} element={<AddNodeForm />} /> */}
       {/* <Route path={routeList.profile} element={<Profile />} /> */}

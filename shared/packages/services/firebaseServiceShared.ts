@@ -246,14 +246,16 @@ export const getDataNodesShared = async (
       .map((querySnapshot, index) => {
         persistStoredVideoCount(dbNames[index], querySnapshot.size);
 
-        return querySnapshot.docs.map((doc: { data: () => any; }) => {
+        return querySnapshot.docs.map((doc: { id: string; data: () => any; }) => {
           const docData = doc.data();
           return {
+            docId: doc.id,
             id: docData.index,
             index: docData.index,
             name: language === "es" ? docData.name_es : docData.name_en,
             group: docData.group,
             videoid: docData.videoid,
+            viewsCount: docData.viewsCount ?? 0,
             description:
               language === "es" ? docData.descrip_es : docData.descrip_en,
           };

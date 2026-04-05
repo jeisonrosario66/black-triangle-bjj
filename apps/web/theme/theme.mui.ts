@@ -3,6 +3,14 @@ import { colors, shape } from "@bt/shared/design-system/index";
 
 export const muiTheme = createTheme({
   components: {
+    MuiCssBaseline: {
+      styleOverrides: {
+        body: {
+          backgroundColor: colors.background,
+          color: colors.textPrimary,
+        },
+      },
+    },
     MuiButtonBase: {
       styleOverrides: {
         root: {
@@ -14,19 +22,31 @@ export const muiTheme = createTheme({
     },
     MuiButton: {
       styleOverrides: {
-        root: {
+        root: ({ theme }) => ({
           textTransform: "none",
-          fontWeight: 600,
+          fontWeight: 700,
           borderRadius: shape.borderRadius.sm,
-          letterSpacing: 0.2,
-        },
+          letterSpacing: 0.3,
+          boxShadow: "none",
+          "&:hover": {
+            boxShadow: "none",
+          },
+          ...(theme.palette.mode === "dark"
+            ? {
+                "&.MuiButton-contained": {
+                  color: theme.palette.primary.contrastText,
+                },
+              }
+            : {}),
+        }),
       },
     },
     MuiCard: {
       styleOverrides: {
         root: {
           border: `1px solid ${colors.outlineVariant}`,
-          boxShadow: "0 8px 24px rgba(15, 23, 42, 0.08)",
+          backgroundColor: colors.surface,
+          boxShadow: "0 14px 36px rgba(0, 0, 0, 0.32)",
           borderRadius: shape.borderRadius.md,
         },
       },
@@ -76,6 +96,7 @@ export const muiTheme = createTheme({
         root: {
           borderRadius: shape.borderRadius.md,
           border: `1px solid ${colors.outlineVariant}`,
+          backgroundColor: colors.surface,
           boxShadow: "none",
           "&:before": {
             display: "none",
@@ -106,7 +127,7 @@ export const muiTheme = createTheme({
   },
 
   palette: {
-    mode: "light",
+    mode: "dark",
 
     primary: {
       main: colors.primary,
