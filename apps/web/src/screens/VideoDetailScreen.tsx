@@ -19,7 +19,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import { database, useNodeTaxonomy, useSession, useTabsByIds } from "@src/hooks/index";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
-import { cacheUser, routeList } from "@src/context/index";
+import { routeList } from "@src/context/index";
 import { useUIStore } from "@src/store";
 import { capitalizeFirstLetter } from "@src/utils/index";
 import { useTranslation } from "react-i18next";
@@ -35,11 +35,17 @@ import {
 import * as styles from "@src/styles/screens/styleVideoDetailScreen";
 import { type NodeOptionFirestore } from "@bt/shared/context";
 import {
+  buildSystemsUIShared,
+  getCachedDataNodesShared,
+  getCachedSystemsShared,
   getCachedCourseStatShared,
   getCourseStatShared,
+  getDataNodesShared,
+  getSystemshared,
   trackVideoOpenedShared,
 } from "@bt/shared/services";
 import { formatCompactNumber } from "@bt/shared/utils";
+import type { SystemCardUI } from "@bt/shared/context";
 import {
   arrayUnion,
   collection,
@@ -50,6 +56,9 @@ import {
 } from "firebase/firestore";
 
 const textHardcoded = "components.nodeConnectionViewer.";
+
+const buildCoursePath = (label: string, coach: string) =>
+  `${label}-${coach.replace(/ /g, "_")}`;
 
 /**
  * Pantalla de detalle de video asociada a un nodo de contenido.
@@ -67,11 +76,21 @@ export default function VideoDetailScreen() {
   const [navigationExpanded, setNavigationExpanded] = useState(true);
   const trackedVideoRef = useRef<string>("");
   const [isVideoPlayerActive, setIsVideoPlayerActive] = useState(false);
+  const [resolvedSystem, setResolvedSystem] = useState<SystemCardUI | null>(null);
+  const [resolvedModules, setResolvedModules] = useState<NodeOptionFirestore[]>([]);
+  const [resolvedFirestoreRoute, setResolvedFirestoreRoute] = useState<string | null>(null);
+  const [resolvingDirectAccess, setResolvingDirectAccess] = useState(false);
 
   const nodeData = location.state?.nodeRoute as NodeOptionFirestore | undefined;
-  const firestoreRoute = location.state?.firestoreRuta;
-  const courseModules = (location.state?.courseModules as NodeOptionFirestore[] | undefined) ?? [];
-  const system = location.state?.system;
+  const stateFirestoreRoute = location.state?.firestoreRuta as string | undefined;
+  const stateCourseModules =
+    (location.state?.courseModules as NodeOptionFirestore[] | undefined) ?? [];
+  const stateSystem = location.state?.system as SystemCardUI | undefined;
+  const system = stateSystem ?? resolvedSystem ?? undefined;
+  const firestoreRoute =
+    stateFirestoreRoute ?? resolvedFirestoreRoute ?? system?.valueNodes;
+  const courseModules =
+    stateCourseModules.length > 0 ? stateCourseModules : resolvedModules;
   const cachedCourseStat =
     user?.email && system?.label
       ? getCachedCourseStatShared(user.email, system.label)
@@ -104,9 +123,93 @@ export default function VideoDetailScreen() {
   );
   const tabs = useTabsByIds(taxonomy?.tab_ids);
 
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const textVideoDetail = "components.videoDetail.";
+  const language = i18n.language.startsWith("en") ? "en" : "es";
   const entryPoint = location.state?.entryPoint === "home" ? "home" : "explorer";
+
+  useEffect(() => {
+    let mounted = true;
+
+    const hydrateFromUrl = async () => {
+      if (stateSystem && stateCourseModules.length > 0 && stateFirestoreRoute) {
+        setResolvingDirectAccess(false);
+        return;
+      }
+
+      if (!systemName) {
+        setResolvingDirectAccess(false);
+        return;
+      }
+
+      setResolvingDirectAccess(true);
+
+      try {
+        const cachedSystemGroups = getCachedSystemsShared(language);
+        const systemGroups =
+          cachedSystemGroups ??
+          (await getSystemshared(getDocs, collection, database, language));
+        const { systems } = buildSystemsUIShared(systemGroups);
+        const matchedSystem =
+          systems.find(
+            (candidate) =>
+              buildCoursePath(candidate.label, candidate.coach) === systemName,
+          ) ?? null;
+
+        if (!mounted) {
+          return;
+        }
+
+        setResolvedSystem(matchedSystem);
+
+        if (!matchedSystem?.valueNodes) {
+          setResolvedFirestoreRoute(null);
+          setResolvedModules([]);
+          return;
+        }
+
+        setResolvedFirestoreRoute(matchedSystem.valueNodes);
+
+        const cachedNodes = getCachedDataNodesShared(
+          [matchedSystem.valueNodes],
+          language,
+        );
+        const modules =
+          cachedNodes ??
+          (await getDataNodesShared(
+            [matchedSystem.valueNodes],
+            getDocs,
+            collection,
+            database,
+            language,
+          ));
+
+        if (!mounted) {
+          return;
+        }
+
+        setResolvedModules(modules);
+      } catch (error) {
+        console.error("No se pudo reconstruir el contexto del video desde la URL:", error);
+      } finally {
+        if (mounted) {
+          setResolvingDirectAccess(false);
+        }
+      }
+    };
+
+    void hydrateFromUrl();
+
+    return () => {
+      mounted = false;
+    };
+  }, [
+    language,
+    stateCourseModules,
+    stateFirestoreRoute,
+    stateSystem,
+    systemName,
+  ]);
 
   useLayoutEffect(() => {
     useUIStore.setState({ connectionViewerActiveStep: null });
@@ -215,16 +318,17 @@ export default function VideoDetailScreen() {
   const systemBreadcrumbLabel = useMemo(() => {
     const fromState = stateSystemLabel;
     if (fromState) return fromState;
+    if (system?.name) return capitalizeFirstLetter(system.name);
     if (!systemName) return t(textVideoDetail + "system");
     return decodeURIComponent(systemName)
       .replace(/_/g, " ")
       .replace(/-/g, " · ");
-  }, [stateSystemLabel, systemName, t]);
+  }, [stateSystemLabel, system?.name, systemName, t]);
 
   const navigateToModule = (module: NodeOptionFirestore) => {
     navigate(
       routeList.videoDetailScreen
-        .replace(":systemName", systemName ?? "sistema")
+        .replace(":systemName", systemName ?? t(textVideoDetail + "systemRouteFallback"))
         .replace(":nodeId", module.id.toString()),
       {
         state: {
@@ -245,13 +349,13 @@ export default function VideoDetailScreen() {
       tabs.map((tab) => ({
         id: tab.id,
         label: capitalizeFirstLetter(
-          localStorage.getItem(cacheUser.languageUser) === "es"
+          language === "es"
             ? tab.title_es || tab.label
             : tab.title_en || tab.label,
         ),
         color: "success" as const,
       })),
-    [tabs],
+    [language, tabs],
   );
 
   const videoPlayer = (
@@ -265,11 +369,17 @@ export default function VideoDetailScreen() {
           title={currentNode?.name ?? t(textVideoDetail + "content")}
           sx={styles.videoIframe}
         />
-      ) : (
-        <Box sx={styles.videoPlaceholder}>
+        ) : (
+          <Box sx={styles.videoPlaceholder}>
+            <Typography variant="overline" sx={styles.videoPlaceholderEyebrow}>
+              {t(textVideoDetail + "playbackReady")}
+            </Typography>
           <Typography variant="h5" sx={styles.videoPlaceholderTitle}>
             {capitalizeFirstLetter(currentNode?.name ?? t(textVideoDetail + "content"))}
           </Typography>
+            <Typography variant="body2" sx={styles.videoPlaceholderDescription}>
+              {t(textVideoDetail + "playbackHint")}
+            </Typography>
           <Button
             variant="contained"
             size="large"
@@ -297,6 +407,23 @@ export default function VideoDetailScreen() {
       </Box>
     </Card>
   ) : null;
+
+  if (resolvingDirectAccess && !currentNode) {
+    return (
+      <Box sx={styles.container}>
+        <AppBarNewHeader />
+        <PageContainer sx={{ pt: { xs: 2, md: 3 } }}>
+          <Card sx={styles.metaCard}>
+            <Box sx={{ display: "flex", justifyContent: "center", py: 3 }}>
+              <Typography sx={{ color: "text.secondary" }}>
+                {t("components.profile.loading")}
+              </Typography>
+            </Box>
+          </Card>
+        </PageContainer>
+      </Box>
+    );
+  }
 
   if (!currentNode) {
     return (

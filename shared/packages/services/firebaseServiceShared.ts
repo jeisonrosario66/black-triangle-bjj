@@ -83,6 +83,9 @@ const persistStoredVideoCount = (dbName: string, size: number) => {
 const getCachedVideoCount = (dbName: string) =>
   nodeCountSnapshotCache.get(dbName) ?? readStoredVideoCounts()[dbName];
 
+const getOtherSystemsLabel = (language: string) =>
+  language === "es" ? "Otros sistemas" : "Other systems";
+
 export const buildSystemsUIShared = (data: SystemsGroupShared[]) => {
   const systemsMap = new Map<string, SystemCardUI>();
 
@@ -195,6 +198,7 @@ export const getSystemshared = async (
           coverUrl,
           description,
           videoCount,
+          viewsCount: docData.viewsCount ?? 0,
         };
       }),
     );
@@ -236,7 +240,7 @@ export const getSystemshared = async (
     if (unclassifiedSystems.length > 0) {
       systemSets.push({
         label: "otros",
-        name: "otros sistemas",
+        name: getOtherSystemsLabel(language),
         systems: unclassifiedSystems,
       });
     }
@@ -283,6 +287,7 @@ const mapSystemDocToOption = (docData: any, language: string): SystemCardOption 
     coverUrl,
     description,
     videoCount,
+    viewsCount: docData.viewsCount ?? 0,
   };
 };
 
@@ -319,6 +324,7 @@ export const getSystemSetsShared = async (
             name: "",
             valueNodes: "",
             valueLinks: "",
+            set: "",
             coach: "",
             coverUrl: "",
             description: "",
@@ -396,7 +402,7 @@ export const getSystemsPageShared = async ({
 
   const pageSystems: SystemCardUI[] = systems.map((system: SystemCardOption) => ({
     ...system,
-    setSystem: systemToSetName.get(system.label) ?? "otros sistemas",
+    setSystem: systemToSetName.get(system.label) ?? getOtherSystemsLabel(language),
   }));
   const nextCursor =
     querySnapshot.docs.length > 0

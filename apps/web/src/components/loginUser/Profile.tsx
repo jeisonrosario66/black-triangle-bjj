@@ -15,6 +15,7 @@ import { useSession } from "@src/hooks/index";
 export default function UserStatus() {
   const { t } = useTranslation();
   const { user, isAuthenticated, isLoading } = useSession();
+  const fallbackName = t("components.profile.defaultName");
 
   if (isLoading) return <p>{t("components.profile.loading")}</p>;
 
@@ -23,10 +24,10 @@ export default function UserStatus() {
   return (
     <Box>
       <Typography>
-        {t("components.profile.greeting", { name: user?.name ?? "User" })}
+        {t("components.profile.greeting", { name: user?.name ?? fallbackName })}
       </Typography>
       <Avatar
-        alt={user?.name ?? "User"}
+        alt={user?.name ?? fallbackName}
         src={user?.picture ?? undefined}
       />
     </Box>

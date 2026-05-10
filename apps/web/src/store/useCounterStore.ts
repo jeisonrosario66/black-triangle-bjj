@@ -9,7 +9,7 @@ import {
   LanguageConfig,
   SystemOption
 } from "@src/context/index";
-import { parseCacheArray } from "@src/utils/index";
+import { getPreferredAppLanguage, parseCacheArray } from "@src/utils/index";
 import { getSystem } from "@src/services/index";
 
 const systemCacheLoadedLinks = parseCacheArray(cacheUser.systemsCacheNameLinks);
@@ -152,7 +152,7 @@ const useUIStore = create<AppState>((set, get) => ({
   setOverlayDontShowAgain: (dontShow) =>
     set({ overlayDontShowAgain: dontShow }),
 
-  languageGlobal: { locale: "es" },
+  languageGlobal: { locale: getPreferredAppLanguage() },
   setLanguageGlobal: (language) => set({ languageGlobal: language }),
 
   isConfigWindowActive: false,

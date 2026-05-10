@@ -10,3 +10,5 @@ export { default as extractVideoId } from "@src/utils/addNode/extractVideoId";
  export { capitalizeFirstLetter } from "@bt/shared/utils/capitalizeFirstLetter";
 export { default as formatTimeFull } from "@src/utils/formatTimeFull";
 export { parseCacheArray } from "@src/utils/parseCacheArray";
+export { getPreferredAppLanguage, normalizeAppLanguage } from "@src/utils/language";
+export type { AppLanguage } from "@src/utils/language";

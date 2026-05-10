@@ -2,7 +2,7 @@
 // sonarjs-ignore S7763: prefer explicit import/export style
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import { cacheUser } from "@src/context/index";
+import { getPreferredAppLanguage } from "@src/utils/index";
 
 // Archivos JSON con las traducciones
 import { translationEN, translationES } from "@src/locales/index";
@@ -22,7 +22,8 @@ i18n
   // .use(LanguageDetector)         // Habilitar detección de idioma del usuario
   .init({
     resources,                     // Define los recursos de traducción
-    fallbackLng: cacheUser.languageDefault,  // Idioma por defecto si no hay traducción
+    lng: getPreferredAppLanguage(),
+    fallbackLng: "es",
     debug: false,                   // Activa logs para depuración
     interpolation: {
       escapeValue: false,          // React ya maneja el escape de texto

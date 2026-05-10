@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { Routes, Route } from "react-router-dom";
 import { useUIStore } from "@src/store/index";
 import { cacheUser, routeList } from "@src/context/index";
-import { debugLog } from "@src/utils/index";
+import { debugLog, getPreferredAppLanguage } from "@src/utils/index";
 import {
   LandingPage,
   NotFoundPage,
@@ -30,8 +30,7 @@ function App() {
 
   // Hook inicializador al montar el componente
   useEffect(() => {
-    const savedLanguage = (localStorage.getItem(cacheUser.languageUser) ??
-      cacheUser.languageDefault) as "es" | "en";
+    const savedLanguage = getPreferredAppLanguage();
 
     useUIStore.setState({ languageGlobal: { locale: savedLanguage } });
 
@@ -43,7 +42,7 @@ function App() {
     localStorage.setItem(cacheUser.languageUser, savedLanguage);
     debugLog("info", "Sistema de Bjj Cargado: ", systemsBjjSelectedNodesStore);
     i18n.changeLanguage(savedLanguage);
-  }, [systemsBjjSelectedNodesStore]);
+  }, [i18n, systemsBjjSelectedNodesStore]);
 
   return (
     <Routes>

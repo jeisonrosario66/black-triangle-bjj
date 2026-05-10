@@ -1,14 +1,16 @@
-import { editorialMedia, type SystemCardUI } from "@bt/shared/context";
+import { type SystemCardUI } from "@bt/shared/context";
 import {
   buildCourseLocationStateShared,
+  buildSystemsUIShared,
+  getCachedSystemsShared,
   getCachedUserCourseStatsShared,
-  getSystemsPageShared,
+  getSystemshared,
   getUserCourseStatsShared,
   trackCourseSelectionShared,
 } from "@bt/shared/services";
 import { capitalizeFirstLetter } from "@bt/shared/utils/capitalizeFirstLetter";
-import SearchIcon from "@mui/icons-material/Search";
 import CloseIcon from "@mui/icons-material/Close";
+import SearchIcon from "@mui/icons-material/Search";
 import {
   Autocomplete,
   Box,
@@ -29,25 +31,15 @@ import {
 import { useTheme } from "@mui/material/styles";
 import { routeList } from "@src/context/configGlobal";
 import { database, useSession } from "@src/hooks/index";
-import * as styles from "@src/styles/screens/styleExplorerScreen";
 import * as loadingStyle from "@src/styles/screens/styleLoading";
-import {
-  collection,
-  doc,
-  getDocs,
-  increment,
-  limit,
-  orderBy,
-  query,
-  setDoc,
-  startAfter,
-} from "firebase/firestore";
+import * as styles from "@src/styles/screens/styleExplorerScreen";
+import { collection, doc, getDocs, increment, setDoc } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
   AppBarNewHeader,
   BreadcrumbsBar,
-  EditorialImagePanel,
   PageContainer,
   SectionHeader,
   SimpleGrid,
@@ -80,6 +72,18 @@ const scoreSystem = (system: SystemCardUI, query: string) => {
   );
 };
 
+const formatCoachName = (value?: string | null) =>
+  value
+    ?.split(/(\s+|&)/)
+    .map((segment) =>
+      /\s+/.test(segment) || segment === "&"
+        ? segment
+        : capitalizeFirstLetter(segment.toLowerCase()),
+    )
+    .join("") ?? "";
+
+type ExplorerSortOrder = "" | "alphabetical" | "views" | "videos";
+
 interface SystemCardProps {
   system: SystemCardUI;
   isVisited?: boolean;
@@ -98,7 +102,7 @@ function SystemCard({
           <SystemCover
             title={capitalizeFirstLetter(system.name)}
             subtitle={capitalizeFirstLetter(system.setSystem)}
-            coach={capitalizeFirstLetter(system.coach)}
+            coach={formatCoachName(system.coach)}
             coverUrl={system.coverUrl}
             videoCount={system.videoCount}
             showVisitedIndicator={isVisited}
@@ -115,9 +119,6 @@ interface SystemListItemProps {
   isVisited?: boolean;
   onClick: () => void;
 }
-
-const language = "es";
-const SYSTEMS_PAGE_SIZE = 12;
 
 function SystemListItem({
   system,
@@ -139,7 +140,7 @@ function SystemListItem({
         <SystemCover
           title={capitalizeFirstLetter(system.name)}
           subtitle={capitalizeFirstLetter(system.setSystem)}
-          coach={capitalizeFirstLetter(system.coach)}
+          coach={formatCoachName(system.coach)}
           coverUrl={system.coverUrl}
           videoCount={system.videoCount}
           showVisitedIndicator={isVisited}
@@ -150,31 +151,33 @@ function SystemListItem({
   );
 }
 
-/**
- * Pantalla de exploración de sistemas en entorno web.
- * Orquesta la carga de sistemas desde Firestore mediante servicios compartidos,
- * gestiona el filtrado por búsqueda y categoría, y permite la navegación hacia
- * la vista de detalle del curso correspondiente.
- *
- * @returns {JSX.Element} Vista de listado de sistemas con filtros y navegación a detalle.
- */
 export default function ExplorerScreen() {
   const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+  const { t, i18n } = useTranslation();
   const { user } = useSession();
+  const language = i18n.language.startsWith("en") ? "en" : "es";
+  const textExplorer = "components.explorer.";
+  const cachedSystemsData = getCachedSystemsShared(language);
+  const cachedCatalog = useMemo(
+    () => (cachedSystemsData ? buildSystemsUIShared(cachedSystemsData) : null),
+    [cachedSystemsData],
+  );
   const cachedUserStats = user?.email
     ? getCachedUserCourseStatsShared(user.email)
     : null;
 
-  const [systems, setSystems] = useState<SystemCardUI[]>([]);
-  const [tagNavigation, setTagNavigation] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [hasMore, setHasMore] = useState(true);
-  const [cursor, setCursor] = useState<any>(null);
+  const [systems, setSystems] = useState<SystemCardUI[]>(
+    () => cachedCatalog?.systems ?? [],
+  );
+  const [tagNavigation, setTagNavigation] = useState<string[]>(
+    () => cachedCatalog?.tagNavigation ?? [],
+  );
+  const [loading, setLoading] = useState(!cachedCatalog);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
+  const [sortOrder, setSortOrder] = useState<ExplorerSortOrder>("");
   const [visitedCourseLabels, setVisitedCourseLabels] = useState<string[]>(
     () =>
       cachedUserStats
@@ -187,30 +190,26 @@ export default function ExplorerScreen() {
   useEffect(() => {
     let mounted = true;
 
-    const loadFirstPage = async () => {
+    const loadSystems = async () => {
+      if (mounted) {
+        setLoading(!cachedCatalog);
+      }
+
       try {
-        const page = await getSystemsPageShared({
-          firestore: {
-            collection,
-            database,
-            getDocs,
-            limit,
-            orderBy,
-            query,
-            startAfter,
-          },
+        const systemsData = await getSystemshared(
+          getDocs,
+          collection,
+          database,
           language,
-          pageSize: SYSTEMS_PAGE_SIZE,
-        });
+        );
+        const catalog = buildSystemsUIShared(systemsData);
 
         if (!mounted) {
           return;
         }
 
-        setSystems(page.systems);
-        setTagNavigation(page.tagNavigation);
-        setCursor(page.cursor);
-        setHasMore(page.hasMore);
+        setSystems(catalog.systems);
+        setTagNavigation(catalog.tagNavigation);
       } catch (error) {
         console.error("Error cargando sistemas:", error);
       } finally {
@@ -220,12 +219,12 @@ export default function ExplorerScreen() {
       }
     };
 
-    void loadFirstPage();
+    void loadSystems();
 
     return () => {
       mounted = false;
     };
-  }, []);
+  }, [language]);
 
   useEffect(() => {
     let mounted = true;
@@ -270,30 +269,34 @@ export default function ExplorerScreen() {
   }, [user?.email]);
 
   const rawQuery = useMemo(() => searchQuery.trim(), [searchQuery]);
-  const normalizedQuery = useMemo(
-    () => normalizeText(rawQuery),
-    [rawQuery],
-  );
+  const normalizedQuery = useMemo(() => normalizeText(rawQuery), [rawQuery]);
+  const hasActiveFilters = Boolean(normalizedQuery || selectedCategory || sortOrder);
 
   const searchSuggestions = useMemo(() => {
     const pool = new Set<string>();
+
     systems.forEach((system) => {
       if (system.name) pool.add(system.name);
       if (system.coach) pool.add(system.coach);
       if (system.setSystem) pool.add(system.setSystem);
     });
+
     return Array.from(pool).sort();
   }, [systems]);
 
   const systemsFiltrados = useMemo(() => {
-    const query = normalizedQuery;
+    if (!hasActiveFilters) {
+      return [] as SystemCardUI[];
+    }
 
     const filtered = systems.filter((system) => {
       const matchesCategory = selectedCategory
         ? system.setSystem === selectedCategory
         : true;
 
-      if (!query) return matchesCategory;
+      if (!normalizedQuery) {
+        return matchesCategory;
+      }
 
       const haystack = [
         system.name,
@@ -305,22 +308,41 @@ export default function ExplorerScreen() {
         .filter(Boolean)
         .join(" ");
 
-      return matchesCategory && normalizeText(haystack).includes(query);
+      return matchesCategory && normalizeText(haystack).includes(normalizedQuery);
     });
 
-    if (!query) {
+    if (sortOrder === "alphabetical") {
       return filtered.sort((a, b) => a.name.localeCompare(b.name));
     }
 
-    const scored = filtered.map((system) => ({
-      ...system,
-      score: scoreSystem(system, query),
-    }));
+    if (sortOrder === "views") {
+      return filtered.sort(
+        (a, b) =>
+          (b.viewsCount ?? 0) - (a.viewsCount ?? 0) ||
+          a.name.localeCompare(b.name),
+      );
+    }
 
-    return scored
+    if (sortOrder === "videos") {
+      return filtered.sort(
+        (a, b) =>
+          (b.videoCount ?? 0) - (a.videoCount ?? 0) ||
+          a.name.localeCompare(b.name),
+      );
+    }
+
+    if (!normalizedQuery) {
+      return filtered.sort((a, b) => a.name.localeCompare(b.name));
+    }
+
+    return filtered
+      .map((system) => ({
+        ...system,
+        score: scoreSystem(system, normalizedQuery),
+      }))
       .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
       .map(({ score, ...system }) => system);
-  }, [systems, selectedCategory, normalizedQuery]);
+  }, [hasActiveFilters, normalizedQuery, selectedCategory, sortOrder, systems]);
 
   const visitedCourseSet = useMemo(
     () => new Set(visitedCourseLabels),
@@ -330,6 +352,7 @@ export default function ExplorerScreen() {
   const handleClear = () => {
     setSearchQuery("");
     setSelectedCategory("");
+    setSortOrder("");
   };
 
   const handleNavigate = (item: SystemCardUI) => {
@@ -358,47 +381,6 @@ export default function ExplorerScreen() {
     );
   };
 
-  const handleLoadMore = async () => {
-    if (loadingMore || !hasMore) {
-      return;
-    }
-
-    setLoadingMore(true);
-
-    try {
-      const page = await getSystemsPageShared({
-        firestore: {
-          collection,
-          database,
-          getDocs,
-          limit,
-          orderBy,
-          query,
-          startAfter,
-        },
-        language,
-        pageSize: SYSTEMS_PAGE_SIZE,
-        cursor,
-      });
-
-      setSystems((currentSystems) => {
-        const knownLabels = new Set(currentSystems.map((system) => system.label));
-        const nextSystems = page.systems.filter((system) => !knownLabels.has(system.label));
-
-        return [...currentSystems, ...nextSystems];
-      });
-      setTagNavigation((currentTags) =>
-        Array.from(new Set([...currentTags, ...page.tagNavigation])),
-      );
-      setCursor(page.cursor);
-      setHasMore(page.hasMore);
-    } catch (error) {
-      console.error("Error cargando más sistemas:", error);
-    } finally {
-      setLoadingMore(false);
-    }
-  };
-
   if (loading) {
     return (
       <Box sx={loadingStyle.loading}>
@@ -411,22 +393,29 @@ export default function ExplorerScreen() {
     <Box sx={styles.screen}>
       <AppBarNewHeader />
       <PageContainer sx={{ pt: { xs: 2, md: 3 } }}>
-        <BreadcrumbsBar items={[{ label: "Explorar" }]} />
+        <BreadcrumbsBar items={[{ label: t(textExplorer + "breadcrumb") }]} />
 
         <SectionHeader
-          title="Explorar Sistemas"
-          subtitle="Busca por técnica, coach o sistema"
+          title={t(textExplorer + "title")}
+          subtitle={t(textExplorer + "subtitle")}
         />
 
-        <EditorialImagePanel
-          src={editorialMedia.explorerHero.src}
-          alt="Explorar sistemas de BJJ"
-          eyebrow="Black Triangle"
-          title="Busca por sistema, coach o técnica"
-          description="Encuentra rutas de estudio más claras con una exploración visual más guiada."
-          objectPosition={editorialMedia.explorerHero.objectPosition}
-          sx={styles.heroVisual}
-        />
+        <Box sx={styles.heroCard}>
+          <Box sx={styles.heroGlow} />
+
+          <Box sx={styles.heroContent}>
+            <Box sx={styles.heroCopy}>
+
+              <Typography variant="h4" sx={styles.heroTitle}>
+                {t(textExplorer + "heroTitle")}
+              </Typography>
+
+              <Typography sx={styles.heroDescription}>
+                {t(textExplorer + "heroDescription")}
+              </Typography>
+            </Box>
+          </Box>
+        </Box>
 
         <Box sx={styles.filtersRow}>
           <Autocomplete
@@ -451,8 +440,8 @@ export default function ExplorerScreen() {
             renderInput={(params) => (
               <TextField
                 {...params}
-                label="Buscar técnicas, coach o sistema"
-                placeholder="Ej: guard pass, De La Riva"
+                label={t(textExplorer + "searchLabel")}
+                placeholder={t(textExplorer + "searchPlaceholder")}
                 sx={styles.searchField}
                 InputProps={{
                   ...params.InputProps,
@@ -467,10 +456,7 @@ export default function ExplorerScreen() {
                   endAdornment: (
                     <>
                       {searchQuery ? (
-                        <IconButton
-                          size="small"
-                          onClick={() => setSearchQuery("")}
-                        >
+                        <IconButton size="small" onClick={() => setSearchQuery("")}>
                           <CloseIcon fontSize="small" />
                         </IconButton>
                       ) : null}
@@ -483,16 +469,18 @@ export default function ExplorerScreen() {
           />
 
           <FormControl sx={styles.selectField}>
-            <InputLabel id="category-select-label">Categoría</InputLabel>
+            <InputLabel id="category-select-label">
+              {t(textExplorer + "categoryLabel")}
+            </InputLabel>
             <Select
               labelId="category-select-label"
-              label="Categoría"
+              label={t(textExplorer + "categoryLabel")}
               value={selectedCategory}
               onChange={(event) =>
                 setSelectedCategory(event.target.value as string)
               }
             >
-              <MenuItem value="">Todas</MenuItem>
+              <MenuItem value="">{t(textExplorer + "allCategories")}</MenuItem>
               {tagNavigation.map((tag) => (
                 <MenuItem key={tag} value={tag}>
                   {tag}
@@ -501,23 +489,55 @@ export default function ExplorerScreen() {
             </Select>
           </FormControl>
 
+          <FormControl sx={styles.sortField}>
+            <InputLabel id="sort-select-label">
+              {t(textExplorer + "sortLabel")}
+            </InputLabel>
+            <Select
+              labelId="sort-select-label"
+              label={t(textExplorer + "sortLabel")}
+              value={sortOrder}
+              onChange={(event) =>
+                setSortOrder(event.target.value as ExplorerSortOrder)
+              }
+            >
+              <MenuItem value="">{t(textExplorer + "sortPlaceholder")}</MenuItem>
+              <MenuItem value="alphabetical">
+                {t(textExplorer + "sortAlphabetical")}
+              </MenuItem>
+              <MenuItem value="views">{t(textExplorer + "sortViews")}</MenuItem>
+              <MenuItem value="videos">{t(textExplorer + "sortVideos")}</MenuItem>
+            </Select>
+          </FormControl>
+
           <Button
             variant="text"
             onClick={handleClear}
-            disabled={!searchQuery && !selectedCategory}
+            disabled={!searchQuery && !selectedCategory && !sortOrder}
             sx={{ alignSelf: { xs: "flex-start", md: "center" } }}
           >
-            Limpiar filtros
+            {t(textExplorer + "clearFilters")}
           </Button>
         </Box>
 
-        <Typography variant="body2" sx={styles.resultsMeta}>
-          {systemsFiltrados.length} resultados cargados
-        </Typography>
+        {hasActiveFilters ? (
+          <Typography variant="body2" sx={styles.resultsMeta}>
+            {t(textExplorer + "resultsLoaded", { count: systemsFiltrados.length })}
+          </Typography>
+        ) : null}
 
-        {systemsFiltrados.length === 0 ? (
+        {!hasActiveFilters ? (
+          <Box sx={styles.emptyState}>
+            <Typography variant="h6" sx={styles.emptyStateTitle}>
+              {t(textExplorer + "idleTitle")}
+            </Typography>
+            <Typography variant="body2" sx={styles.emptyStateDescription}>
+              {t(textExplorer + "idleDescription")}
+            </Typography>
+          </Box>
+        ) : systemsFiltrados.length === 0 ? (
           <Typography variant="body2" color="text.secondary">
-            No encontramos resultados con esos filtros.
+            {t(textExplorer + "emptyResults")}
           </Typography>
         ) : isMobile ? (
           <VirtualizedList
@@ -535,43 +555,17 @@ export default function ExplorerScreen() {
             )}
           />
         ) : (
-          <>
-            <SimpleGrid columns={{ xs: 1, md: 2 }} gap={3}>
-              {systemsFiltrados.map((item) => (
-                <SystemCard
-                  key={item.label}
-                  system={item}
-                  isVisited={visitedCourseSet.has(item.label)}
-                  onClick={() => handleNavigate(item)}
-                />
-              ))}
-            </SimpleGrid>
-
-            {hasMore ? (
-              <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
-                <Button
-                  variant="outlined"
-                  onClick={handleLoadMore}
-                  disabled={loadingMore}
-                >
-                  {loadingMore ? "Cargando más..." : "Cargar más sistemas"}
-                </Button>
-              </Box>
-            ) : null}
-          </>
+          <SimpleGrid columns={{ xs: 1, md: 2 }} gap={3}>
+            {systemsFiltrados.map((item) => (
+              <SystemCard
+                key={item.label}
+                system={item}
+                isVisited={visitedCourseSet.has(item.label)}
+                onClick={() => handleNavigate(item)}
+              />
+            ))}
+          </SimpleGrid>
         )}
-
-        {isMobile && hasMore ? (
-          <Box sx={{ display: "flex", justifyContent: "center", mt: 2.5 }}>
-            <Button
-              variant="outlined"
-              onClick={handleLoadMore}
-              disabled={loadingMore}
-            >
-              {loadingMore ? "Cargando más..." : "Cargar más sistemas"}
-            </Button>
-          </Box>
-        ) : null}
       </PageContainer>
     </Box>
   );

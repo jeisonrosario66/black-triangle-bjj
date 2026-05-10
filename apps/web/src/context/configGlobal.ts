@@ -1,6 +1,6 @@
 import { groupColor as sharedGroupColor } from "@bt/shared/context";
 import { DagMode } from "@src/context/index";
-import { parseCacheArray } from "@src/utils/index";
+import { getPreferredAppLanguage, parseCacheArray } from "@src/utils/index";
 
 /**
  * Configuración general del entorno visual 3D y parámetros de la aplicación.
@@ -55,7 +55,7 @@ export const scenePropsDev = {
  */
 export const cacheUser = {
     languageUser: "languageApp",
-    languageDefault: localStorage.getItem("languageApp") || "es",
+    languageDefault: getPreferredAppLanguage(),
     navigationsGestures: "hideNavigationGestures",
 
     dagModeCache: "dagMode",

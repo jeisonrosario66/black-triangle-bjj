@@ -45,14 +45,15 @@ import {
 export default function CourseDetailScreen() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const textCourseDetail = "components.courseDetail.";
+  const language = i18n.language.startsWith("en") ? "en" : "es";
   const { user } = useSession();
   const system = location.state?.system;
   const entryPoint = location.state?.entryPoint === "home" ? "home" : "explorer";
   const firestoreRuta = system?.valueNodes;
   const cachedModules = firestoreRuta
-    ? getCachedDataNodesShared([firestoreRuta], "es")
+    ? getCachedDataNodesShared([firestoreRuta], language)
     : null;
   const cachedCourseStat =
     user?.email && system?.label
@@ -79,7 +80,7 @@ export default function CourseDetailScreen() {
           getDocs,
           collection,
           database,
-          "es",
+          language,
         );
 
         if (!mounted) return;
@@ -108,7 +109,7 @@ export default function CourseDetailScreen() {
     return () => {
       mounted = false;
     };
-  }, [cachedModules, firestoreRuta]);
+  }, [cachedModules, firestoreRuta, language]);
 
   useEffect(() => {
     let mounted = true;
@@ -212,7 +213,9 @@ export default function CourseDetailScreen() {
           alt={capitalizeFirstLetter(system.name)}
           eyebrow={capitalizeFirstLetter(system.setSystem)}
           title={capitalizeFirstLetter(system.name)}
-          description={`Coach ${capitalizeFirstLetter(system.coach)}`}
+          description={t(textCourseDetail + "coachLabel", {
+            coach: capitalizeFirstLetter(system.coach),
+          })}
           sx={styles.contextMedia}
         />
 

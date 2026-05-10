@@ -41,6 +41,10 @@
     "buttonAddNode": {
       "title": "Add Nodes"
     },
+    "systemCover": {
+      "defaultSubtitle": "Black Triangle",
+      "videoCount": "{{count}} videos"
+    },
     "navigationgestures": {
       "touch": {
         "title": "Use touch gestures to navigate the scene",
@@ -65,7 +69,13 @@
       "searchPlaceholder": "Search…",
       "goHome": "Go to home",
       "continueWithGoogle": "Continue with Google",
-      "logOut": "Log out"
+      "logOut": "Log out",
+      "languageTitle": "Language",
+      "languageSpanish": "Spanish",
+      "languageEnglish": "English",
+      "brandIconAlt": "Black Triangle icon",
+      "brandWordmarkAlt": "Black Triangle",
+      "googleAlt": "Google"
     },
     "landing": {
       "eyebrow": "Learn without losing your place",
@@ -102,33 +112,21 @@
     "profile": {
       "loading": "Loading...",
       "notLoggedIn": "You are not logged in",
-      "greeting": "Hi, {{name}}"
+      "greeting": "Hi, {{name}}",
+      "defaultName": "User"
     },
     "home": {
       "breadcrumb": "Home",
       "title": "Hi, {{name}}",
+      "defaultName": "Fighter",
       "continueTitle": "Pick up where you left off",
-      "continueSubtitle": "Your last course, ready to continue.",
+      "continueSubtitle": "Last courses viewed",
       "lastSeenFromExplorer": "Last course",
       "progressLabel": "{{current}} of {{total}} videos · {{percent}}%",
       "progressFallback": "You have not watched videos here yet.",
-      "lastVideo": "Last video: {{name}}",
-      "continueCourse": "Continue course",
       "emptyProgressTitle": "You have not started yet",
       "emptyProgressDescription": "Explore a course and your progress will appear here.",
       "startExploring": "Explore courses",
-      "routesTitle": "Recommended Learning Paths",
-      "routesSubtitle": "Suggested from what you watch most.",
-      "routeTitleSet": "Go deeper into {{topic}}",
-      "routeTitleCoach": "Keep training with {{topic}}",
-      "routeTitlePopular": "Start with the most watched",
-      "routeReasonSet": "You return to {{topic}} often.",
-      "routeReasonCoach": "You are interested in courses by {{topic}}.",
-      "routeReasonPopular": "A strong selection to begin with.",
-      "routeStats": "{{courses}} courses · {{videos}} videos",
-      "openRoute": "See courses",
-      "hideRoute": "Hide courses",
-      "openCourse": "Open",
       "systemsTitle": "Explore Systems",
       "systemsSubtitle": "Courses you may want to study next.",
       "seeAllSystems": "See all",
@@ -137,14 +135,39 @@
       "systemReasonRecent": "Related to your last course.",
       "systemReasonPopular": "Popular right now."
     },
+    "explorer": {
+      "breadcrumb": "Explore",
+      "title": "Explore systems",
+      "subtitle": "Search the full catalog by technique, coach, or system",
+      "heroAlt": "Explore BJJ systems",
+      "heroTitle": "Find courses by system, coach, or technique",
+      "heroDescription": "Explore the full catalog from one place with search and filters.",
+      "searchLabel": "Search techniques, coach, or system",
+      "searchPlaceholder": "Ex: guard pass, De La Riva",
+      "categoryLabel": "Category",
+      "allCategories": "All",
+      "sortLabel": "Sort by",
+      "sortPlaceholder": "Choose an order",
+      "sortAlphabetical": "Alphabetical",
+      "sortViews": "Most viewed",
+      "sortVideos": "Most videos",
+      "clearFilters": "Clear filters",
+      "resultsLoaded": "{{count}} results",
+      "idleTitle": "Start with a search or filter to explore the catalog",
+      "idleDescription": "You can search by technique, coach, or system, filter by category, or show all courses using a specific order.",
+      "emptyResults": "No results matched those filters."
+    },
     "videoDetail": {
       "explore": "Explore",
       "system": "System",
+      "systemRouteFallback": "system",
       "content": "Content",
       "courseVideos": "Course videos · {{current}} of {{total}}",
       "previousVideo": "Previous video",
       "nextVideo": "Next video",
       "viewsCount": "{{value}} views",
+      "playbackReady": "Ready to play",
+      "playbackHint": "The view is recorded when playback starts, not when the page is opened or refreshed.",
       "startPlayback": "Play video",
       "seen": "Seen",
       "missingVideoTitle": "Video not found",
@@ -155,7 +178,8 @@
       "missingCourseTitle": "Course not found",
       "missingCourseDescription": "Return to Explore to open the course from a valid navigation flow.",
       "backToExplore": "Go to explore",
-      "courseVideos": "{{topic}} · {{total}} videos"
+      "courseVideos": "{{topic}} · {{total}} videos",
+      "coachLabel": "Coach {{coach}}"
     },
     "nodeView": {
       "title": "Video Player",

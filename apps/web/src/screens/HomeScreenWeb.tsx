@@ -1,5 +1,4 @@
 import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
-import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import {
   Box,
   Button,
@@ -10,25 +9,28 @@ import {
   LinearProgress,
   Stack,
   Typography,
-  useMediaQuery,
 } from "@mui/material";
-import { useTheme } from "@mui/material/styles";
 
-import { startTransition, useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import {
+  buildSystemsUIShared,
+  getCachedSystemsShared,
+  getCachedUserCourseStatsShared,
   buildCourseLocationStateShared,
   getCachedHomePersonalizationShared,
   getPersonalizedHomeShared,
+  getSystemshared,
+  getUserCourseStatsShared,
   trackCourseSelectionShared,
 } from "@bt/shared/services";
 import type {
   HomePersonalization,
-  HomeRecommendedRoute,
   HomeRecommendedSystem,
+  UserCourseStatDoc,
 } from "@bt/shared/services";
-import { editorialMedia } from "@bt/shared/context";
+import type { SystemCardUI } from "@bt/shared/context";
 import { capitalizeFirstLetter } from "@bt/shared/utils/index";
 import {
   collection,
@@ -44,7 +46,6 @@ import { routeList } from "@src/context/index";
 import { database, useSession } from "@src/hooks/index";
 import {
   AppBarNewHeader,
-  EditorialImagePanel,
   PageContainer,
   SectionHeader,
   SimpleGrid,
@@ -56,6 +57,92 @@ const HOME_TEXT = "components.home.";
 const buildCoursePath = (label: string, coach: string) =>
   `${label}-${coach.replace(/ /g, "_")}`;
 
+const formatGreetingName = (value?: string | null) =>
+  value
+    ?.split(/(\s+)/)
+    .map((segment) =>
+      /\s+/.test(segment) ? segment : capitalizeFirstLetter(segment.toLowerCase()),
+    )
+    .join("");
+
+const formatCoachName = (value?: string | null) =>
+  value
+    ?.split(/(\s+|&)/)
+    .map((segment) =>
+      /\s+/.test(segment) || segment === "&"
+        ? segment
+        : capitalizeFirstLetter(segment.toLowerCase()),
+    )
+    .join("") ?? "";
+
+type RecentHomeCourse = NonNullable<HomePersonalization["lastCourse"]>;
+
+const buildRecentCourses = ({
+  homeData,
+  statsMap,
+  systems,
+}: {
+  homeData: HomePersonalization | null;
+  statsMap: Map<string, UserCourseStatDoc>;
+  systems: SystemCardUI[];
+}): RecentHomeCourse[] => {
+  const systemsByLabel = new Map(systems.map((system) => [system.label, system]));
+  const recentLabels = Array.from(statsMap.entries())
+    .filter(([, stat]) =>
+      Boolean(stat.lastExplorerAt || stat.lastVideoAt || stat.watchedVideoIds?.length),
+    )
+    .sort((a, b) => {
+      const aDate = new Date(a[1].lastExplorerAt ?? a[1].lastVideoAt ?? 0).getTime();
+      const bDate = new Date(b[1].lastExplorerAt ?? b[1].lastVideoAt ?? 0).getTime();
+      return bDate - aDate;
+    })
+    .map(([label]) => label);
+
+  const labels = Array.from(
+    new Set(
+      [homeData?.lastCourse?.label, ...recentLabels].filter(Boolean) as string[],
+    ),
+  ).slice(0, 3);
+
+  return labels
+    .map((label) => {
+      if (homeData?.lastCourse?.label === label) {
+        return homeData.lastCourse;
+      }
+
+      const stat = statsMap.get(label);
+      const baseSystem =
+        systemsByLabel.get(label) ??
+        (stat
+          ? ({
+              ...stat,
+              setSystem: stat.setSystem ?? "",
+              coverUrl: stat.coverUrl ?? "",
+              videoCount: stat.videoCount,
+            } as SystemCardUI)
+          : null);
+
+      if (!baseSystem) {
+        return null;
+      }
+
+      const watchedVideosCount = stat?.watchedVideoIds?.length ?? 0;
+      const totalVideos = baseSystem.videoCount ?? 0;
+      const progressPercentage = totalVideos
+        ? Math.min(100, Math.round((watchedVideosCount / totalVideos) * 100))
+        : 0;
+
+      return {
+        ...baseSystem,
+        lastVideoId: stat?.lastVideoId,
+        lastVideoName: stat?.lastVideoName,
+        progressPercentage,
+        watchedVideosCount,
+      };
+    })
+    .filter(Boolean) as RecentHomeCourse[];
+};
+
 /**
  * Pantalla principal web personalizada.
  * Consume señales de actividad del usuario almacenadas en Firestore para
@@ -65,20 +152,34 @@ const buildCoursePath = (label: string, coach: string) =>
  */
 export default function HomeScreenWeb() {
   const navigate = useNavigate();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { t, i18n } = useTranslation();
   const { user } = useSession();
   const language = i18n.language.startsWith("en") ? "en" : "es";
   const cachedHomeData = user?.email
     ? getCachedHomePersonalizationShared(user.email, language)
     : null;
+  const cachedUserStats = user?.email
+    ? getCachedUserCourseStatsShared(user.email)
+    : null;
+  const cachedSystemsData = getCachedSystemsShared(language);
+  const cachedSystems = useMemo(
+    () => (cachedSystemsData ? buildSystemsUIShared(cachedSystemsData).systems : []),
+    [cachedSystemsData],
+  );
 
   const [homeData, setHomeData] = useState<HomePersonalization | null>(
     () => cachedHomeData,
   );
   const [loading, setLoading] = useState(!cachedHomeData);
-  const [expandedRouteId, setExpandedRouteId] = useState<string | null>(null);
+  const [recentCourses, setRecentCourses] = useState<RecentHomeCourse[]>(() =>
+    buildRecentCourses({
+      homeData: cachedHomeData,
+      statsMap: cachedUserStats ?? new Map(),
+      systems: cachedSystems,
+    }),
+  );
+  const [recentActiveIndex, setRecentActiveIndex] = useState(0);
+  const recentCarouselRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -95,6 +196,8 @@ export default function HomeScreenWeb() {
       if (!user?.email) {
         if (mounted) {
           setHomeData(null);
+          setRecentCourses([]);
+          setRecentActiveIndex(0);
           setLoading(false);
         }
         return;
@@ -111,8 +214,28 @@ export default function HomeScreenWeb() {
           language,
         });
 
+        const [nextStatsMap, nextSystemsData] = await Promise.all([
+          getUserCourseStatsShared({
+            email: user.email,
+            firestore: {
+              collection,
+              database,
+              getDocs,
+            },
+          }),
+          getSystemshared(getDocs, collection, database, language),
+        ]);
+        const nextSystems = buildSystemsUIShared(nextSystemsData).systems;
+
         if (mounted) {
           setHomeData(nextHomeData);
+          const nextRecentCourses = buildRecentCourses({
+            homeData: nextHomeData,
+            statsMap: nextStatsMap,
+            systems: nextSystems,
+          });
+          setRecentCourses(nextRecentCourses);
+          setRecentActiveIndex(0);
         }
       } catch (error) {
         console.error("No se pudo construir el home personalizado:", error);
@@ -130,7 +253,9 @@ export default function HomeScreenWeb() {
     };
   }, [cachedHomeData, language, user?.email]);
 
-  const openCourse = (system: HomeRecommendedSystem | HomePersonalization["lastCourse"] | HomeRecommendedRoute["focusCourse"]) => {
+  const openCourse = (
+    system: HomeRecommendedSystem | HomePersonalization["lastCourse"],
+  ) => {
     if (!system) {
       return;
     }
@@ -160,34 +285,14 @@ export default function HomeScreenWeb() {
     );
   };
 
-  const routeTitle = (route: HomeRecommendedRoute) => {
-    switch (route.reasonType) {
-      case "set":
-        return t(HOME_TEXT + "routeTitleSet", { topic: route.topic });
-      case "coach":
-        return t(HOME_TEXT + "routeTitleCoach", { topic: route.topic });
-      default:
-        return t(HOME_TEXT + "routeTitlePopular");
-    }
-  };
-
-  const routeReason = (route: HomeRecommendedRoute) => {
-    switch (route.reasonType) {
-      case "set":
-        return t(HOME_TEXT + "routeReasonSet", { topic: route.topic });
-      case "coach":
-        return t(HOME_TEXT + "routeReasonCoach", { topic: route.topic });
-      default:
-        return t(HOME_TEXT + "routeReasonPopular");
-    }
-  };
-
   const systemReason = (system: HomeRecommendedSystem) => {
     switch (system.reasonType) {
       case "set":
         return t(HOME_TEXT + "systemReasonSet", { topic: system.setSystem });
       case "coach":
-        return t(HOME_TEXT + "systemReasonCoach", { topic: system.coach });
+        return t(HOME_TEXT + "systemReasonCoach", {
+          topic: formatCoachName(system.coach),
+        });
       case "recent":
         return t(HOME_TEXT + "systemReasonRecent");
       default:
@@ -196,17 +301,39 @@ export default function HomeScreenWeb() {
   };
 
   const greetingName = useMemo(
-    () => user?.firstName || user?.name || "Fighter",
-    [user?.firstName, user?.name],
+    () =>
+      formatGreetingName(user?.name || user?.firstName) ||
+      t(HOME_TEXT + "defaultName"),
+    [t, user?.firstName, user?.name],
+  );
+  const visibleRecentCourses = useMemo(
+    () =>
+      recentCourses.length > 0
+        ? recentCourses
+        : homeData?.lastCourse
+          ? [homeData.lastCourse]
+          : [],
+    [homeData?.lastCourse, recentCourses],
   );
 
-  const toggleRoute = (routeId: string) => {
-    startTransition(() => {
-      setExpandedRouteId((currentRouteId) =>
-        currentRouteId === routeId ? null : routeId,
-      );
+  useEffect(() => {
+    setRecentActiveIndex((currentIndex) =>
+      Math.min(currentIndex, Math.max(visibleRecentCourses.length - 1, 0)),
+    );
+  }, [visibleRecentCourses.length]);
+
+  useEffect(() => {
+    const container = recentCarouselRef.current;
+
+    if (!container) {
+      return;
+    }
+
+    container.scrollTo({
+      left: container.clientWidth * recentActiveIndex,
+      behavior: "smooth",
     });
-  };
+  }, [recentActiveIndex]);
 
   if (loading && !homeData) {
     return (
@@ -228,84 +355,86 @@ export default function HomeScreenWeb() {
                 withDivider={false}
               />
             </Box>
-
-            {!isMobile ? (
-              <EditorialImagePanel
-                src={editorialMedia.homeIntro.src}
-                alt={t(HOME_TEXT + "title", { name: greetingName })}
-                eyebrow={t(HOME_TEXT + "continueTitle")}
-                title={t(HOME_TEXT + "continueSubtitle")}
-                objectPosition={editorialMedia.homeIntro.objectPosition}
-                sx={style.introVisual}
-              />
-            ) : null}
           </Box>
 
           <Box>
 
-            {homeData?.lastCourse ? (
-              <Card sx={style.progressCard}>
-                <Box sx={style.progressMedia}>
-                  <SystemCover
-                    title={capitalizeFirstLetter(homeData.lastCourse.name)}
-                    subtitle={capitalizeFirstLetter(homeData.lastCourse.setSystem)}
-                    coach={capitalizeFirstLetter(homeData.lastCourse.coach)}
-                    coverUrl={homeData.lastCourse.coverUrl}
-                    variant="card"
-                  />
+            {visibleRecentCourses.length > 0 ? (
+              <Box sx={style.recentSection}>
+                <SectionHeader
+                  title={t(HOME_TEXT + "continueTitle")}
+                  subtitle={t(HOME_TEXT + "continueSubtitle")}
+                  withDivider={false}
+                />
+
+                <Box
+                  ref={recentCarouselRef}
+                  sx={style.recentCarousel}
+                  onScroll={(event) => {
+                    const container = event.currentTarget;
+                    const cardWidth = Math.max(container.clientWidth, 1);
+                    const nextIndex = Math.round(container.scrollLeft / cardWidth);
+                    if (nextIndex !== recentActiveIndex) {
+                      setRecentActiveIndex(nextIndex);
+                    }
+                  }}
+                >
+                  {visibleRecentCourses.map((course) => (
+                    <Card key={course.label} sx={style.recentCard}>
+                      <CardActionArea onClick={() => openCourse(course)}>
+                        <Box sx={style.recentCardMedia}>
+                          <SystemCover
+                            eyebrow={t(HOME_TEXT + "lastSeenFromExplorer")}
+                            subtitle={t(HOME_TEXT + "continueTitle")}
+                            title={capitalizeFirstLetter(course.name)}
+                            coach={`${capitalizeFirstLetter(course.setSystem)} · ${formatCoachName(course.coach)}`}
+                            coverUrl={course.coverUrl}
+                            variant="home"
+                          />
+                        </Box>
+
+                        <Box sx={style.progressFooter}>
+                          <Typography variant="body2" sx={style.cardLabelStyle}>
+                            {course.videoCount
+                              ? t(HOME_TEXT + "progressLabel", {
+                                  current: course.watchedVideosCount,
+                                  percent: course.progressPercentage,
+                                  total: course.videoCount,
+                                })
+                              : t(HOME_TEXT + "progressFallback")}
+                          </Typography>
+
+                          <LinearProgress
+                            variant="determinate"
+                            value={course.progressPercentage}
+                            sx={style.progressBar}
+                          />
+                        </Box>
+                      </CardActionArea>
+                    </Card>
+                  ))}
                 </Box>
 
-                <CardContent sx={style.progressContent}>
-                  <Typography variant="overline" sx={style.cardLabelStyle}>
-                    {t(HOME_TEXT + "lastSeenFromExplorer")}
-                  </Typography>
-
-                  <Typography variant="h6" sx={style.cardTitleStyle}>
-                    {capitalizeFirstLetter(homeData.lastCourse.name)}
-                  </Typography>
-
-                  <Box sx={style.progressMetaRow}>
-                    <Box component="span" sx={style.progressStat}>
-                      {capitalizeFirstLetter(homeData.lastCourse.setSystem)}
+                {visibleRecentCourses.length > 1 ? (
+                  <Box sx={style.recentIndicators}>
+                    <Box sx={style.recentDots}>
+                      {visibleRecentCourses.map((course, index) => (
+                        <Box
+                          key={`${course.label}:dot`}
+                          sx={[
+                            style.recentDot,
+                            index === recentActiveIndex ? style.recentDotActive : null,
+                          ]}
+                        />
+                      ))}
                     </Box>
-                    <Box component="span" sx={style.progressStat}>
-                      {capitalizeFirstLetter(homeData.lastCourse.coach)}
-                    </Box>
-                  </Box>
 
-                  <Typography variant="body2" sx={style.cardLabelStyle}>
-                    {homeData.lastCourse.videoCount
-                      ? t(HOME_TEXT + "progressLabel", {
-                          current: homeData.lastCourse.watchedVideosCount,
-                          percent: homeData.lastCourse.progressPercentage,
-                          total: homeData.lastCourse.videoCount,
-                        })
-                      : t(HOME_TEXT + "progressFallback")}
-                  </Typography>
-
-                  <LinearProgress
-                    variant="determinate"
-                    value={homeData.lastCourse.progressPercentage}
-                    sx={style.progressBar}
-                  />
-
-                  {homeData.lastCourse.lastVideoName ? (
-                    <Typography variant="body2" sx={style.cardLabelStyle}>
-                      {t(HOME_TEXT + "lastVideo", {
-                        name: homeData.lastCourse.lastVideoName,
-                      })}
+                    <Typography variant="caption" sx={style.recentIndicatorsLabel}>
+                      {recentActiveIndex + 1} / {visibleRecentCourses.length}
                     </Typography>
-                  ) : null}
-
-                  <Button
-                    sx={style.cardBottomStyle}
-                    variant="outlined"
-                    onClick={() => openCourse(homeData.lastCourse)}
-                  >
-                    {t(HOME_TEXT + "continueCourse")}
-                  </Button>
-                </CardContent>
-              </Card>
+                  </Box>
+                ) : null}
+              </Box>
             ) : (
               <Card sx={style.emptyCard}>
                 <Stack spacing={1.5}>
@@ -327,86 +456,6 @@ export default function HomeScreenWeb() {
                 </Stack>
               </Card>
             )}
-          </Box>
-
-          <Box>
-            <SectionHeader
-              title={t(HOME_TEXT + "routesTitle")}
-              subtitle={t(HOME_TEXT + "routesSubtitle")}
-              action={
-                <Button
-                  endIcon={<ArrowForwardIosIcon />}
-                  variant="outlined"
-                  size="small"
-                  sx={style.sectionAction}
-                  onClick={() => navigate(routeList.explorerScreen)}
-                >
-                  {t(HOME_TEXT + "seeAllSystems")}
-                </Button>
-              }
-            />
-
-            <SimpleGrid columns={{ xs: 1, md: 2 }} gap={2}>
-              {(homeData?.recommendedRoutes ?? []).map((route) => (
-                <Card key={route.id} sx={style.routeCard}>
-                  <Box sx={style.routeHeader}>
-                    <Typography sx={style.cardTitleStyle} variant="subtitle1">
-                      {routeTitle(route)}
-                    </Typography>
-
-                    <Typography sx={style.routeMeta}>
-                      {t(HOME_TEXT + "routeStats", {
-                        courses: route.courseCount,
-                        videos: route.totalVideos,
-                      })}
-                    </Typography>
-
-                    <Typography variant="body2" sx={style.routeReason}>
-                      {routeReason(route)}
-                    </Typography>
-                  </Box>
-
-                  <Button
-                    fullWidth
-                    startIcon={<PlayArrowIcon />}
-                    onClick={() => toggleRoute(route.id)}
-                    sx={style.cardRouteButtom}
-                  >
-                    {expandedRouteId === route.id
-                      ? t(HOME_TEXT + "hideRoute")
-                      : t(HOME_TEXT + "openRoute")}
-                  </Button>
-
-                  {expandedRouteId === route.id ? (
-                    <Stack sx={style.routeCourseList}>
-                      {route.courses.map((course) => (
-                        <Box key={`${route.id}:${course.label}`} sx={style.routeCourseCard}>
-                          <Box sx={style.routeCourseLayout}>
-                            <Box sx={style.routeCourseContent}>
-                              <Typography sx={style.routeCourseTitle}>
-                                {capitalizeFirstLetter(course.name)}
-                              </Typography>
-
-                              <Typography variant="body2" sx={style.routeCourseMeta}>
-                                {`${capitalizeFirstLetter(course.setSystem)} · ${capitalizeFirstLetter(course.coach)}`}
-                              </Typography>
-
-                              <Button
-                                variant="text"
-                                onClick={() => openCourse(course)}
-                                sx={style.routeCourseButton}
-                              >
-                                {t(HOME_TEXT + "openCourse")}
-                              </Button>
-                            </Box>
-                          </Box>
-                        </Box>
-                      ))}
-                    </Stack>
-                  ) : null}
-                </Card>
-              ))}
-            </SimpleGrid>
           </Box>
 
           <Box>
@@ -434,7 +483,7 @@ export default function HomeScreenWeb() {
                       <SystemCover
                         title={capitalizeFirstLetter(system.name)}
                         subtitle={capitalizeFirstLetter(system.setSystem)}
-                        coach={capitalizeFirstLetter(system.coach)}
+                        coach={formatCoachName(system.coach)}
                         coverUrl={system.coverUrl}
                         videoCount={system.videoCount}
                         variant="card"

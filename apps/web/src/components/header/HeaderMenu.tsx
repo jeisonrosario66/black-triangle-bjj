@@ -7,10 +7,14 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
+import TranslateRoundedIcon from "@mui/icons-material/TranslateRounded";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
+import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import { useTheme } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
 
+import { cacheUser } from "@src/context/index";
+import { useUIStore } from "@src/store";
 import type { SessionUser } from "@src/context/index";
 
 /**
@@ -42,7 +46,8 @@ export default function HeaderMenu({
   onLogout: () => Promise<void>;
 }) {
   const theme = useTheme();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language.startsWith("en") ? "en" : "es";
 
   const handleLogin = async () => {
     onClose();
@@ -52,6 +57,13 @@ export default function HeaderMenu({
   const handleLogout = async () => {
     onClose();
     await onLogout();
+  };
+
+  const handleLanguageChange = async (language: "es" | "en") => {
+    localStorage.setItem(cacheUser.languageUser, language);
+    useUIStore.setState({ languageGlobal: { locale: language } });
+    await i18n.changeLanguage(language);
+    onClose();
   };
 
   return (
@@ -86,7 +98,7 @@ export default function HeaderMenu({
             <Box
               component="img"
               src="/google-logo.png"
-              alt="Google"
+              alt={t("components.header.googleAlt")}
               sx={{ width: 18, height: 18 }}
             />
           </ListItemIcon>
@@ -94,7 +106,28 @@ export default function HeaderMenu({
         </MenuItem>
       )}
 
-      {isLogin && <Divider />}
+      <Divider />
+
+      <MenuItem disabled>
+        <ListItemIcon>
+          <TranslateRoundedIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText primary={t("components.header.languageTitle")} />
+      </MenuItem>
+
+      <MenuItem onClick={() => void handleLanguageChange("es")}>
+        <ListItemIcon>
+          {currentLanguage === "es" ? <CheckRoundedIcon fontSize="small" /> : null}
+        </ListItemIcon>
+        <ListItemText primary={t("components.header.languageSpanish")} />
+      </MenuItem>
+
+      <MenuItem onClick={() => void handleLanguageChange("en")}>
+        <ListItemIcon>
+          {currentLanguage === "en" ? <CheckRoundedIcon fontSize="small" /> : null}
+        </ListItemIcon>
+        <ListItemText primary={t("components.header.languageEnglish")} />
+      </MenuItem>
 
       {isLogin && (
         <MenuItem onClick={() => void handleLogout()} disabled={isLoading}>

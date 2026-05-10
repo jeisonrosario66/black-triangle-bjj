@@ -70,7 +70,7 @@ export default function AppBarHeader() {
                 <Box
                   component="img"
                   src={logoBlackTriangleNoText}
-                  alt="Black Triangle icon"
+                  alt={t("components.header.brandIconAlt")}
                   sx={style.brandLogoImage}
                 />
               </Box>
@@ -78,7 +78,7 @@ export default function AppBarHeader() {
               <Box
                 component="img"
                 src={logoBlackTriangleOnlyText}
-                alt="Black Triangle"
+                alt={t("components.header.brandWordmarkAlt")}
                 sx={style.brandWordmark}
               />
             </Box>

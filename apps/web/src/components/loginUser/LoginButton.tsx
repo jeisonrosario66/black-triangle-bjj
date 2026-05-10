@@ -8,6 +8,7 @@
 import { Button, Typography } from "@mui/material";
 import * as style from "@src/styles/loginUser/styleLoginUser";
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { useSession } from "@src/hooks/index";
 
 type LoginButtonProps = {
@@ -16,10 +17,11 @@ type LoginButtonProps = {
 
 const LoginButton: React.FC<LoginButtonProps> = ({ label }) => {
   const { login, isLoading } = useSession();
+  const { t } = useTranslation();
 
   return (
     <Button onClick={() => void login()} sx={style.googleButton} disabled={isLoading}>
-      <img src="./google-logo.png" alt="Google" />
+      <img src="./google-logo.png" alt={t("components.header.googleAlt")} />
       <Typography sx={style.googleText}>{label}</Typography>
     </Button>
   );

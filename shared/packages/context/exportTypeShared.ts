@@ -119,6 +119,7 @@ export type SystemCardOption = {
   description: string;
   name: string;
   videoCount?: number;
+  viewsCount?: number;
 };
 
 export type HeaderAction =
