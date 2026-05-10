@@ -145,6 +145,7 @@
       "previousVideo": "Previous video",
       "nextVideo": "Next video",
       "viewsCount": "{{value}} views",
+      "startPlayback": "Play video",
       "seen": "Seen",
       "missingVideoTitle": "Video not found",
       "missingVideoDescription": "Open the content from a valid course to keep navigation context.",

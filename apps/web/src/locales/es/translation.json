@@ -145,6 +145,7 @@
       "previousVideo": "Video anterior",
       "nextVideo": "Siguiente video",
       "viewsCount": "{{value}} vistas",
+      "startPlayback": "Reproducir video",
       "seen": "Ya visto",
       "missingVideoTitle": "No se encontró el video",
       "missingVideoDescription": "Abre el contenido desde un curso válido para mantener contexto y navegación.",

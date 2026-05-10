@@ -40,6 +40,36 @@ export const videoIframe: SxProps = {
   border: 0,
 };
 
+export const videoPlaceholder: SxProps<Theme> = (theme) => ({
+  width: "100%",
+  height: "100%",
+  display: "flex",
+  flexDirection: "column",
+  alignItems: "center",
+  justifyContent: "center",
+  gap: 1.5,
+  padding: { xs: 3, md: 4 },
+  textAlign: "center",
+  color: theme.palette.common.white,
+  background: `linear-gradient(135deg, ${alpha(theme.palette.common.black, 0.12)} 0%, ${alpha(theme.palette.common.black, 0.58)} 100%), radial-gradient(circle at top, ${alpha(theme.palette.primary.light, 0.42)} 0%, transparent 48%)`,
+});
+
+export const videoPlaceholderEyebrow: SxProps<Theme> = (theme) => ({
+  letterSpacing: "0.14em",
+  color: alpha(theme.palette.common.white, 0.72),
+});
+
+export const videoPlaceholderTitle: SxProps<Theme> = (theme) => ({
+  maxWidth: 720,
+  fontWeight: 700,
+  color: theme.palette.common.white,
+});
+
+export const videoPlaceholderDescription: SxProps<Theme> = (theme) => ({
+  maxWidth: 560,
+  color: alpha(theme.palette.common.white, 0.8),
+});
+
 export const contextMedia: SxProps = {
   minHeight: { xs: 210, md: 240 },
   marginTop: 3,

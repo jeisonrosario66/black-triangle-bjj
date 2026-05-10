@@ -1,6 +1,7 @@
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
+import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import QueuePlayNextRoundedIcon from "@mui/icons-material/QueuePlayNextRounded";
 import {
   Accordion,
@@ -66,6 +67,7 @@ export default function VideoDetailScreen() {
   const { user } = useSession();
   const [navigationExpanded, setNavigationExpanded] = useState(true);
   const trackedVideoRef = useRef<string>("");
+  const [isVideoPlayerActive, setIsVideoPlayerActive] = useState(false);
 
   const nodeData = location.state?.nodeRoute as NodeOptionFirestore | undefined;
   const firestoreRoute = location.state?.firestoreRuta;
@@ -116,6 +118,11 @@ export default function VideoDetailScreen() {
   }, [currentNode?.id, currentNode?.viewsCount]);
 
   useEffect(() => {
+    setIsVideoPlayerActive(false);
+    trackedVideoRef.current = "";
+  }, [currentNode?.id]);
+
+  useEffect(() => {
     let mounted = true;
 
     const loadCourseStat = async () => {
@@ -154,8 +161,14 @@ export default function VideoDetailScreen() {
     };
   }, [system?.label, user?.email]);
 
-  useEffect(() => {
-    if (!user?.email || !system || !currentNode) {
+  const handleStartPlayback = () => {
+    if (!currentNode) {
+      return;
+    }
+
+    setIsVideoPlayerActive(true);
+
+    if (!user?.email || !system) {
       return;
     }
 
@@ -166,14 +179,6 @@ export default function VideoDetailScreen() {
     }
 
     trackedVideoRef.current = trackKey;
-
-    setVisitedModuleIds((currentVisitedIds) => {
-      if (currentVisitedIds.includes(currentNode.id)) {
-        return currentVisitedIds;
-      }
-
-      return [...currentVisitedIds, currentNode.id].sort((a, b) => a - b);
-    });
 
     void (async () => {
       const wasTracked = await trackVideoOpenedShared({
@@ -193,9 +198,16 @@ export default function VideoDetailScreen() {
         return;
       }
 
+      setVisitedModuleIds((currentVisitedIds) => {
+        if (currentVisitedIds.includes(currentNode.id)) {
+          return currentVisitedIds;
+        }
+
+        return [...currentVisitedIds, currentNode.id].sort((a, b) => a - b);
+      });
       setViewsCount((currentViews) => currentViews + 1);
     })();
-  }, [currentNode, system, user?.email]);
+  };
 
   const stateSystemLabel = location.state?.systemBreadcrumbLabel as
     | string
@@ -245,14 +257,30 @@ export default function VideoDetailScreen() {
 
   const videoPlayer = (
     <Box sx={styles.videoFrame}>
-      <Box
-        component="iframe"
-        src={`https://drive.google.com/file/d/${currentNode?.videoid}/preview`}
-        allow="autoplay; fullscreen; picture-in-picture"
-        allowFullScreen
-        title={currentNode?.name ?? t(textVideoDetail + "content")}
-        sx={styles.videoIframe}
-      />
+      {isVideoPlayerActive ? (
+        <Box
+          component="iframe"
+          src={`https://drive.google.com/file/d/${currentNode?.videoid}/preview`}
+          allow="autoplay; fullscreen; picture-in-picture"
+          allowFullScreen
+          title={currentNode?.name ?? t(textVideoDetail + "content")}
+          sx={styles.videoIframe}
+        />
+      ) : (
+        <Box sx={styles.videoPlaceholder}>
+          <Typography variant="h5" sx={styles.videoPlaceholderTitle}>
+            {capitalizeFirstLetter(currentNode?.name ?? t(textVideoDetail + "content"))}
+          </Typography>
+          <Button
+            variant="contained"
+            size="large"
+            startIcon={<PlayArrowRoundedIcon />}
+            onClick={handleStartPlayback}
+          >
+            {t(textVideoDetail + "startPlayback")}
+          </Button>
+        </Box>
+      )}
     </Box>
   );
 
@@ -320,7 +348,7 @@ export default function VideoDetailScreen() {
         {heroCard}
         {videoPlayer}
         <SectionHeader
-          title={currentNode?.name ?? t(textVideoDetail + "content")}
+          title={capitalizeFirstLetter(currentNode.name)}
           withDivider={false}
         />
 
