@@ -70,12 +70,38 @@ export const cacheUser = {
     systemsNodesLoaded: [],
     systemsLinksLoaded: []
 };
+
+const activeSystemsCollection = "test";
+
+const getValidCachedSystemPaths = (
+    key: string,
+    expectedSuffix: "nodes" | "links"
+) => {
+    const cachedPaths = parseCacheArray(key);
+    const validPrefix = `${activeSystemsCollection}/`;
+
+    const sanitizedPaths = cachedPaths.filter((path) =>
+        path.startsWith(validPrefix) && path.endsWith(`/${expectedSuffix}`)
+    );
+
+    if (sanitizedPaths.length !== cachedPaths.length) {
+        localStorage.setItem(key, JSON.stringify(sanitizedPaths));
+    }
+
+    return sanitizedPaths;
+};
 /**
  * Rutas activas de nodos y enlaces para la sesión actual.
  * Estas rutas determinan el contenido del grafo que se cargará.
  */
-const systemCacheLoadedLinks = parseCacheArray(cacheUser.systemsCacheNameLinks);
-const systemCacheLoadedNodes = parseCacheArray(cacheUser.systemsCacheNameNodes);
+const systemCacheLoadedLinks = getValidCachedSystemPaths(
+    cacheUser.systemsCacheNameLinks,
+    "links"
+);
+const systemCacheLoadedNodes = getValidCachedSystemPaths(
+    cacheUser.systemsCacheNameNodes,
+    "nodes"
+);
 
 /**
  * @deprecated Constante obsoleta.
@@ -93,7 +119,7 @@ export const tableNameDB = {
     nodeTaxonomy: "node_taxonomy", // nombre de la coleccion intermedia entre los nodos y los tabs
     tab_ids: "tab_ids", // nombre del registro de los tab dentro de la coleccion de node_taxonomy
     tabs: "tabs", // nombre de la coleccion de las etiquetas
-    systemsCollections: "systems_test"
+    systemsCollections: activeSystemsCollection
 };
 
 /**

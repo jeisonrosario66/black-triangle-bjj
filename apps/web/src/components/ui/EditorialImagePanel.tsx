@@ -4,6 +4,7 @@ import type { SxProps } from "@mui/system";
 import { useState } from "react";
 
 import { surfaceRecipes } from "@bt/shared/design-system";
+import { resolveDriveImageUrl } from "@src/utils/resolveDriveImageUrl";
 
 type EditorialImagePanelProps = {
   src?: string;
@@ -31,6 +32,7 @@ export default function EditorialImagePanel({
 }: EditorialImagePanelProps) {
   const theme = useTheme();
   const [hasError, setHasError] = useState(false);
+  const resolvedSrc = resolveDriveImageUrl(src);
 
   return (
     <Box
@@ -62,10 +64,10 @@ export default function EditorialImagePanel({
         ...(Array.isArray(sx) ? sx : [sx]),
       ]}
     >
-      {src && !hasError ? (
+      {resolvedSrc && !hasError ? (
         <Box
           component="img"
-          src={src}
+          src={resolvedSrc}
           alt={alt}
           onError={() => setHasError(true)}
           sx={{

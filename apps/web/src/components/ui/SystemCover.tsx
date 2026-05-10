@@ -3,6 +3,7 @@ import { Box, Typography } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
 import { useState } from "react";
 import { shape } from "@bt/shared/design-system/index";
+import { resolveDriveImageUrl } from "@src/utils/resolveDriveImageUrl";
 
 type SystemCoverVariant = "hero" | "card" | "list" | "header";
 
@@ -87,7 +88,9 @@ export default function SystemCover({
   const seed = [title, subtitle, coach].filter(Boolean).join("-");
   const palette = getCoverPalette(seed);
   const variantStyles = getVariantStyles(variant);
-  const useImage = shouldUseImage(coverUrl);
+  const resolvedCoverUrl = resolveDriveImageUrl(coverUrl);
+  const useImage = shouldUseImage(resolvedCoverUrl);
+  const debugLabel = [title, subtitle, coach].filter(Boolean).join(" | ");
 
   return (
     <Box
@@ -130,9 +133,17 @@ export default function SystemCover({
       {useImage ? (
         <Box
           component="img"
-          src={coverUrl}
+          src={resolvedCoverUrl}
           alt={title}
           onLoad={() => setImageReady(true)}
+          onError={() => {
+            setImageReady(false);
+            console.error("Cover image failed to load", {
+              system: debugLabel,
+              originalCoverUrl: coverUrl,
+              resolvedCoverUrl,
+            });
+          }}
           sx={{
             position: "absolute",
             inset: 0,

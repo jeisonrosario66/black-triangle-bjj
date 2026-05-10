@@ -1,4 +1,4 @@
-import { editorialMedia, type NodeOptionFirestore } from "@bt/shared/context/index";
+import { type NodeOptionFirestore } from "@bt/shared/context/index";
 import {
   getCachedCourseStatShared,
   getCourseStatShared,
@@ -152,6 +152,7 @@ export default function CourseDetailScreen() {
   const orderedModules = useMemo(() => {
     return [...modules].sort((a, b) => Number(a.id) - Number(b.id));
   }, [modules]);
+  const totalCourseVideos = system.videoCount ?? modules.length;
 
   if (!system) {
     return (
@@ -207,12 +208,11 @@ export default function CourseDetailScreen() {
 
 
         <EditorialImagePanel
-          src={editorialMedia.courseContext.src}
+          src={system.coverUrl}
           alt={capitalizeFirstLetter(system.name)}
           eyebrow={capitalizeFirstLetter(system.setSystem)}
           title={capitalizeFirstLetter(system.name)}
           description={`Coach ${capitalizeFirstLetter(system.coach)}`}
-          objectPosition={editorialMedia.courseContext.objectPosition}
           sx={styles.contextMedia}
         />
 
@@ -233,7 +233,7 @@ export default function CourseDetailScreen() {
             <Typography>
               {t(textCourseDetail + "courseVideos", {
                 topic: capitalizeFirstLetter(system.setSystem),
-                total: modules.length,
+                total: totalCourseVideos,
               })}
             </Typography>
           </AccordionSummary>

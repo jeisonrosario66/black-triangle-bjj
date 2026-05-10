@@ -138,6 +138,7 @@ export const getSystemshared = async (
         const valueLinks = `${tableNameDB.systemsCollections}/${docData.label}/links`;
         const cachedVideoCount = getCachedVideoCount(valueNodes);
         const videoCount =
+          docData.nodesCount ??
           docData.videoCount ??
           docData.videosCount ??
           docData.totalVideos ??
