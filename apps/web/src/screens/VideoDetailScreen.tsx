@@ -29,7 +29,6 @@ import {
   DescriptionList,
   ModuleList,
   PageContainer,
-  SectionHeader,
   SystemCover,
   TagList,
 } from "@src/components/index";
@@ -347,11 +346,6 @@ export default function VideoDetailScreen() {
 
         {heroCard}
         {videoPlayer}
-        <SectionHeader
-          title={capitalizeFirstLetter(currentNode.name)}
-          withDivider={false}
-        />
-
         <Box sx={styles.metaCard}>
           <Box sx={styles.videoMetaRow}>
             <Typography variant="body2" sx={styles.viewsLabel}>

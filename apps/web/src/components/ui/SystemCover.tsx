@@ -6,6 +6,7 @@ import { shape } from "@bt/shared/design-system/index";
 import { resolveDriveImageUrl } from "@src/utils/resolveDriveImageUrl";
 
 type SystemCoverVariant = "hero" | "card" | "list" | "header";
+type CoverOrientation = "portrait" | "landscape" | "square";
 
 interface SystemCoverProps {
   title: string;
@@ -85,12 +86,31 @@ export default function SystemCover({
 }: SystemCoverProps) {
   const theme = useTheme();
   const [imageReady, setImageReady] = useState(false);
+  const [coverOrientation, setCoverOrientation] = useState<CoverOrientation>("landscape");
   const seed = [title, subtitle, coach].filter(Boolean).join("-");
   const palette = getCoverPalette(seed);
   const variantStyles = getVariantStyles(variant);
   const resolvedCoverUrl = resolveDriveImageUrl(coverUrl);
   const useImage = shouldUseImage(resolvedCoverUrl);
   const debugLabel = [title, subtitle, coach].filter(Boolean).join(" | ");
+  const isPortrait = coverOrientation === "portrait";
+  const isHeaderLike = variant === "header" || variant === "list";
+
+  const posterLayout = isHeaderLike
+    ? {
+        width: isPortrait ? { xs: "28%", md: "24%" } : { xs: "42%", md: "34%" },
+        maxWidth: isPortrait ? 112 : 148,
+        insetInlineEnd: { xs: 10, md: 14 },
+        insetBlockStart: { xs: 10, md: 14 },
+        insetBlockEnd: { xs: 10, md: 14 },
+      }
+    : {
+        width: isPortrait ? { xs: "34%", md: "30%" } : { xs: "52%", md: "46%" },
+        maxWidth: isPortrait ? 200 : 340,
+        insetInlineEnd: { xs: 14, md: 22 },
+        insetBlockStart: { xs: 14, md: 20 },
+        insetBlockEnd: { xs: 14, md: 20 },
+      };
 
   return (
     <Box
@@ -131,37 +151,89 @@ export default function SystemCover({
       }}
     >
       {useImage ? (
-        <Box
-          component="img"
-          src={resolvedCoverUrl}
-          alt={title}
-          onLoad={() => setImageReady(true)}
-          onError={() => {
-            setImageReady(false);
-            console.error("Cover image failed to load", {
-              system: debugLabel,
-              originalCoverUrl: coverUrl,
-              resolvedCoverUrl,
-            });
-          }}
-          sx={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            opacity: imageReady ? 0.88 : 0,
-            transition: "opacity 240ms ease",
-            filter: "saturate(0.96) contrast(1.05)",
-          }}
-        />
+        <>
+          <Box
+            component="img"
+            src={resolvedCoverUrl}
+            alt={title}
+            onLoad={(event) => {
+              const target = event.currentTarget;
+              const ratio = target.naturalWidth / target.naturalHeight;
+              setCoverOrientation(ratio < 0.9 ? "portrait" : ratio > 1.1 ? "landscape" : "square");
+              setImageReady(true);
+            }}
+            onError={() => {
+              setImageReady(false);
+              console.error("Cover image failed to load", {
+                system: debugLabel,
+                originalCoverUrl: coverUrl,
+                resolvedCoverUrl,
+              });
+            }}
+            sx={{
+              position: "absolute",
+              inset: -22,
+              width: "calc(100% + 44px)",
+              height: "calc(100% + 44px)",
+              objectFit: "cover",
+              opacity: imageReady ? 0.42 : 0,
+              transition: "opacity 240ms ease",
+              filter: "blur(18px) saturate(0.88) contrast(1.02) brightness(0.74)",
+              transform: isPortrait ? "scale(1.08)" : "scale(1.02)",
+            }}
+          />
+
+          <Box
+            sx={{
+              position: "absolute",
+              ...posterLayout,
+              zIndex: 1,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              opacity: imageReady ? 1 : 0,
+              transition: "opacity 240ms ease",
+              pointerEvents: "none",
+            }}
+          >
+            <Box
+              sx={{
+                width: "100%",
+                height: "100%",
+                borderRadius: isHeaderLike ? shape.borderRadius.sm : shape.borderRadius.md,
+                overflow: "hidden",
+                border: `1px solid ${alpha("#FFFFFF", 0.18)}`,
+                boxShadow: isPortrait
+                  ? "0 18px 38px rgba(2, 6, 23, 0.42)"
+                  : "0 20px 40px rgba(2, 6, 23, 0.34)",
+                background: alpha("#020617", 0.18),
+                backdropFilter: "blur(10px)",
+              }}
+            >
+              <Box
+                component="img"
+                src={resolvedCoverUrl}
+                alt={title}
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  objectPosition: "center",
+                  display: "block",
+                  background:
+                    "linear-gradient(180deg, rgba(15, 23, 42, 0.06) 0%, rgba(15, 23, 42, 0.18) 100%)",
+                }}
+              />
+            </Box>
+          </Box>
+        </>
       ) : null}
 
       <Box
         sx={{
           position: "absolute",
           inset: 0,
-          zIndex: 1,
+          zIndex: 2,
           display: "flex",
           flexDirection: "column",
           justifyContent: variant === "header" ? "center" : "space-between",
@@ -251,10 +323,16 @@ export default function SystemCover({
               lineHeight: variant === "header" ? 1.08 : 1.02,
               maxWidth:
                 variant === "list"
-                  ? "90%"
+                  ? isPortrait
+                    ? "68%"
+                    : "58%"
                   : variant === "header"
-                    ? "100%"
-                    : "80%",
+                    ? isPortrait
+                      ? "72%"
+                      : "62%"
+                    : isPortrait
+                      ? "64%"
+                      : "54%",
               textWrap: "balance",
               textShadow: "0 10px 22px rgba(2, 6, 23, 0.42)",
             }}

@@ -16,6 +16,8 @@ type EditorialImagePanelProps = {
   sx?: SxProps<Theme>;
 };
 
+type CoverOrientation = "portrait" | "landscape" | "square";
+
 /**
  * Panel visual reutilizable para piezas editoriales y de marketing.
  * Prioriza imagen real cuando existe el asset y mantiene un fallback elegante
@@ -32,7 +34,10 @@ export default function EditorialImagePanel({
 }: EditorialImagePanelProps) {
   const theme = useTheme();
   const [hasError, setHasError] = useState(false);
+  const [imageReady, setImageReady] = useState(false);
+  const [coverOrientation, setCoverOrientation] = useState<CoverOrientation>("landscape");
   const resolvedSrc = resolveDriveImageUrl(src);
+  const isPortrait = coverOrientation === "portrait";
 
   return (
     <Box
@@ -65,27 +70,80 @@ export default function EditorialImagePanel({
       ]}
     >
       {resolvedSrc && !hasError ? (
-        <Box
-          component="img"
-          src={resolvedSrc}
-          alt={alt}
-          onError={() => setHasError(true)}
-          sx={{
-            position: "absolute",
-            inset: 0,
-            width: "100%",
-            height: "100%",
-            objectFit: "cover",
-            objectPosition,
-            filter: "saturate(0.94) contrast(1.04) brightness(0.9)",
-          }}
-        />
+        <>
+          <Box
+            component="img"
+            src={resolvedSrc}
+            alt={alt}
+            onLoad={(event) => {
+              const target = event.currentTarget;
+              const ratio = target.naturalWidth / target.naturalHeight;
+              setCoverOrientation(ratio < 0.9 ? "portrait" : ratio > 1.1 ? "landscape" : "square");
+              setImageReady(true);
+            }}
+            onError={() => setHasError(true)}
+            sx={{
+              position: "absolute",
+              inset: -28,
+              width: "calc(100% + 56px)",
+              height: "calc(100% + 56px)",
+              objectFit: "cover",
+              objectPosition,
+              opacity: imageReady ? 0.48 : 0,
+              filter: "blur(22px) saturate(0.88) contrast(1.02) brightness(0.72)",
+              transform: isPortrait ? "scale(1.08)" : "scale(1.03)",
+              transition: "opacity 240ms ease",
+            }}
+          />
+
+          <Box
+            sx={{
+              position: "absolute",
+              inset: { xs: 18, md: 22 },
+              display: "flex",
+              justifyContent: isPortrait ? "center" : "flex-end",
+              alignItems: "center",
+              zIndex: 1,
+              pointerEvents: "none",
+            }}
+          >
+            <Box
+              sx={{
+                width: isPortrait ? { xs: "44%", sm: "34%", md: "28%" } : { xs: "72%", sm: "62%", md: "54%" },
+                maxWidth: isPortrait ? 220 : 520,
+                height: "100%",
+                maxHeight: "100%",
+                borderRadius: { xs: 2.5, md: 3.5 },
+                overflow: "hidden",
+                border: `1px solid ${alpha("#FFFFFF", 0.16)}`,
+                boxShadow: "0 22px 52px rgba(2, 6, 23, 0.36)",
+                backgroundColor: alpha("#020617", 0.16),
+                opacity: imageReady ? 1 : 0,
+                transition: "opacity 240ms ease",
+              }}
+            >
+              <Box
+                component="img"
+                src={resolvedSrc}
+                alt={alt}
+                sx={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "contain",
+                  objectPosition,
+                  display: "block",
+                }}
+              />
+            </Box>
+          </Box>
+        </>
       ) : null}
 
       <Box
         sx={{
           position: "absolute",
           inset: 0,
+          zIndex: 1,
           background: `
             linear-gradient(180deg, ${alpha("#020617", 0.06)} 0%, ${alpha("#020617", 0.18)} 28%, ${alpha("#020617", 0.82)} 100%)
           `,
@@ -97,13 +155,13 @@ export default function EditorialImagePanel({
           sx={{
             position: "absolute",
             inset: 0,
-            zIndex: 1,
+            zIndex: 2,
             display: "flex",
             alignItems: "flex-end",
             p: { xs: 2, md: 2.5 },
           }}
         >
-          <Box sx={{ maxWidth: 420 }}>
+          <Box sx={{ maxWidth: isPortrait ? 420 : 360 }}>
             {eyebrow ? (
               <Typography
                 sx={{
