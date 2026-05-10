@@ -20,9 +20,18 @@ type testType = {
 };
 
 export type SystemsGroupShared = testType;
+export type SystemsPageCursorShared = any;
+export type SystemsPageShared = {
+  systems: SystemCardUI[];
+  tagNavigation: string[];
+  cursor: SystemsPageCursorShared | null;
+  hasMore: boolean;
+};
 
 const systemsCache = new Map<string, Promise<testType[]>>();
 const systemsSnapshotCache = new Map<string, testType[]>();
+const systemSetsCache = new Map<string, Promise<testType[]>>();
+const systemSetsSnapshotCache = new Map<string, testType[]>();
 const nodeCollectionsCache = new Map<string, Promise<NodeOptionFirestore[]>>();
 const nodeCollectionsSnapshotCache = new Map<string, NodeOptionFirestore[]>();
 const nodeCountSnapshotCache = new Map<string, number>();
@@ -101,10 +110,42 @@ export const buildSystemsUIShared = (data: SystemsGroupShared[]) => {
 export const getCachedSystemsShared = (language = "es") =>
   systemsSnapshotCache.get(getSystemsCacheKey(language)) ?? null;
 
+const getCachedSystemSetsShared = (language = "es") =>
+  systemSetsSnapshotCache.get(`system-sets:${language}`) ?? null;
+
 export const getCachedDataNodesShared = (
   dbNames: string[],
   language = "es",
 ) => nodeCollectionsSnapshotCache.get(getNodesCacheKey(dbNames, language)) ?? null;
+
+export const updateCachedNodeViewsShared = ({
+  docId,
+  id,
+  nextViewsCount,
+}: {
+  docId?: string;
+  id: number;
+  nextViewsCount: number;
+}) => {
+  nodeCollectionsSnapshotCache.forEach((nodes, cacheKey) => {
+    const nextNodes = nodes.map((node) => {
+      const isTargetNode =
+        (docId && node.docId === docId) ||
+        (!docId && node.id === id);
+
+      if (!isTargetNode) {
+        return node;
+      }
+
+      return {
+        ...node,
+        viewsCount: nextViewsCount,
+      };
+    });
+
+    nodeCollectionsSnapshotCache.set(cacheKey, nextNodes);
+  });
+};
 
 export const getSystemshared = async (
   getDocs: any,
@@ -149,6 +190,7 @@ export const getSystemshared = async (
           name,
           valueNodes,
           valueLinks,
+          set: "",
           coach,
           coverUrl,
           description,
@@ -213,6 +255,160 @@ export const getSystemshared = async (
   systemsCache.set(cacheKey, request);
 
   return request;
+};
+
+const mapSystemDocToOption = (docData: any, language: string): SystemCardOption => {
+  const label = docData.label;
+  const name = language === "es" ? docData.name_es : docData.name_en;
+  const coach = docData.coach.replaceAll("_", " ");
+  const coverUrl = docData.coverUrl;
+  const description = language === "es" ? docData.descrip_es : docData.descrip_en;
+  const valueNodes = `${tableNameDB.systemsCollections}/${docData.label}/nodes`;
+  const valueLinks = `${tableNameDB.systemsCollections}/${docData.label}/links`;
+  const cachedVideoCount = getCachedVideoCount(valueNodes);
+  const videoCount =
+    docData.nodesCount ??
+    docData.videoCount ??
+    docData.videosCount ??
+    docData.totalVideos ??
+    cachedVideoCount;
+
+  return {
+    label,
+    name,
+    valueNodes,
+    valueLinks,
+    set: "",
+    coach,
+    coverUrl,
+    description,
+    videoCount,
+  };
+};
+
+export const getSystemSetsShared = async (
+  getDocs: any,
+  collection: any,
+  database: any,
+  language = "es",
+) => {
+  const cacheKey = `system-sets:${language}`;
+  const cachedRequest = systemSetsCache.get(cacheKey);
+
+  if (cachedRequest) {
+    return cachedRequest;
+  }
+
+  const request = (async () => {
+    try {
+      const setsSnapshot = await getDocs(
+        collection(database, "systems_sets/essentials/set"),
+      );
+
+      return setsSnapshot.docs.map((doc: any) => {
+        const docData = doc.data();
+        const uniqueSystemIds = Array.from(
+          new Set<string>(docData.systems as string[]),
+        );
+
+        return {
+          label: docData.label,
+          name: language === "es" ? docData.name_es : docData.name_en,
+          systems: uniqueSystemIds.map((systemId: string) => ({
+            label: systemId,
+            name: "",
+            valueNodes: "",
+            valueLinks: "",
+            coach: "",
+            coverUrl: "",
+            description: "",
+          })),
+        };
+      });
+    } catch (error) {
+      systemSetsCache.delete(cacheKey);
+      console.error("Error obteniendo sets de sistemas desde Firestore:", error);
+      return [];
+    }
+  })();
+
+  request.then((data) => {
+    systemSetsSnapshotCache.set(cacheKey, data);
+  });
+  systemSetsCache.set(cacheKey, request);
+
+  return request;
+};
+
+export const getSystemsPageShared = async ({
+  firestore,
+  language = "es",
+  pageSize = 12,
+  cursor = null,
+}: {
+  firestore: {
+    collection: any;
+    database: any;
+    getDocs: any;
+    limit: any;
+    orderBy: any;
+    query: any;
+    startAfter: any;
+  };
+  language?: string;
+  pageSize?: number;
+  cursor?: SystemsPageCursorShared | null;
+}): Promise<SystemsPageShared> => {
+  const {
+    collection,
+    database,
+    getDocs,
+    limit,
+    orderBy,
+    query,
+    startAfter,
+  } = firestore;
+
+  const dbName = tableNameDB.systemsCollections;
+  const systemSets = getCachedSystemSetsShared(language)
+    ?? await getSystemSetsShared(getDocs, collection, database, language);
+  const baseQueryParts = [
+    collection(database, dbName),
+    orderBy("label"),
+    limit(pageSize),
+  ];
+  const systemsQuery = cursor
+    ? query(baseQueryParts[0], baseQueryParts[1], startAfter(cursor), baseQueryParts[2])
+    : query(...baseQueryParts);
+  const querySnapshot = await getDocs(systemsQuery);
+  const systems = querySnapshot.docs.map((snapshot: any) =>
+    mapSystemDocToOption(snapshot.data(), language),
+  );
+  const systemToSetName = new Map<string, string>();
+
+  systemSets.forEach((set: testType) => {
+    set.systems.forEach((system: SystemCardOption) => {
+      if (!systemToSetName.has(system.label)) {
+        systemToSetName.set(system.label, set.name);
+      }
+    });
+  });
+
+  const pageSystems: SystemCardUI[] = systems.map((system: SystemCardOption) => ({
+    ...system,
+    setSystem: systemToSetName.get(system.label) ?? "otros sistemas",
+  }));
+  const nextCursor =
+    querySnapshot.docs.length > 0
+      ? querySnapshot.docs[querySnapshot.docs.length - 1]
+      : null;
+
+  return {
+    systems: pageSystems,
+    tagNavigation: Array.from(new Set(systemSets.map((set: testType) => set.name))),
+    cursor: nextCursor,
+    hasMore: querySnapshot.docs.length === pageSize,
+  };
 };
 
 /**

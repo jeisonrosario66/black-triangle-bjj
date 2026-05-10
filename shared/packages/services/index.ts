@@ -4,8 +4,12 @@ export {
   getCachedDataNodesShared,
   getCachedSystemsShared,
   getDataNodesShared,
+  getSystemsPageShared,
+  getSystemSetsShared,
   getSystemshared,
+  updateCachedNodeViewsShared,
 } from "./firebaseServiceShared";
+export type { SystemsPageCursorShared } from "./firebaseServiceShared";
 export {
   buildCourseLocationStateShared,
   getCachedCourseStatShared,

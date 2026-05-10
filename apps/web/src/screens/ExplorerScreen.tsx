@@ -1,11 +1,9 @@
 import { editorialMedia, type SystemCardUI } from "@bt/shared/context";
 import {
   buildCourseLocationStateShared,
-  buildSystemsUIShared,
   getCachedUserCourseStatsShared,
-  getCachedSystemsShared,
+  getSystemsPageShared,
   getUserCourseStatsShared,
-  getSystemshared,
   trackCourseSelectionShared,
 } from "@bt/shared/services";
 import { capitalizeFirstLetter } from "@bt/shared/utils/capitalizeFirstLetter";
@@ -38,7 +36,11 @@ import {
   doc,
   getDocs,
   increment,
+  limit,
+  orderBy,
+  query,
   setDoc,
+  startAfter,
 } from "firebase/firestore";
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -115,6 +117,7 @@ interface SystemListItemProps {
 }
 
 const language = "es";
+const SYSTEMS_PAGE_SIZE = 12;
 
 function SystemListItem({
   system,
@@ -160,21 +163,16 @@ export default function ExplorerScreen() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
   const { user } = useSession();
-  const cachedSystemsData = getCachedSystemsShared(language);
   const cachedUserStats = user?.email
     ? getCachedUserCourseStatsShared(user.email)
     : null;
-  const initialExplorerData = cachedSystemsData
-    ? buildSystemsUIShared(cachedSystemsData)
-    : null;
 
-  const [systems, setSystems] = useState<SystemCardUI[]>(
-    () => initialExplorerData?.systems ?? [],
-  );
-  const [tagNavigation, setTagNavigation] = useState<string[]>(
-    () => initialExplorerData?.tagNavigation ?? [],
-  );
-  const [loading, setLoading] = useState(!initialExplorerData);
+  const [systems, setSystems] = useState<SystemCardUI[]>([]);
+  const [tagNavigation, setTagNavigation] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [cursor, setCursor] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string>("");
   const [visitedCourseLabels, setVisitedCourseLabels] = useState<string[]>(
@@ -187,20 +185,46 @@ export default function ExplorerScreen() {
   );
 
   useEffect(() => {
-    const loadSystems = async () => {
+    let mounted = true;
+
+    const loadFirstPage = async () => {
       try {
-        const data = await getSystemshared(getDocs, collection, database, language);
-        const explorerData = buildSystemsUIShared(data);
-        setSystems(explorerData.systems);
-        setTagNavigation(explorerData.tagNavigation);
+        const page = await getSystemsPageShared({
+          firestore: {
+            collection,
+            database,
+            getDocs,
+            limit,
+            orderBy,
+            query,
+            startAfter,
+          },
+          language,
+          pageSize: SYSTEMS_PAGE_SIZE,
+        });
+
+        if (!mounted) {
+          return;
+        }
+
+        setSystems(page.systems);
+        setTagNavigation(page.tagNavigation);
+        setCursor(page.cursor);
+        setHasMore(page.hasMore);
       } catch (error) {
         console.error("Error cargando sistemas:", error);
       } finally {
-        setLoading(false);
+        if (mounted) {
+          setLoading(false);
+        }
       }
     };
 
-    loadSystems();
+    void loadFirstPage();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   useEffect(() => {
@@ -334,6 +358,47 @@ export default function ExplorerScreen() {
     );
   };
 
+  const handleLoadMore = async () => {
+    if (loadingMore || !hasMore) {
+      return;
+    }
+
+    setLoadingMore(true);
+
+    try {
+      const page = await getSystemsPageShared({
+        firestore: {
+          collection,
+          database,
+          getDocs,
+          limit,
+          orderBy,
+          query,
+          startAfter,
+        },
+        language,
+        pageSize: SYSTEMS_PAGE_SIZE,
+        cursor,
+      });
+
+      setSystems((currentSystems) => {
+        const knownLabels = new Set(currentSystems.map((system) => system.label));
+        const nextSystems = page.systems.filter((system) => !knownLabels.has(system.label));
+
+        return [...currentSystems, ...nextSystems];
+      });
+      setTagNavigation((currentTags) =>
+        Array.from(new Set([...currentTags, ...page.tagNavigation])),
+      );
+      setCursor(page.cursor);
+      setHasMore(page.hasMore);
+    } catch (error) {
+      console.error("Error cargando más sistemas:", error);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
   if (loading) {
     return (
       <Box sx={loadingStyle.loading}>
@@ -447,7 +512,7 @@ export default function ExplorerScreen() {
         </Box>
 
         <Typography variant="body2" sx={styles.resultsMeta}>
-          {systemsFiltrados.length} resultados
+          {systemsFiltrados.length} resultados cargados
         </Typography>
 
         {systemsFiltrados.length === 0 ? (
@@ -470,17 +535,43 @@ export default function ExplorerScreen() {
             )}
           />
         ) : (
-          <SimpleGrid columns={{ xs: 1, md: 2 }} gap={3}>
-            {systemsFiltrados.map((item) => (
-              <SystemCard
-                key={item.label}
-                system={item}
-                isVisited={visitedCourseSet.has(item.label)}
-                onClick={() => handleNavigate(item)}
-              />
-            ))}
-          </SimpleGrid>
+          <>
+            <SimpleGrid columns={{ xs: 1, md: 2 }} gap={3}>
+              {systemsFiltrados.map((item) => (
+                <SystemCard
+                  key={item.label}
+                  system={item}
+                  isVisited={visitedCourseSet.has(item.label)}
+                  onClick={() => handleNavigate(item)}
+                />
+              ))}
+            </SimpleGrid>
+
+            {hasMore ? (
+              <Box sx={{ display: "flex", justifyContent: "center", mt: 3 }}>
+                <Button
+                  variant="outlined"
+                  onClick={handleLoadMore}
+                  disabled={loadingMore}
+                >
+                  {loadingMore ? "Cargando más..." : "Cargar más sistemas"}
+                </Button>
+              </Box>
+            ) : null}
+          </>
         )}
+
+        {isMobile && hasMore ? (
+          <Box sx={{ display: "flex", justifyContent: "center", mt: 2.5 }}>
+            <Button
+              variant="outlined"
+              onClick={handleLoadMore}
+              disabled={loadingMore}
+            >
+              {loadingMore ? "Cargando más..." : "Cargar más sistemas"}
+            </Button>
+          </Box>
+        ) : null}
       </PageContainer>
     </Box>
   );
