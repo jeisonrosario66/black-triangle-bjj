@@ -19,6 +19,9 @@ type testType = {
   systems: SystemCardOption[];
 };
 
+const COURSE_METRICS_COLLECTION = "course_metrics";
+const VIDEO_METRICS_SUBCOLLECTION = "videos";
+
 export type SystemsGroupShared = testType;
 export type SystemsPageCursorShared = any;
 export type SystemsPageShared = {
@@ -85,6 +88,12 @@ const getCachedVideoCount = (dbName: string) =>
 
 const getOtherSystemsLabel = (language: string) =>
   language === "es" ? "Otros sistemas" : "Other systems";
+
+const getCourseLabelFromNodesPath = (valueNodes: string) =>
+  valueNodes.split("/")[1] ?? "";
+
+const buildVideoMetricsPath = (courseLabel: string) =>
+  `${COURSE_METRICS_COLLECTION}/${courseLabel}/${VIDEO_METRICS_SUBCOLLECTION}`;
 
 export const buildSystemsUIShared = (data: SystemsGroupShared[]) => {
   const systemsMap = new Map<string, SystemCardUI>();
@@ -168,12 +177,22 @@ export const getSystemshared = async (
   // const language = localStorage.getItem(cacheUser.languageUser);
 
   try {
-    // 1. Obtener todos los sistemas
-    const querySnapshot = await getDocs(collection(database, dbName));
+    // 1. Obtener todos los sistemas y sus métricas globales
+    const [querySnapshot, metricsSnapshot] = await Promise.all([
+      getDocs(collection(database, dbName)),
+      getDocs(collection(database, COURSE_METRICS_COLLECTION)),
+    ]);
+    const metricsByLabel = new Map<string, any>(
+      metricsSnapshot.docs.map((metricDoc: any) => [
+        metricDoc.id,
+        metricDoc.data(),
+      ]),
+    );
     const systems: SystemCardOption[] = await Promise.all(
       querySnapshot.docs.map(async (doc: any) => {
         const docData = doc.data();
         const label = docData.label;
+        const metricData = metricsByLabel.get(label);
         const name = language === "es" ? docData.name_es : docData.name_en;
         const coach = docData.coach.replaceAll("_", " ");
         const coverUrl = docData.coverUrl;
@@ -198,7 +217,11 @@ export const getSystemshared = async (
           coverUrl,
           description,
           videoCount,
-          viewsCount: docData.viewsCount ?? 0,
+          viewsCount:
+            metricData?.courseViews ??
+            metricData?.viewsCount ??
+            docData.viewsCount ??
+            0,
         };
       }),
     );
@@ -386,10 +409,26 @@ export const getSystemsPageShared = async ({
   const systemsQuery = cursor
     ? query(baseQueryParts[0], baseQueryParts[1], startAfter(cursor), baseQueryParts[2])
     : query(...baseQueryParts);
-  const querySnapshot = await getDocs(systemsQuery);
-  const systems = querySnapshot.docs.map((snapshot: any) =>
-    mapSystemDocToOption(snapshot.data(), language),
+  const [querySnapshot, metricsSnapshot] = await Promise.all([
+    getDocs(systemsQuery),
+    getDocs(collection(database, COURSE_METRICS_COLLECTION)),
+  ]);
+  const metricsByLabel = new Map<string, any>(
+    metricsSnapshot.docs.map((metricDoc: any) => [metricDoc.id, metricDoc.data()]),
   );
+  const systems = querySnapshot.docs.map((snapshot: any) => {
+    const system = mapSystemDocToOption(snapshot.data(), language);
+    const metricData = metricsByLabel.get(system.label);
+
+    return {
+      ...system,
+      viewsCount:
+        metricData?.courseViews ??
+        metricData?.viewsCount ??
+        system.viewsCount ??
+        0,
+    };
+  });
   const systemToSetName = new Map<string, string>();
 
   systemSets.forEach((set: testType) => {
@@ -440,25 +479,54 @@ export const getDataNodesShared = async (
 
   const request = (async () => {
   try {
-    const promises = dbNames.map((dbName) =>
-      getDocs(collection(database, dbName)),
-    );
-    const snapshots = await Promise.all(promises);
+    const nodesRequests = dbNames.map((dbName) => getDocs(collection(database, dbName)));
+    const videoMetricsRequests = dbNames.map((dbName) => {
+      const courseLabel = getCourseLabelFromNodesPath(dbName);
+
+      if (!courseLabel) {
+        return Promise.resolve(null);
+      }
+
+      return getDocs(collection(database, buildVideoMetricsPath(courseLabel)));
+    });
+    const [snapshots, videoMetricSnapshots] = await Promise.all([
+      Promise.all(nodesRequests),
+      Promise.all(videoMetricsRequests),
+    ]);
 
     const results: NodeOptionFirestore[] = snapshots
       .map((querySnapshot, index) => {
         persistStoredVideoCount(dbNames[index], querySnapshot.size);
+        const videoMetricsByNodeId = new Map<number, number>();
+        const videoMetricsSnapshot = videoMetricSnapshots[index];
+
+        videoMetricsSnapshot?.docs.forEach((metricDoc: any) => {
+          const metricData = metricDoc.data();
+          const rawNodeId = metricData.nodeId ?? Number(metricDoc.id);
+          const nodeId =
+            typeof rawNodeId === "number" && Number.isFinite(rawNodeId)
+              ? rawNodeId
+              : Number(rawNodeId);
+
+          if (Number.isFinite(nodeId)) {
+            videoMetricsByNodeId.set(nodeId, metricData.viewsCount ?? 0);
+          }
+        });
 
         return querySnapshot.docs.map((doc: { id: string; data: () => any; }) => {
           const docData = doc.data();
+          const nodeId = docData.index;
           return {
             docId: doc.id,
-            id: docData.index,
-            index: docData.index,
+            id: nodeId,
+            index: nodeId,
             name: language === "es" ? docData.name_es : docData.name_en,
             group: docData.group,
             videoid: docData.videoid,
-            viewsCount: docData.viewsCount ?? 0,
+            viewsCount:
+              videoMetricsByNodeId.get(nodeId) ??
+              docData.viewsCount ??
+              0,
             description:
               language === "es" ? docData.descrip_es : docData.descrip_en,
           };

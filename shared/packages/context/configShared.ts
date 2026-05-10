@@ -32,6 +32,6 @@ export const tableNameDB = {
     nodeTaxonomy: "node_taxonomy", // nombre de la coleccion intermedia entre los nodos y los tabs
     tab_ids: "tab_ids", // nombre del registro de los tab dentro de la coleccion de node_taxonomy
     tabs: "tabs", // nombre de la coleccion de las etiquetas
-    systemsCollections: "test"
+    systemsCollections: "systems_content"
 };
 

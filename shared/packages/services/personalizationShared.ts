@@ -7,6 +7,7 @@ import {
 const USERS_COLLECTION = "users";
 const USER_COURSE_STATS_COLLECTION = "course_stats";
 const COURSE_METRICS_COLLECTION = "course_metrics";
+const VIDEO_METRICS_SUBCOLLECTION = "videos";
 const VIDEO_VIEW_THROTTLE_MS = 45_000;
 
 type FirestoreCollectionReadApi = {
@@ -130,6 +131,9 @@ const toCourseSnapshot = (system: SystemCardUI): CourseSnapshot => ({
   valueNodes: system.valueNodes,
   videoCount: system.videoCount,
 });
+
+const buildVideoMetricDocPath = (courseLabel: string, nodeId: number) =>
+  `${COURSE_METRICS_COLLECTION}/${courseLabel}/${VIDEO_METRICS_SUBCOLLECTION}/${nodeId}`;
 
 const mergeCourseStatDoc = (
   current: UserCourseStatDoc | undefined,
@@ -700,6 +704,10 @@ export const trackVideoOpenedShared = async ({
     system.label,
   );
   const courseMetricRef = doc(database, COURSE_METRICS_COLLECTION, system.label);
+  const videoMetricRef = doc(
+    database,
+    buildVideoMetricDocPath(system.label, module.id),
+  );
   const cachedStat =
     getCachedCourseStatShared(normalizedEmail, system.label) ?? undefined;
   const cachedMetric = getCachedCourseMetric(system.label);
@@ -758,20 +766,18 @@ export const trackVideoOpenedShared = async ({
       },
       { merge: true },
     ),
+    setDoc(
+      videoMetricRef,
+      {
+        courseLabel: system.label,
+        nodeId: module.id,
+        nodeName: module.name,
+        updatedAt: timestamp,
+        viewsCount: increment(1),
+      },
+      { merge: true },
+    ),
   ];
-
-  if (module.docId) {
-    const nodeMetricRef = doc(database, system.valueNodes, module.docId);
-    trackingWrites.push(
-      setDoc(
-        nodeMetricRef,
-        {
-          viewsCount: increment(1),
-        },
-        { merge: true },
-      ),
-    );
-  }
 
   try {
     await Promise.all(trackingWrites);
@@ -791,7 +797,7 @@ export const trackVideoOpenedShared = async ({
 
     clearOptimisticUserCourseStat(normalizedEmail, system.label);
     clearOptimisticCourseMetric(system.label);
-    return Boolean(module.docId);
+    return true;
   } catch (error) {
     clearOptimisticUserCourseStat(normalizedEmail, system.label);
     clearOptimisticCourseMetric(system.label);
