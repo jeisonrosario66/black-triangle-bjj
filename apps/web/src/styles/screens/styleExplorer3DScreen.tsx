@@ -3,9 +3,10 @@ import { alpha, type Theme } from "@mui/material/styles";
 import type { SxProps } from "@mui/system";
 
 export const screen: SxProps<Theme> = (theme) => ({
-  "--bt-app-header-offset": { xs: "126px", md: "76px" },
   position: "relative",
-  minHeight: "100dvh",
+  display: "flex",
+  flexDirection: "column",
+  height: "100dvh",
   backgroundColor: theme.palette.background.default,
   overflow: "hidden",
 });

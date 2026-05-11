@@ -11,7 +11,7 @@ export const configGlobal = {
     intensity: 0.7,
     colorLight: "#fff",
     position: [100, 20, 10] as [number, number, number],
-    logoApp: "./logoApp.svg",
+    logoApp: "/logoApp.svg",
     namePage: "BLACK \n TRIANGLE BJJ"
 };
 
@@ -33,7 +33,7 @@ export const cameraPropsDev = {
     position: [251, -93, -18] as [number, number, number],
     dollySpeed: 4,
     minDistance: 20,
-    maxDistance: 1000
+    maxDistance: 420
 };
 
 /**
@@ -41,12 +41,12 @@ export const cameraPropsDev = {
  * Controla el número, tamaño y movimiento de los elementos del fondo.
  */
 export const scenePropsDev = {
-    radius: 180,
-    depth: 5,
-    count: 2000,
-    factor: 7,
+    radius: 320,
+    depth: 24,
+    count: 1200,
+    factor: 6,
     saturation: 1,
-    speed: 0.5
+    speed: 0.08
 };
 
 /**
@@ -71,7 +71,7 @@ export const cacheUser = {
     systemsLinksLoaded: []
 };
 
-const activeSystemsCollection = "test";
+const activeSystemsCollection = "systems_content";
 
 const getValidCachedSystemPaths = (
     key: string,

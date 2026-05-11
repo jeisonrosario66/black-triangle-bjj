@@ -14,11 +14,11 @@ export const containerConfigWindow: SxProps<Theme> = (theme) => ({
   boxShadow: "0 16px 40px rgba(15, 23, 42, 0.12)",
   display: "flex",
   flexDirection: "column",
-  position: "absolute",
+  position: "fixed",
   top: "50%",
   left: "50%",
   transform: "translate(-50%, -50%)",
-  zIndex: 10,
+  zIndex: 1400,
   overflow: "auto",
 });
 
@@ -47,6 +47,29 @@ export const sectionBody: SxProps<Theme> = (theme) => ({
   marginBottom: "0.15rem",
   color: theme.palette.text.secondary,
 });
+
+export const metricCard: SxProps<Theme> = (theme) => ({
+  flex: "1 1 0",
+  minWidth: 0,
+  padding: "0.95rem 1rem",
+  borderRadius: 14,
+  border: `1px solid ${theme.palette.outlineVariant}`,
+  backgroundColor: theme.palette.surfaceContainerHigh,
+});
+
+export const metricLabel: SxProps<Theme> = (theme) => ({
+  fontSize: "0.74rem",
+  fontWeight: 700,
+  letterSpacing: "0.08em",
+  textTransform: "uppercase",
+  color: theme.palette.text.secondary,
+});
+
+export const metricValue: SxProps<Theme> = {
+  marginTop: "0.2rem",
+  fontSize: "1.35rem",
+  fontWeight: 700,
+};
 
 /** Espaciado y formato general de los formularios */
 export const formGeneral: SxProps<Theme> = {

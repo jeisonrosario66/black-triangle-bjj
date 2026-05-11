@@ -19,6 +19,11 @@
     },
     "configWindow": {
       "title": "Settings",
+      "coverageTitle": "Graph coverage",
+      "coverageDescription": "Track how many nodes in the viewer already have relationships and how many still need connections while you tune the course load.",
+      "coverageCourses": "Active courses",
+      "coverageConnected": "Connected nodes",
+      "coveragePending": "Pending nodes",
       "navigationTitle": "Navigation",
       "navigationDescription": "Move between the main views from this technical control panel without cluttering the header.",
       "language.label": "Language",
@@ -38,7 +43,11 @@
       "dagLevelDistance.description": "Sets the spacing between each hierarchical level in the graph(0 - 100).",
       "buttonClose": "Close and Save",
       "system": "Select System Bjj",
-      "system.description": "Select the Brazilian Jiu-Jitsu systems you want to load into the visualization. Each activated system will add its positions and transitions to the main graph."
+      "system.description": "Select the Brazilian Jiu-Jitsu systems you want to load into the visualization. Each activated system will add its positions and transitions to the main graph.",
+      "systemSelectAll": "Select all",
+      "systemClear": "Clear selection",
+      "systemCoverage": "{{connected}} / {{total}} connected",
+      "systemNoComplete": "There are no fully connected systems available for this account yet."
     },
     "buttonAddNode": {
       "title": "Add Nodes"
@@ -180,7 +189,6 @@
       "nextVideo": "Next video",
       "viewsCount": "{{value}} views",
       "playbackReady": "Ready to play",
-      "playbackHint": "The view is recorded when playback starts, not when the page is opened or refreshed.",
       "startPlayback": "Play video",
       "seen": "Seen",
       "missingVideoTitle": "Video not found",
@@ -197,6 +205,7 @@
     "nodeView": {
       "title": "Video Player",
       "subTitle": "View and analyze the video content below.",
+      "closeWindow": "Close window",
       "brandTitle": "Timestamp Controls",
       "brandSubTitle": "Define the start and end points for specific video segments.",
       "timeBrand": "Select video timestamps:",
@@ -214,7 +223,28 @@
       "targetLinksLabel": "This node has no incoming connections.",
       "sourceLabel": "Outgoing Connections",
       "targetLabel": "Incoming Connections",
-      "descriptionLabel": "Description"
+      "descriptionLabel": "Description",
+      "coverageLabel": "{{connected}} / {{total}} connected",
+      "connectedIndicatorLabel": "Connected",
+      "pendingIndicatorLabel": "Pending",
+      "quickConnectTitle": "Quick connect",
+      "quickConnectDescription": "Create direct links without leaving the video and refresh the graph immediately.",
+      "targetNodeLabel": "Target node",
+      "addOutgoing": "Add outgoing",
+      "addIncoming": "Add incoming",
+      "selectNodeFirst": "Select the node you want to connect first.",
+      "linkCreated": "Connection created in the graph.",
+      "linkAlreadyExists": "That connection already exists.",
+      "linkCreationError": "The connection could not be saved.",
+      "systemCoverageCompact": "Coverage",
+      "connectedPanelTitle": "Connected",
+      "connectedPanelDescription": "Jump directly between linked nodes inside this same course.",
+      "tagsEditorTitle": "Node tags",
+      "tagsEditorDescription": "Assign or remove tags while reusing the current taxonomy model.",
+      "availableTagsLabel": "Available tags",
+      "addTag": "Add tag",
+      "tagsSaved": "Node tags updated.",
+      "tagsSaveError": "Node tags could not be updated."
     }
   }
 }

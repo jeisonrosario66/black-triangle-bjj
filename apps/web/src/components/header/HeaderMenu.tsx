@@ -14,8 +14,9 @@ import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import { useTheme } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
+import { matchPath, useLocation } from "react-router-dom";
 
-import { cacheUser } from "@src/context/index";
+import { cacheUser, routeList } from "@src/context/index";
 import { useUIStore } from "@src/store";
 import type { SessionUser } from "@src/context/index";
 import PrimaryScreenSwitcher from "@src/components/navigation/PrimaryScreenSwitcher";
@@ -49,8 +50,15 @@ export default function HeaderMenu({
   onLogout: () => Promise<void>;
 }) {
   const theme = useTheme();
+  const location = useLocation();
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language.startsWith("en") ? "en" : "es";
+  const isGraphView = Boolean(
+    matchPath(
+      { path: routeList.explorerGraphScreen, end: true },
+      location.pathname,
+    ),
+  );
 
   const handleLogin = async () => {
     onClose();
@@ -153,7 +161,7 @@ export default function HeaderMenu({
 
       {isLogin ? <Divider /> : null}
 
-      {isLogin ? (
+      {isLogin && isGraphView ? (
         <MenuItem onClick={handleOpenSettings}>
           <ListItemIcon>
             <SettingsRoundedIcon fontSize="small" />

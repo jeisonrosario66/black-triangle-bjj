@@ -22,6 +22,7 @@ import { database } from "@src/hooks";
  */
 export const useNodeTaxonomy = (nodeIndex: number, firestoreRuta: string[] = []) => {
   const [taxonomy, setTaxonomy] = useState<NodeTaxonomy | null>(null);
+  const firestoreRutaKey = getTaxonomyRoutesKey(firestoreRuta);
 
   useEffect(() => {
     if (!nodeIndex) {
@@ -29,7 +30,8 @@ export const useNodeTaxonomy = (nodeIndex: number, firestoreRuta: string[] = [])
       return;
     }
 
-    const taxonomyCacheKey = `${nodeIndex}:${[...firestoreRuta].sort().join("|")}`;
+    const systemsNodes = firestoreRutaKey ? firestoreRutaKey.split("|") : [];
+    const taxonomyCacheKey = getTaxonomyCacheKey(nodeIndex, systemsNodes);
 
     if (taxonomyCache.has(taxonomyCacheKey)) {
       setTaxonomy(taxonomyCache.get(taxonomyCacheKey) ?? null);
@@ -37,7 +39,6 @@ export const useNodeTaxonomy = (nodeIndex: number, firestoreRuta: string[] = [])
     }
 
     const fetch = async () => {
-      const systemsNodes: string[] = firestoreRuta;
       const systemsTabs = systemsNodes.map((path) =>
         path.replace("/nodes", "/tabs"),
       );
@@ -87,7 +88,7 @@ export const useNodeTaxonomy = (nodeIndex: number, firestoreRuta: string[] = [])
     };
 
     void fetch();
-  }, [firestoreRuta, nodeIndex]);
+  }, [firestoreRutaKey, nodeIndex]);
 
   return taxonomy;
 };
@@ -101,6 +102,38 @@ export interface Tab {
 
 const taxonomyCache = new Map<string, NodeTaxonomy | null>();
 const tabsCache = new Map<string, Tab>();
+let allTabsCache: Tab[] | null = null;
+let allTabsRequest: Promise<Tab[]> | null = null;
+
+const getTaxonomyRoutesKey = (firestoreRuta: string[] = []) =>
+  Array.from(new Set(firestoreRuta)).sort().join("|");
+
+const getTaxonomyCacheKey = (nodeIndex: number, firestoreRuta: string[] = []) =>
+  `${nodeIndex}:${getTaxonomyRoutesKey(firestoreRuta)}`;
+
+export const primeNodeTaxonomyCache = (
+  nodeIndex: number,
+  firestoreRuta: string[] = [],
+  taxonomy: NodeTaxonomy | null,
+) => {
+  taxonomyCache.set(getTaxonomyCacheKey(nodeIndex, firestoreRuta), taxonomy);
+};
+
+export const primeTabsCache = (tabs: Tab[]) => {
+  tabs.forEach((tab) => {
+    tabsCache.set(tab.id, tab);
+  });
+
+  if (!allTabsCache) {
+    return;
+  }
+
+  const nextTabs = new Map(allTabsCache.map((tab) => [tab.id, tab]));
+  tabs.forEach((tab) => {
+    nextTabs.set(tab.id, tab);
+  });
+  allTabsCache = [...nextTabs.values()];
+};
 const chunkIds = (ids: string[], size: number) => {
   const chunks: string[][] = [];
 
@@ -120,15 +153,16 @@ const chunkIds = (ids: string[], size: number) => {
  */
 export const useTabsByIds = (tabIds?: string[]) => {
   const [tabs, setTabs] = useState<Tab[]>([]);
+  const tabIdsKey = Array.from(new Set(tabIds ?? [])).sort().join("|");
 
   useEffect(() => {
-    if (!tabIds || tabIds.length === 0) {
+    if (!tabIdsKey) {
       setTabs([]);
       return;
     }
 
     const fetch = async () => {
-      const uniqueTabIds = Array.from(new Set(tabIds));
+      const uniqueTabIds = tabIdsKey.split("|");
       const missingIds = uniqueTabIds.filter((id) => !tabsCache.has(id));
 
       if (missingIds.length === 0) {
@@ -156,9 +190,7 @@ export const useTabsByIds = (tabIds?: string[]) => {
           title_en: (snapshot.data() as { title_en?: string }).title_en,
         }));
 
-      fetchedTabs.forEach((tab) => {
-        tabsCache.set(tab.id, tab);
-      });
+      primeTabsCache(fetchedTabs);
 
       const resolved = uniqueTabIds
         .map((id) => tabsCache.get(id))
@@ -168,6 +200,49 @@ export const useTabsByIds = (tabIds?: string[]) => {
     };
 
     void fetch();
-  }, [tabIds]);
+  }, [tabIdsKey]);
+  return tabs;
+};
+
+export const useAllTabs = () => {
+  const [tabs, setTabs] = useState<Tab[]>(allTabsCache ?? []);
+
+  useEffect(() => {
+    if (allTabsCache) {
+      setTabs(allTabsCache);
+      return;
+    }
+
+    if (!allTabsRequest) {
+      allTabsRequest = getDocs(collection(database, tableNameDB.tabs))
+        .then((snapshot) =>
+          snapshot.docs.map((tabSnapshot) => ({
+            id: tabSnapshot.id,
+            ...(tabSnapshot.data() as { label: string }),
+            title_es: (tabSnapshot.data() as { title_es?: string }).title_es,
+            title_en: (tabSnapshot.data() as { title_en?: string }).title_en,
+          })),
+        )
+        .then((resolvedTabs) => {
+          allTabsCache = resolvedTabs;
+          primeTabsCache(resolvedTabs);
+          return resolvedTabs;
+        })
+        .catch((error) => {
+          allTabsRequest = null;
+          throw error;
+        });
+    }
+
+    allTabsRequest
+      ?.then((resolvedTabs) => {
+        setTabs(resolvedTabs);
+      })
+      .catch((error) => {
+        console.error("No se pudieron cargar las tabs globales:", error);
+        setTabs([]);
+      });
+  }, []);
+
   return tabs;
 };

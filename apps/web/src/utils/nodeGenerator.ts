@@ -12,6 +12,7 @@ const useGraphData = () => {
   // Traemos los arrays directamente del store
   const nodesArray = useUIStore((state) => state.systemBjjSelectedNodes);
   const linksArray = useUIStore((state) => state.systemBjjSelectedLinks);
+  const graphRefreshToken = useUIStore((state) => state.graphRefreshToken);
 
   const [gData, setGData] = useState<GraphData>({
     nodes: [],
@@ -41,7 +42,7 @@ const useGraphData = () => {
 
     // Ejecuta cada vez que cambian los arrays del store
     fetchData();
-  }, [nodesArray, linksArray]);
+  }, [graphRefreshToken, linksArray, nodesArray]);
 
   return gData;
 };

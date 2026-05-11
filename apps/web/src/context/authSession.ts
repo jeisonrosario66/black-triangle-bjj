@@ -1,5 +1,7 @@
 import { createContext } from "react";
 
+export type SessionUserRole = "viewer" | "editor" | "owner";
+
 export type SessionUser = {
   email: string;
   firstName: string;
@@ -7,6 +9,9 @@ export type SessionUser = {
   name: string;
   initials: string;
   picture: string | null;
+  role: SessionUserRole;
+  roles: SessionUserRole[];
+  canManageGraphLinks: boolean;
 };
 
 export type SessionContextValue = {

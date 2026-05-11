@@ -7,10 +7,8 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 
 import {
   GraphScene,
-  AccountMenu,
   OutlinedAlerts,
   NavigationGestures,
-  ConfigWindow,
   WindowViewNode,
 } from "@src/components/index";
 import { useUIStore } from "@src/store/index";
@@ -55,13 +53,8 @@ const MainAppLayout = () => {
     <>
       {style.globalStyles}
       <div style={style.appContainer}>
-        {isConfigWindowActive ? <ConfigWindow /> : <AccountMenu />}
-        {/* Contenedor del lienzo 3D */}
         <div style={style.canvasContainer}>
-          {/*  */}
-          {isConfigWindowActive ?
-            <>
-            </> :
+          {!isConfigWindowActive ? (
             <Button
               variant="outlined"
               size="small"
@@ -81,21 +74,22 @@ const MainAppLayout = () => {
                 ? t(textHardcoded + "collapsedNodes")
                 : t(textHardcoded + "expandNodes")}
             </Button>
-          }
+          ) : null}
           <Canvas
-            // Detiene el renderizado cuando se abre el formulario de nodo
             camera={{
               fov: cameraPropsDev.fov,
               near: cameraPropsDev.near,
               far: cameraPropsDev.far,
               position: cameraPropsDev.position,
             }}
-            style={{ backgroundColor: configGlobal.canvasBackgraundColor }}
+            dpr={[1, 1.5]}
+            style={{
+              width: "100%",
+              height: "100%",
+              backgroundColor: configGlobal.canvasBackgraundColor,
+            }}
           >
-            {/* Escena del grafo (nodos y conexiones) */}
             <GraphScene cameraControlsRef={cameraControlsRef} />
-
-            {/* Controles de cámara (pan, zoom, etc.) */}
             <CameraControls
               ref={cameraControlsRef}
               dollySpeed={cameraPropsDev.dollySpeed}

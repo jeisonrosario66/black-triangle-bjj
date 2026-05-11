@@ -1,19 +1,27 @@
-import { Box, Typography } from "@mui/material";
-import { useTranslation } from "react-i18next";
+import { Box } from "@mui/material";
+import { useEffect } from "react";
 
-import { AppBarNewHeader } from "@src/components/index";
+import { AppBarNewHeader, ConfigWindow } from "@src/components/index";
 import { MainAppLayout } from "@src/layouts/index";
+import { useUIStore } from "@src/store/index";
 import * as styles from "@src/styles/screens/styleExplorer3DScreen";
 
-const EXPLORER_3D_TEXT = "components.explorer3d.";
-
 export default function Explorer3DScreen() {
-  const { t } = useTranslation();
+  const isConfigWindowActive = useUIStore(
+    (state) => state.isConfigWindowActive,
+  );
+
+  useEffect(() => {
+    return () => {
+      useUIStore.setState({ isConfigWindowActive: false });
+    };
+  }, []);
 
   return (
     <Box sx={styles.screen}>
       <AppBarNewHeader />
       <MainAppLayout />
+      {isConfigWindowActive ? <ConfigWindow /> : null}
     </Box>
   );
 }

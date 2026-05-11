@@ -3,7 +3,6 @@ import type { CSSProperties } from "react";
 import themeApp from "@src/styles/stylesThemeApp";
 
 const fontFamily = themeApp.palette.typography.fontFamily;
-const viewportHeight = "calc(100dvh - var(--bt-app-header-offset, 0px))";
 
 export const globalStyles = (
   <GlobalStyles
@@ -37,15 +36,17 @@ export const globalStyles = (
 
 export const appContainer: CSSProperties = {
   display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
+  flex: "1 1 auto",
   position: "relative",
   width: "100%",
-  height: viewportHeight,
+  height: "100%",
+  minHeight: 0,
   overflow: "hidden",
 };
 
 export const canvasContainer: CSSProperties = {
+  position: "relative",
+  flex: "1 1 auto",
   width: "100%",
   height: "100%",
 };

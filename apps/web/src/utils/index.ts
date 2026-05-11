@@ -12,3 +12,8 @@ export { default as formatTimeFull } from "@src/utils/formatTimeFull";
 export { parseCacheArray } from "@src/utils/parseCacheArray";
 export { getPreferredAppLanguage, normalizeAppLanguage } from "@src/utils/language";
 export type { AppLanguage } from "@src/utils/language";
+export {
+  SPECIAL_GRAPH_EDITOR_EMAIL,
+  hasGraphEditorAccess,
+  isSpecialGraphUser,
+} from "@src/utils/graphAccess";

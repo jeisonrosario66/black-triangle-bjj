@@ -7,7 +7,7 @@ import {
   cacheUser,
   GraphLink,
   LanguageConfig,
-  SystemOption
+  SystemOptionGroup,
 } from "@src/context/index";
 import { getPreferredAppLanguage, parseCacheArray } from "@src/utils/index";
 import { getSystem } from "@src/services/index";
@@ -17,12 +17,6 @@ const systemCacheLoadedNodes = parseCacheArray(cacheUser.systemsCacheNameNodes);
 // -------------------------------------------------------------------------
 // Definición del estado de datos globales
 // -------------------------------------------------------------------------
-type testType = {
-  label: string;
-  name: string;
-  systems: SystemOption[];
-};
-
 interface GlobalData {
   languageGlobal: LanguageConfig;
   setLanguageGlobal: (language: LanguageConfig) => void;
@@ -48,8 +42,11 @@ interface GlobalData {
   linksData: GraphLink[];
   setLinksData: (links: GraphLink[]) => void;
 
-  systemsOptions: testType[];
+  systemsOptions: SystemOptionGroup[];
   loadSystems: () => Promise<void>;
+
+  graphRefreshToken: number;
+  refreshGraphData: () => void;
 
 }
 
@@ -229,6 +226,9 @@ const useUIStore = create<AppState>((set, get) => ({
   setLinksData: (links) => set({ linksData: links }),
 
   systemsOptions: [],
+  graphRefreshToken: 0,
+  refreshGraphData: () =>
+    set((state) => ({ graphRefreshToken: state.graphRefreshToken + 1 })),
   loadSystems: async () => {
     try {
       set({ isLoadingFirestore: true });

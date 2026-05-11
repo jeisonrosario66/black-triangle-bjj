@@ -1,11 +1,9 @@
 import {
-  GizmoHelper,
-  GizmoViewport,
-  // Stars,
+  Stars,
   CameraControls,
 } from "@react-three/drei";
 
-// import { scenePropsDev } from "@src/context/configGlobal";
+import { scenePropsDev } from "@src/context/configGlobal";
 import { NodeComponent } from "@src/components/index";
 import { configGlobal } from "@src/context/index";
 
@@ -16,7 +14,7 @@ type GraphSceneProps = {
 
 /**
  * Escena principal del grafo 3D.
- * Renderiza el fondo estrellado, los nodos, las luces y el gizmo de orientación.
+ * Renderiza el fondo estrellado, los nodos y las luces principales.
  *
  * @param {GraphSceneProps} props Referencia a los controles de cámara.
  * @returns {JSX.Element} Escena 3D configurada.
@@ -25,7 +23,7 @@ const GraphScene: React.FC<GraphSceneProps> = ({ cameraControlsRef }) => {
   return (
     <>
       {/* Fondo estrellado */}
-      {/*<Stars
+      <Stars
         radius={scenePropsDev.radius}
         depth={scenePropsDev.depth}
         count={scenePropsDev.count}
@@ -34,7 +32,6 @@ const GraphScene: React.FC<GraphSceneProps> = ({ cameraControlsRef }) => {
         fade
         speed={scenePropsDev.speed}
       />
-       */}
       {/* Grafo 3D */}
       <NodeComponent cameraControlsRef={cameraControlsRef} />
 
@@ -44,13 +41,6 @@ const GraphScene: React.FC<GraphSceneProps> = ({ cameraControlsRef }) => {
         position={configGlobal.position}
         color={configGlobal.colorLight}
       />
-
-      <GizmoHelper alignment="top-left" margin={[80, 150]}>
-        <GizmoViewport
-          labelColor="#fff"
-          axisColors={["red", "green", "blue"]}
-        />
-      </GizmoHelper>
     </>
   );
 };

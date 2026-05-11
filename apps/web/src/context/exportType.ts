@@ -1,32 +1,43 @@
-import {GraphMethods} from "r3f-forcegraph";
+import { GraphMethods } from "r3f-forcegraph";
 
 type NodeIdentity = {
-    id: number;
-    index?: number;
+  id: number;
+  index?: number;
 };
+
 type NodePosition3D = {
-    x: number;
-    y: number;
-    z: number;
+  x: number;
+  y: number;
+  z: number;
 };
+
 type StructuredDescription = {
-    summary: string;
-    points: string[];
+  summary: string;
+  points: string[];
 };
+
+type NodeSourceMeta = {
+  docId?: string;
+  valueNodes?: string;
+  valueLinks?: string;
+  systemLabel?: string;
+};
+
 type NodeMetadata = {
-    name: string;
-    group: string;
-    videoid: string;
-    color?: string;
-    description: StructuredDescription;
+  name: string;
+  group: string;
+  videoid: string;
+  color?: string;
+  viewsCount?: number;
+  description: StructuredDescription;
 };
-type CoreNode = NodeIdentity & NodeMetadata;
+
+type CoreNode = NodeIdentity & NodeMetadata & NodeSourceMeta;
 
 /**
  * Referencia al grafo 3D, basada en los métodos expuestos por r3f-forcegraph.
  */
-export type GraphRefType = |GraphMethods < GraphNode,
-GraphLink > | undefined;
+export type GraphRefType = GraphMethods<GraphNode, GraphLink> | undefined;
 /**
  * Representación de un nodo almacenado en Firestore.
  *
@@ -58,33 +69,36 @@ export type GraphNode = CoreNode & NodePosition3D;
  * Enlace entre dos nodos del grafo (dirigido).
  */
 export type GraphLink = {
-    source: number;
-    target: number;
+  source: number | { id: number };
+  target: number | { id: number };
+  docId?: string;
+  valueLinks?: string;
+  systemLabel?: string;
 };
 
 /**
  * Conjunto completo de nodos y enlaces para renderizar el grafo.
  */
 export type GraphData = {
-    nodes: GraphNode[];
-    links: GraphLink[];
+  nodes: GraphNode[];
+  links: GraphLink[];
 };
 
 /**
  * Opción para tarjetas de selección de técnicas (por ejemplo, en formularios o menús).
  */
-export type OptionTechniqueCard =  {
-    label: string;
-    name?: string;
-    group?: string;
-    value: string;
-    icon?: React.ReactNode;
+export type OptionTechniqueCard = {
+  label: string;
+  name?: string;
+  group?: string;
+  value: string;
+  icon?: React.ReactNode;
 };
 
 /**
  * Información asociada al nodo actualmente seleccionado (vista de detalle).
  */
-export type NodeViewData = CoreNode
+export type NodeViewData = CoreNode;
 
 /**
  * Modos de disposición jerárquica (DAG) soportados por r3f-forcegraph.
@@ -109,7 +123,7 @@ export type DagMode =
 * @returns {{ locale: "es" | "en" }} Configuración de idioma.
 */
 export type LanguageConfig = {
-    locale: "es" | "en";
+  locale: "es" | "en";
 };
 
 /**
@@ -119,7 +133,23 @@ export type LanguageConfig = {
  * @returns {{ valueNodes: string; valueLinks: string; label: string }} Opción de sistema.
  */
 export type SystemOption = {
-    valueNodes: string;
-    valueLinks: string;
-    label: string;
+  courseLabel?: string;
+  valueNodes: string;
+  valueLinks: string;
+  label: string;
+  coach?: string;
+  coverage?: {
+    totalNodes: number;
+    connectedNodes: number;
+    pendingNodes: number;
+    completionRatio: number;
+    isComplete: boolean;
+  };
+};
+
+export type SystemOptionGroup = {
+  label: string;
+  name: string;
+  status?: "complete" | "pending";
+  systems: SystemOption[];
 };

@@ -9,16 +9,32 @@ import {
   signOut,
   type User,
 } from "firebase/auth";
-import { doc, setDoc } from "firebase/firestore";
+import { doc, getDoc, setDoc } from "firebase/firestore";
 
-import { SessionContext, type SessionUser } from "@src/context/authSession";
+import {
+  SessionContext,
+  type SessionUser,
+  type SessionUserRole,
+} from "@src/context/authSession";
 import { auth, database, provider } from "@src/hooks/fireBase";
+import { SPECIAL_GRAPH_EDITOR_EMAIL } from "@src/utils";
 
 const USERS_COLLECTION = "users";
 const POPUP_REDIRECT_FALLBACK_CODES = new Set([
   "auth/popup-blocked",
   "auth/operation-not-supported-in-this-environment",
 ]);
+const GRAPH_EDITOR_EMAILS = new Set(
+  String(import.meta.env.VITE_GRAPH_EDITOR_EMAILS ?? "")
+    .split(",")
+    .map((email) => email.trim().toLowerCase())
+    .filter(Boolean),
+);
+if (SPECIAL_GRAPH_EDITOR_EMAIL) {
+  GRAPH_EDITOR_EMAILS.add(SPECIAL_GRAPH_EDITOR_EMAIL);
+}
+
+const VALID_SESSION_ROLES = new Set<SessionUserRole>(["viewer", "editor", "owner"]);
 
 /**
  * Normaliza el correo electrónico para garantizar consistencia
@@ -49,6 +65,48 @@ const buildInitials = (firstName: string, lastName: string) => {
   }
 
   return `${parts[0][0] ?? ""}${parts[1][0] ?? ""}`.toUpperCase();
+};
+
+const isSessionUserRole = (value: unknown): value is SessionUserRole =>
+  typeof value === "string" && VALID_SESSION_ROLES.has(value as SessionUserRole);
+
+const normalizeUserRoles = (
+  rawRole: unknown,
+  rawRoles: unknown,
+  email: string,
+): SessionUserRole[] => {
+  const rolesFromDocument = Array.isArray(rawRoles)
+    ? rawRoles.filter(isSessionUserRole)
+    : [];
+  const fallbackRole = isSessionUserRole(rawRole) ? [rawRole] : [];
+
+  const nextRoles = new Set<SessionUserRole>([...rolesFromDocument, ...fallbackRole]);
+
+  if (GRAPH_EDITOR_EMAILS.has(email)) {
+    nextRoles.add("editor");
+  }
+
+  if (nextRoles.size === 0) {
+    nextRoles.add("viewer");
+  }
+
+  if (nextRoles.has("owner")) {
+    nextRoles.add("editor");
+  }
+
+  return [...nextRoles];
+};
+
+const resolvePrimaryRole = (roles: SessionUserRole[]): SessionUserRole => {
+  if (roles.includes("owner")) {
+    return "owner";
+  }
+
+  if (roles.includes("editor")) {
+    return "editor";
+  }
+
+  return "viewer";
 };
 
 /**
@@ -91,13 +149,26 @@ const syncUserRecord = async (firebaseUser: User): Promise<SessionUser | null> =
   }
 
   const { firstName, lastName } = extractUserName(firebaseUser);
+  const userRef = doc(database, USERS_COLLECTION, email);
+  const currentUserSnapshot = await getDoc(userRef);
+  const currentUserData = currentUserSnapshot.exists()
+    ? currentUserSnapshot.data()
+    : null;
+  const roles = normalizeUserRoles(
+    currentUserData?.role,
+    currentUserData?.roles,
+    email,
+  );
+  const role = resolvePrimaryRole(roles);
 
   await setDoc(
-    doc(database, USERS_COLLECTION, email),
+    userRef,
     {
       firstName,
       lastName,
       email,
+      role,
+      roles,
     },
     { merge: true },
   );
@@ -109,6 +180,9 @@ const syncUserRecord = async (firebaseUser: User): Promise<SessionUser | null> =
     name: [firstName, lastName].filter(Boolean).join(" ").trim(),
     initials: buildInitials(firstName, lastName),
     picture: firebaseUser.photoURL ?? null,
+    role,
+    roles,
+    canManageGraphLinks: role === "owner" || role === "editor",
   };
 };
 

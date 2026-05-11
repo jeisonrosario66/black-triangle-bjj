@@ -1,206 +1,170 @@
-/**
- * NodeConnectionViewer.tsx
- *
- * Componente que muestra las conexiones (entrantes y salientes) de un nodo
- * en un grafo interactivo. Permite visualizar los enlaces desde y hacia un nodo
- * con animaciones suaves de aparición/desaparición.
- *
- * Incluye la capacidad de deseleccionar pestañas, ocultando el contenido
- * cuando el usuario vuelve a hacer clic en una pestaña activa.
- *
- * Autor: [Tu nombre o equipo]
- * Fecha: [Fecha de última modificación]
- */
-
 import React, { useMemo } from "react";
 import {
   Tabs,
   Tab,
-  Button,
   Box,
   List,
-  ListItem,
+  ListItemButton,
   ListItemIcon,
   ListItemText,
   Divider,
   Typography,
-  Collapse,
 } from "@mui/material";
 import { ArrowBack, ArrowForward } from "@mui/icons-material";
 import { useTranslation } from "react-i18next";
 
 import { useUIStore } from "@src/store/index";
 import { iconsMap } from "@src/components/index";
-import { GraphNode } from "@src/context/index";
-import { debugLog, capitalizeFirstLetter } from "@src/utils/index";
+import type { GraphLink, NodeViewData } from "@src/context/index";
+import { capitalizeFirstLetter, isSpecialGraphUser } from "@src/utils/index";
+import { useSession } from "@src/hooks";
 
 import themeApp from "@src/styles/stylesThemeApp";
 
 const textHardcoded = "components.nodeConnectionViewer.";
 
-/**
- * Propiedades del panel asociado a cada pestaña.
- */
-interface TabPanelProps {
-  children?: React.ReactNode;
-  index: number;
-  activeTab: number | null;
-}
-
-/**
- * Contenedor que muestra u oculta su contenido según la pestaña activa.
- * Usa animaciones suaves mediante el componente Collapse de MUI.
- */
-function CustomTabPanel({ children, activeTab, index }: TabPanelProps) {
-  const isActive = activeTab === index;
-  return (
-    <Collapse in={isActive} timeout={400} unmountOnExit>
-      <Box
-        role="tabpanel"
-        id={`tabpanel-${index}`}
-        aria-labelledby={`tab-${index}`}
-        sx={{ p: 2 }}
-      >
-        {children}
-      </Box>
-    </Collapse>
-  );
-}
-
-/**
- * Genera propiedades ARIA para mejorar la accesibilidad.
- */
-function a11yProps(index: number) {
-  return {
-    id: `tab-${index}`,
-    "aria-controls": `tabpanel-${index}`,
-  };
-}
-
-/**
- * Propiedades esperadas del componente principal.
- */
 interface NodeConnectionViewerProps {
   nodeId: number;
+  valueLinks?: string;
+  valueNodes?: string;
+  onSelectNode?: (node: NodeViewData) => void;
 }
 
-/**
- * Componente principal.
- * Muestra las conexiones de un nodo en dos direcciones:
- *  - Source (flecha atrás): conexiones que parten desde el nodo actual.
- *  - Target (flecha adelante): conexiones que llegan al nodo actual.
- *
- * Si el usuario hace clic en una pestaña activa, se deselecciona y oculta su contenido.
- */
+const getLinkEndpointId = (endpoint: GraphLink["source"] | GraphLink["target"]) =>
+  typeof endpoint === "number" ? endpoint : endpoint?.id;
+
+const buildUniqueNodeList = (
+  ids: number[],
+  nodeById: Map<number, NodeViewData>,
+) => {
+  const seenIds = new Set<number>();
+
+  return ids.reduce<NodeViewData[]>((result, id) => {
+    if (seenIds.has(id)) {
+      return result;
+    }
+
+    const node = nodeById.get(id);
+
+    if (!node) {
+      return result;
+    }
+
+    seenIds.add(id);
+    result.push(node);
+    return result;
+  }, []);
+};
+
 export default function NodeConnectionViewer({
   nodeId,
+  valueLinks,
+  valueNodes,
+  onSelectNode,
 }: NodeConnectionViewerProps) {
   const { t } = useTranslation();
+  const { user } = useSession();
   const linkData = useUIStore((state) => state.linksData);
+  const documentsFirestore = useUIStore((state) => state.documentsFirestore);
   const activeTabState = useUIStore(
-    (state) => state.connectionViewerActiveStep
+    (state) => state.connectionViewerActiveStep,
   );
-  /**
-   * Maneja el cambio o deselección de pestañas.
-   * Si la pestaña seleccionada ya está activa, se oculta su contenido.
-   */
-  const handleChange = (event: React.SyntheticEvent, newValue: number) => {
-    debugLog("info", "NodeConnectionViewer:", event);
+  const canSeeNodeIds = isSpecialGraphUser(user);
+
+  const handleChange = (_event: React.SyntheticEvent, newValue: number) => {
     useUIStore.setState((state) => ({
       connectionViewerActiveStep:
         state.connectionViewerActiveStep === newValue ? null : newValue,
     }));
   };
 
-  /**
-   * Type guard para identificar un obje|to GraphNode válido.
-   */
-  const isGraphNode = (v: unknown): v is GraphNode =>
-    typeof v === "object" && v !== null && "id" in v;
-
-  /**
-   * Filtra las conexiones donde el nodo actual es el origen (source).
-   */
-  const sourceLinks = useMemo(
+  const nodeById = useMemo(
     () =>
-      linkData
-        .filter(
-          (link) =>
-            (isGraphNode(link.source) && link.source.id === nodeId) ||
-            link.source === nodeId
-        )
-        .map((link) => link.target),
-    [linkData, nodeId]
+      new Map(
+        documentsFirestore
+          .filter((node) => !valueNodes || node.valueNodes === valueNodes)
+          .map((node) => [node.id, node]),
+      ),
+    [documentsFirestore, valueNodes],
+  );
+  const scopedLinks = useMemo(
+    () =>
+      valueLinks
+        ? linkData.filter((link) => link.valueLinks === valueLinks)
+        : linkData,
+    [linkData, valueLinks],
   );
 
-  /**
-   * Filtra las conexiones donde el nodo actual es el destino (target).
-   */
-  const targetLinks = useMemo(
-    () =>
-      linkData
-        .filter(
-          (link) =>
-            (isGraphNode(link.target) && link.target.id === nodeId) ||
-            link.target === nodeId
-        )
-        .map((link) => link.source),
-    [linkData, nodeId]
-  );
+  const sourceNodes = useMemo(() => {
+    const targetIds = scopedLinks
+      .filter((link) => getLinkEndpointId(link.source) === nodeId)
+      .map((link) => getLinkEndpointId(link.target))
+      .filter((id): id is number => typeof id === "number");
 
-  /**
-   * Renderiza una lista de nodos, mostrando su nombre y grupo.
-   * Si no hay resultados, muestra un mensaje vacío descriptivo.
-   */
-  const renderNodeList = (nodes: (GraphNode | number)[], emptyText: string) => {
+    return buildUniqueNodeList(targetIds, nodeById);
+  }, [nodeById, nodeId, scopedLinks]);
+
+  const targetNodes = useMemo(() => {
+    const sourceIds = scopedLinks
+      .filter((link) => getLinkEndpointId(link.target) === nodeId)
+      .map((link) => getLinkEndpointId(link.source))
+      .filter((id): id is number => typeof id === "number");
+
+    return buildUniqueNodeList(sourceIds, nodeById);
+  }, [nodeById, nodeId, scopedLinks]);
+
+  const openNode = (node: NodeViewData) => {
+    if (onSelectNode) {
+      onSelectNode(node);
+      return;
+    }
+
+    useUIStore.setState({ nodeViewData: node });
+  };
+
+  const renderNodeList = (nodes: NodeViewData[], emptyText: string) => {
     if (nodes.length === 0) {
-      return <Typography variant="body2">{emptyText}</Typography>;
+      return (
+        <Typography variant="body2" sx={{ color: "text.secondary", px: 0.5 }}>
+          {emptyText}
+        </Typography>
+      );
     }
 
     return (
-      <List dense>
+      <List dense sx={{ py: 0 }}>
         {nodes.map((node, index) => {
-          if (!isGraphNode(node)) return null;
+          const key = capitalizeFirstLetter(node.group || "groupEmpty");
+          const IconComponent = iconsMap[key] || iconsMap.default;
+
           return (
-            <React.Fragment key={node.id}>
-              <Button
+            <React.Fragment key={`${node.id}-${index}`}>
+              <ListItemButton
+                onClick={() => openNode(node)}
                 sx={{
-                  width: "100%",
-                  "& .MuiListItemText-primary, .MuiListItemText-secondary": {
-                    fontSize: "0.7rem",
+                  borderRadius: 2,
+                  px: 1.25,
+                  py: 0.8,
+                  "& .MuiListItemText-primary, & .MuiListItemText-secondary": {
+                    fontSize: "0.76rem",
                     fontFamily: themeApp.palette.typography.fontFamily,
                   },
                 }}
               >
-                <ListItem
-                  onClick={() => {
-                    debugLog("info", "NodeViewer Actualizado: ", node);
-
-                    useUIStore.setState({ nodeViewData: node });
-                  }}
-                >
-                  <ListItemIcon>
-                    {(() => {
-                      // Normaliza el nombre del grupo: primera letra mayúscula
-                      const key = capitalizeFirstLetter(
-                        node.group || "groupEmpty"
-                      );
-
-                      const IconComponent = iconsMap[key] || iconsMap.default;
-
-                      return <IconComponent color="primary" />;
-                    })()}
-                  </ListItemIcon>
-
-                  <ListItemText
-                    primary={
-                      node.name || `${t(textHardcoded + "node")} ${node.id}`
-                    }
-                    secondary={node.group || t(textHardcoded + "groupEmpty")}
-                  />
-                </ListItem>
-                {index < nodes.length - 1 && <Divider variant="inset" />}
-              </Button>
+                <ListItemIcon sx={{ minWidth: 34 }}>
+                  <IconComponent color="primary" />
+                </ListItemIcon>
+                <ListItemText
+                  primary={
+                    node.name ||
+                    (canSeeNodeIds
+                      ? `${t(textHardcoded + "node")} ${node.id}`
+                      : t(textHardcoded + "node"))
+                  }
+                  secondary={node.group || t(textHardcoded + "groupEmpty")}
+                />
+              </ListItemButton>
+              {index < nodes.length - 1 ? <Divider variant="inset" /> : null}
             </React.Fragment>
           );
         })}
@@ -213,12 +177,11 @@ export default function NodeConnectionViewer({
       sx={{
         width: "100%",
         "& .MuiTab-root": {
-          fontSize: "0.85rem",
+          fontSize: "0.8rem",
           fontFamily: themeApp.palette.typography.fontFamily,
         },
       }}
     >
-      {/* Navegación principal de pestañas */}
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs
           value={activeTabState ?? false}
@@ -229,46 +192,41 @@ export default function NodeConnectionViewer({
           <Tab
             icon={<ArrowBack />}
             iconPosition="start"
-            label={t(textHardcoded + "ArrowBackToolTip")}
-            {...a11yProps(0)}
+            label={`${t(textHardcoded + "targetLabel")} (${targetNodes.length})`}
+            id="tab-0"
+            aria-controls="tabpanel-0"
             onClick={() => {
-              // Permite colapsar al volver a hacer clic
               if (activeTabState === 0) {
-                useUIStore.setState({
-                  connectionViewerActiveStep: null,
-                });
+                useUIStore.setState({ connectionViewerActiveStep: null });
               }
             }}
           />
           <Tab
             icon={<ArrowForward />}
             iconPosition="end"
-            label={t(textHardcoded + "ArrowForwardToolTip")}
-            {...a11yProps(1)}
+            label={`${t(textHardcoded + "sourceLabel")} (${sourceNodes.length})`}
+            id="tab-1"
+            aria-controls="tabpanel-1"
             onClick={() => {
               if (activeTabState === 1) {
-                useUIStore.setState({
-                  connectionViewerActiveStep: null,
-                });
+                useUIStore.setState({ connectionViewerActiveStep: null });
               }
             }}
           />
         </Tabs>
       </Box>
-      {/* Panel: Conexiones entrantes (target) */}
-      <CustomTabPanel activeTab={activeTabState} index={0}>
-        <Typography variant="subtitle2" gutterBottom>
-          {t(textHardcoded + "targetLabel")}
-        </Typography>
-        {renderNodeList(targetLinks, t(textHardcoded + "targetLinksLabel"))}
-      </CustomTabPanel>
-      {/* Panel: Conexiones salientes (source) */}
-      <CustomTabPanel activeTab={activeTabState} index={1}>
-        <Typography variant="subtitle2" gutterBottom>
-          {t(textHardcoded + "sourceLabel")}
-        </Typography>
-        {renderNodeList(sourceLinks, t(textHardcoded + "sourceLinksLabel"))}
-      </CustomTabPanel>
+
+      {activeTabState === 0 ? (
+        <Box role="tabpanel" id="tabpanel-0" aria-labelledby="tab-0" sx={{ pt: 1.5 }}>
+          {renderNodeList(targetNodes, t(textHardcoded + "targetLinksLabel"))}
+        </Box>
+      ) : null}
+
+      {activeTabState === 1 ? (
+        <Box role="tabpanel" id="tabpanel-1" aria-labelledby="tab-1" sx={{ pt: 1.5 }}>
+          {renderNodeList(sourceNodes, t(textHardcoded + "sourceLinksLabel"))}
+        </Box>
+      ) : null}
     </Box>
   );
 }

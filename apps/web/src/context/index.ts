@@ -20,7 +20,12 @@ export type {
     NodeViewData,
     DagMode,
     LanguageConfig,
-    SystemOption
+    SystemOption,
+    SystemOptionGroup,
 }
     from "@src/context/exportType";
-export type { SessionUser, SessionContextValue } from "@src/context/authSession";
+export type {
+    SessionUser,
+    SessionContextValue,
+    SessionUserRole,
+} from "@src/context/authSession";

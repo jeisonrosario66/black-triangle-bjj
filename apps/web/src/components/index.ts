@@ -30,6 +30,7 @@ export { default as WindowViewNode } from "@src/components/nodeView/WindowViewNo
 export { default as NodeConnectionViewer } from "@src/components/nodeView/NodeConnectionViewer";
 
 export { default as ConfigWindow } from "@src/components/configWindow/ConfigWindow";
+export { default as CourseVideoExperiencePanel } from "@src/components/video/CourseVideoExperiencePanel";
 
 // Components/ui
 export { default as PageContainer } from "@src/components/ui/PageContainer";

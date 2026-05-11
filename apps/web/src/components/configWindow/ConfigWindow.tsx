@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Box,
   Typography,
@@ -14,15 +14,17 @@ import {
   MenuList,
   ListItemIcon,
   Accordion, AccordionDetails, AccordionSummary,
+  Stack,
 } from "@mui/material";
 import Check from "@mui/icons-material/Check";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTranslation } from "react-i18next";
 
 import { ButtonClose, PrimaryScreenSwitcher } from "@src/components/index";
+import { useSession } from "@src/hooks";
 import { useUIStore } from "@src/store/index";
 import { cacheUser, DagMode } from "@src/context/index";
-import { ToolTipInfo } from "@src/utils/index";
+import { ToolTipInfo, hasGraphEditorAccess } from "@src/utils/index";
 import * as style from "@src/styles/configWindow/styleConfigWindow";
 
 const textHardcoded = "components.configWindow.";
@@ -58,12 +60,46 @@ const ConfigWindow: React.FC = () => {
   // Lista de sistemas disponibles para carga y visualización en la aplicación.
   const loadSystems = useUIStore((s) => s.loadSystems);
   const systemsOptions = useUIStore((s) => s.systemsOptions);
+  const documentsFirestore = useUIStore((s) => s.documentsFirestore);
+  const linksData = useUIStore((s) => s.linksData);
+  const { user } = useSession();
+  const canManageGraph = hasGraphEditorAccess(user);
 
   useEffect(() => {
-    loadSystems();
+    void loadSystems();
   }, [loadSystems]);
 
   const { t, i18n } = useTranslation();
+
+  const graphCoverage = useMemo(() => {
+    const connectedIds = new Set<number>();
+
+    linksData.forEach((link) => {
+      const sourceId =
+        typeof link.source === "number" ? link.source : link.source?.id;
+      const targetId =
+        typeof link.target === "number" ? link.target : link.target?.id;
+
+      if (typeof sourceId === "number") {
+        connectedIds.add(sourceId);
+      }
+
+      if (typeof targetId === "number") {
+        connectedIds.add(targetId);
+      }
+    });
+
+    const connected = documentsFirestore.filter((node) =>
+      connectedIds.has(node.id),
+    ).length;
+
+    return {
+      totalCourses: systemsBjjSelectedNodesStore.length,
+      totalNodes: documentsFirestore.length,
+      connected,
+      pending: Math.max(documentsFirestore.length - connected, 0),
+    };
+  }, [documentsFirestore, linksData, systemsBjjSelectedNodesStore.length]);
 
   /**
    * Cierra la ventana sin guardar los cambios.
@@ -125,11 +161,62 @@ const ConfigWindow: React.FC = () => {
     );
   };
 
+  const allSystemOptions = useMemo(
+    () => systemsOptions.flatMap((group) => group.systems),
+    [systemsOptions],
+  );
+  const visibleSystemGroups = useMemo(
+    () =>
+      canManageGraph
+        ? systemsOptions
+        : systemsOptions.filter((group) => group.status === "complete"),
+    [canManageGraph, systemsOptions],
+  );
+  const visibleSystemOptions = useMemo(
+    () => visibleSystemGroups.flatMap((group) => group.systems),
+    [visibleSystemGroups],
+  );
+  const visibleSystemNodesSet = useMemo(
+    () => new Set(visibleSystemOptions.map((option) => option.valueNodes)),
+    [visibleSystemOptions],
+  );
+
+  const handleSelectAllSystems = () => {
+    setTempSystemsNodes(visibleSystemOptions.map((option) => option.valueNodes));
+    setTempSystemsLinks(visibleSystemOptions.map((option) => option.valueLinks));
+  };
+
+  const handleClearSystems = () => {
+    setTempSystemsNodes([]);
+    setTempSystemsLinks([]);
+  };
+
+  useEffect(() => {
+    if (canManageGraph) {
+      return;
+    }
+
+    setTempSystemsNodes((currentNodes) =>
+      currentNodes.filter((path) => visibleSystemNodesSet.has(path)),
+    );
+    setTempSystemsLinks((currentLinks) =>
+      currentLinks.filter((path) =>
+        visibleSystemOptions.some((option) => option.valueLinks === path),
+      ),
+    );
+  }, [canManageGraph, visibleSystemNodesSet, visibleSystemOptions]);
+
   /**
    * Guarda los cambios de idioma, DAG y sistemas seleccionados.
    * Actualiza Zustand y localStorage con los valores locales.
    */
   const buttonCloseSaveFunction = () => {
+    const allowedOptions = canManageGraph ? allSystemOptions : visibleSystemOptions;
+    const allowedNodes = new Set(allowedOptions.map((option) => option.valueNodes));
+    const allowedLinks = new Set(allowedOptions.map((option) => option.valueLinks));
+    const nextSystemsNodes = tempSystemsNodes.filter((path) => allowedNodes.has(path));
+    const nextSystemsLinks = tempSystemsLinks.filter((path) => allowedLinks.has(path));
+
     // Guardar configuraciones numéricas y de modo DAG
     i18n.changeLanguage(language.locale);
     localStorage.setItem(cacheUser.languageUser, language.locale);
@@ -139,11 +226,11 @@ const ConfigWindow: React.FC = () => {
     // Guardar selección de sistemas en cache
     localStorage.setItem(
       cacheUser.systemsCacheNameNodes,
-      JSON.stringify(tempSystemsNodes)
+      JSON.stringify(nextSystemsNodes)
     );
     localStorage.setItem(
       cacheUser.systemsCacheNameLinks,
-      JSON.stringify(tempSystemsLinks)
+      JSON.stringify(nextSystemsLinks)
     );
 
     // Actualizar estado global solo al confirmar
@@ -151,8 +238,8 @@ const ConfigWindow: React.FC = () => {
       languageGlobal: language,
       dagModeConfig: dagMode,
       dagLevelDistanceConfig: dagLevel,
-      systemBjjSelectedNodes: tempSystemsNodes,
-      systemBjjSelectedLinks: tempSystemsLinks,
+      systemBjjSelectedNodes: nextSystemsNodes,
+      systemBjjSelectedLinks: nextSystemsLinks,
       isConfigWindowActive: false,
     });
   };
@@ -169,6 +256,35 @@ const ConfigWindow: React.FC = () => {
       <Typography variant="h4" sx={{ fontWeight: "600", marginBottom: "2rem" }}>
         {t(textHardcoded + "title")}
       </Typography>
+
+      <Box sx={style.sectionCard}>
+        <Typography sx={style.sectionEyebrow}>
+          {t(textHardcoded + "coverageTitle")}
+        </Typography>
+        <Typography sx={style.sectionBody}>
+          {t(textHardcoded + "coverageDescription")}
+        </Typography>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={1}>
+          <Box sx={style.metricCard}>
+            <Typography sx={style.metricLabel}>
+              {t(textHardcoded + "coverageCourses")}
+            </Typography>
+            <Typography sx={style.metricValue}>{graphCoverage.totalCourses}</Typography>
+          </Box>
+          <Box sx={style.metricCard}>
+            <Typography sx={style.metricLabel}>
+              {t(textHardcoded + "coverageConnected")}
+            </Typography>
+            <Typography sx={style.metricValue}>{graphCoverage.connected}</Typography>
+          </Box>
+          <Box sx={style.metricCard}>
+            <Typography sx={style.metricLabel}>
+              {t(textHardcoded + "coveragePending")}
+            </Typography>
+            <Typography sx={style.metricValue}>{graphCoverage.pending}</Typography>
+          </Box>
+        </Stack>
+      </Box>
 
       <Box sx={style.sectionCard}>
         <Typography sx={style.sectionEyebrow}>
@@ -193,7 +309,7 @@ const ConfigWindow: React.FC = () => {
         <Select
           labelId="language-select-label"
           id="language-select"
-          defaultValue={initialLang.locale}
+          value={language.locale}
           label={t(textHardcoded + "language.label")}
           onChange={handleChangeLanguage}
         >
@@ -256,19 +372,27 @@ const ConfigWindow: React.FC = () => {
         {t(textHardcoded + "system")}
       </InputLabel>
       <FormControl fullWidth sx={style.formGeneral}>
+        <Stack direction={{ xs: "column", sm: "row" }} spacing={1} sx={{ mb: 1 }}>
+          <Button variant="outlined" size="small" onClick={handleSelectAllSystems}>
+            {t(textHardcoded + "systemSelectAll")}
+          </Button>
+          <Button variant="text" size="small" onClick={handleClearSystems}>
+            {t(textHardcoded + "systemClear")}
+          </Button>
+        </Stack>
         <Paper sx={style.selectSystemPaper}>
           <MenuList dense>
 
-            {systemsOptions.map((set) => (
+            {visibleSystemGroups.map((set, index) => (
               <Box key={set.label} sx={{ marginBottom: 2 }}>
-                <Accordion>
+                <Accordion defaultExpanded={index === 0}>
                   <AccordionSummary
                     expandIcon={<ExpandMoreIcon />}
                     aria-controls="panel1-content"
                     id="panel1-header"
                   >
                     <Typography component="span">
-                      {set.name}
+                      {set.name} ({set.systems.length})
                     </Typography>
                   </AccordionSummary>
                   <AccordionDetails>
@@ -288,7 +412,17 @@ const ConfigWindow: React.FC = () => {
                             <Check color="primary" />
                           </ListItemIcon>
                         )}
-                        <ListItemText>{option.label}</ListItemText>
+                        <ListItemText
+                          primary={option.label}
+                          secondary={
+                            option.coverage
+                              ? t(textHardcoded + "systemCoverage", {
+                                  connected: option.coverage.connectedNodes,
+                                  total: option.coverage.totalNodes,
+                                })
+                              : undefined
+                          }
+                        />
                       </MenuItem>
                     ))}
                   </AccordionDetails>
@@ -301,6 +435,11 @@ const ConfigWindow: React.FC = () => {
 
           </MenuList>
         </Paper>
+        {!canManageGraph && visibleSystemGroups.length === 0 ? (
+          <Typography variant="body2" sx={{ color: "text.secondary", mt: 1 }}>
+            {t(textHardcoded + "systemNoComplete")}
+          </Typography>
+        ) : null}
         <ToolTipInfo content={t(textHardcoded + "system.description")} />
       </FormControl>
 

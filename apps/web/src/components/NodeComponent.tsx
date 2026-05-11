@@ -1,107 +1,124 @@
-import React, {useRef, useCallback, useMemo} from "react";
-import {useFrame} from "@react-three/fiber";
-import {CameraControls} from "@react-three/drei";
+import React, { useRef, useCallback, useMemo } from "react";
+import { useFrame } from "@react-three/fiber";
+import { CameraControls } from "@react-three/drei";
 import ForceGraph3D from "r3f-forcegraph";
 import * as THREE from "three";
 
-import {animateCameraToNode} from "@src/hooks/index";
-import {useGraphData, debugLog, createNodeObject} from "@src/utils/index";
-import {GraphRefType, GraphNode, groupColor,tableNameDB} from "@src/context/index";
-import {useUIStore} from "@src/store/index";
+import { animateCameraToNode } from "@src/hooks/index";
+import { useGraphData, debugLog, createNodeObject } from "@src/utils/index";
+import { GraphNode, groupColor, tableNameDB, GraphLink } from "@src/context/index";
+import { useUIStore } from "@src/store/index";
 
 type NodeComponentProps = {
-    cameraControlsRef: React.RefObject<CameraControls | null>;
+  cameraControlsRef: React.RefObject<CameraControls | null>;
 };
+
+const getLinkEndpointId = (endpoint: GraphLink["source"] | GraphLink["target"]) =>
+  typeof endpoint === "number" ? endpoint : endpoint?.id;
 
 /**
  * @deprecated Este componente está fuera de uso.
  * Se mantiene temporalmente por compatibilidad histórica.
  * Fecha de deprecación: 2026-02
  */
-const NodeComponent: React.FC<NodeComponentProps> = ({cameraControlsRef}) => { // Configuración global desde el store
-    const dagMode = useUIStore((state) => state.dagModeConfig);
-    const dagLevel = useUIStore((state) => state.dagLevelDistanceConfig);
-    const showFullGraph = useUIStore((state) => state.showFullGraph);
+const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
+  const dagMode = useUIStore((state) => state.dagModeConfig);
+  const dagLevel = useUIStore((state) => state.dagLevelDistanceConfig);
+  const showFullGraph = useUIStore((state) => state.showFullGraph);
 
-    // Referencia al grafo 3D
-    const graphRef = useRef < GraphRefType > (undefined);
+  const graphRef = useRef<any>(undefined);
 
-    // Tick en cada frame para animación continua
-    useFrame(() => graphRef.current ?. tickFrame());
+  useFrame(() => graphRef.current?.tickFrame());
 
-    // Datos del grafo (nodos y enlaces) obtenidos de Firestore u otra fuente
-    const gData = useGraphData();
-    const rootGroup = tableNameDB.systemsCollections; // Grupo raíz desde el cual se expande el grafo
+  const gData = useGraphData();
+  const rootGroup = tableNameDB.systemsCollections;
 
-    const displayedGraph = useMemo(() => {
-        if (! gData.nodes.length || ! gData.links.length) {
-            return {nodes: [], links: []};
-        }
-        if (showFullGraph) {
-            return gData;
-        }
-        // Filtra según el grupo root
-        const systemNodes = gData.nodes.filter((n) => n.group === rootGroup);
-        if (! systemNodes.length) 
-            return {nodes: [], links: []};
-        
+  const displayedGraph = useMemo(() => {
+    if (!gData.nodes.length) {
+      return { nodes: [], links: [] };
+    }
 
-        const systemIds = new Set(systemNodes.map((n) => n.id));
+    if (showFullGraph) {
+      return gData;
+    }
 
-        const directLinks = gData.links.filter((l) => systemIds.has(l.source));
+    if (!gData.links.length) {
+      return {
+        nodes: gData.nodes,
+        links: [],
+      };
+    }
 
-        const childIds = new Set(directLinks.map((l) => l.target));
+    const systemNodes = gData.nodes.filter((node) => node.group === rootGroup);
 
-        const childNodes = gData.nodes.filter((n) => childIds.has(n.id));
+    if (!systemNodes.length) {
+      return gData;
+    }
 
-        return {
-            nodes: [
-                ... systemNodes,
-                ... childNodes
-            ],
-            links: directLinks
-        };
-    }, [gData, showFullGraph]);
+    const systemIds = new Set(systemNodes.map((node) => node.id));
+    const directLinks = gData.links.filter((link) => {
+      const sourceId = getLinkEndpointId(link.source);
+      return typeof sourceId === "number" && systemIds.has(sourceId);
+    });
 
-    /**
-   * Maneja el clic sobre un nodo: guarda la vista del nodo clickeado y anima la cámara hacia él.
-   */
-    const handleNodeClick = useCallback((node : GraphNode) => {
-        if (!node) 
-            return;
-        
+    if (!directLinks.length) {
+      return {
+        nodes: systemNodes,
+        links: [],
+      };
+    }
 
-        if (!cameraControlsRef.current) {
-            console.error("cameraControlsRef no está inicializado.");
-            return;
-        }
+    const childIds = new Set(
+      directLinks
+        .map((link) => getLinkEndpointId(link.target))
+        .filter((linkId): linkId is number => typeof linkId === "number"),
+    );
+    const childNodes = gData.nodes.filter((node) => childIds.has(node.id));
 
-        debugLog("info", "Node clicked:", node);
+    return {
+      nodes: [...systemNodes, ...childNodes],
+      links: directLinks,
+    };
+  }, [gData, rootGroup, showFullGraph]);
 
-        // Posición del nodo clickeado
-        const nodePosition = new THREE.Vector3(node.x, node.y, node.z);
+  const handleNodeClick = useCallback((node: GraphNode) => {
+    if (!node) {
+      return;
+    }
 
-        // (Opcional) animar la cámara hacia el nodo
-        animateCameraToNode(cameraControlsRef.current, nodePosition, 30);
-        // Guardar datos del nodo clickeado en el store
-        useUIStore.setState({nodeViewData: node});
-    }, [cameraControlsRef]);
+    if (!cameraControlsRef.current) {
+      console.error("cameraControlsRef no está inicializado.");
+      return;
+    }
 
-    return (<ForceGraph3D ref={graphRef}
-        graphData={displayedGraph}
-        dagMode={dagMode}
-        dagLevelDistance={dagLevel}
-        linkWidth={2}
-        linkCurvature={0.05}
-        linkDirectionalParticles={4}
-        linkDirectionalParticleWidth={2}
-        onNodeClick={handleNodeClick}
-        nodeAutoColorBy={
-            (node) => (node.group ? groupColor[node.group] : "gray")
-        }
-        nodeThreeObject={
-            (node) => createNodeObject(node as GraphNode)
-        }/>);
+    debugLog("info", "Node clicked:", node);
+
+    const nodePosition = new THREE.Vector3(node.x, node.y, node.z);
+
+    animateCameraToNode(cameraControlsRef.current, nodePosition, 30);
+    useUIStore.setState({ nodeViewData: node });
+  }, [cameraControlsRef]);
+
+  const resolveNodeObject = useCallback(
+    (node: object) => createNodeObject(node as GraphNode),
+    [],
+  );
+
+  return (
+    <ForceGraph3D
+      ref={graphRef}
+      graphData={displayedGraph}
+      dagMode={dagMode}
+      dagLevelDistance={dagLevel}
+      cooldownTicks={80}
+      linkWidth={1.5}
+      linkCurvature={0.02}
+      linkDirectionalParticles={0}
+      onNodeClick={(node) => handleNodeClick(node as GraphNode)}
+      nodeAutoColorBy={(node) => (node.group ? groupColor[node.group] : "gray")}
+      nodeThreeObject={resolveNodeObject}
+    />
+  );
 };
 
 export default NodeComponent;
