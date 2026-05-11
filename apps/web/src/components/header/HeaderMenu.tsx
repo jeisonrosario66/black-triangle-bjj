@@ -6,16 +6,19 @@ import {
   Box,
   ListItemIcon,
   ListItemText,
+  Typography,
 } from "@mui/material";
 import TranslateRoundedIcon from "@mui/icons-material/TranslateRounded";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
+import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import { useTheme } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
 
 import { cacheUser } from "@src/context/index";
 import { useUIStore } from "@src/store";
 import type { SessionUser } from "@src/context/index";
+import PrimaryScreenSwitcher from "@src/components/navigation/PrimaryScreenSwitcher";
 
 /**
  * Menú contextual del encabezado de la aplicación.
@@ -66,6 +69,11 @@ export default function HeaderMenu({
     onClose();
   };
 
+  const handleOpenSettings = () => {
+    useUIStore.setState({ isConfigWindowActive: true });
+    onClose();
+  };
+
   return (
     <Menu
       anchorEl={anchorEl}
@@ -73,6 +81,22 @@ export default function HeaderMenu({
       onClose={onClose}
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       transformOrigin={{ vertical: "top", horizontal: "right" }}
+      slotProps={{
+        paper: {
+          sx: {
+            mt: 1,
+            minWidth: 308,
+            maxWidth: "calc(100vw - 24px)",
+            borderRadius: 3,
+            border: `1px solid ${theme.palette.outlineVariant}`,
+            background: `
+              linear-gradient(180deg, ${theme.palette.background.paper} 0%, ${theme.palette.surfaceContainerHigh} 100%)
+            `,
+            boxShadow: "0 18px 38px rgba(0, 0, 0, 0.28)",
+            overflow: "hidden",
+          },
+        },
+      }}
     >
       {isLogin ? (
         <MenuItem onClick={onClose}>
@@ -107,6 +131,38 @@ export default function HeaderMenu({
       )}
 
       <Divider />
+
+      {isLogin ? (
+        <Box sx={{ px: 1.25, pt: 1.1, pb: 1 }}>
+          <Typography
+            sx={{
+              px: 0.5,
+              pb: 0.9,
+              fontSize: "0.74rem",
+              fontWeight: 700,
+              letterSpacing: "0.12em",
+              textTransform: "uppercase",
+              color: theme.palette.text.secondary,
+            }}
+          >
+            {t("components.header.navigationTitle")}
+          </Typography>
+          <PrimaryScreenSwitcher variant="menu" onNavigate={onClose} />
+        </Box>
+      ) : null}
+
+      {isLogin ? <Divider /> : null}
+
+      {isLogin ? (
+        <MenuItem onClick={handleOpenSettings}>
+          <ListItemIcon>
+            <SettingsRoundedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText
+            primary={t("components.accountMenu.optionsMenu.configuration")}
+          />
+        </MenuItem>
+      ) : null}
 
       <MenuItem disabled>
         <ListItemIcon>

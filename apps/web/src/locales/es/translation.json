@@ -19,6 +19,8 @@
     },
     "configWindow": {
       "title": "Configuración",
+      "navigationTitle": "Navegación",
+      "navigationDescription": "Cambia rápidamente entre las vistas principales desde este panel técnico sin cargar el header.",
       "language.label": "Idioma",
       "language.description": "Selecciona el idioma preferido de la aplicación.",
       "es": "Español",
@@ -70,12 +72,18 @@
       "goHome": "Ir al inicio",
       "continueWithGoogle": "Continuar con Google",
       "logOut": "Cerrar sesión",
+      "navigationTitle": "Navegación",
       "languageTitle": "Idioma",
       "languageSpanish": "Español",
       "languageEnglish": "Inglés",
       "brandIconAlt": "Icono de Black Triangle",
       "brandWordmarkAlt": "Black Triangle",
       "googleAlt": "Google"
+    },
+    "primaryNavigation": {
+      "home": "Inicio",
+      "list": "Sistemas",
+      "graph": "Grafo"
     },
     "landing": {
       "eyebrow": "Aprende sin perder el hilo",
@@ -156,6 +164,11 @@
       "idleTitle": "Activa una búsqueda o un filtro para explorar el catálogo",
       "idleDescription": "Puedes buscar por técnica, coach o sistema, filtrar por categoría o mostrar todos los cursos con un orden específico.",
       "emptyResults": "No encontramos resultados con esos filtros."
+    },
+    "explorer3d": {
+      "eyebrow": "Explorer 3D",
+      "title": "Visualiza cursos como un mapa técnico no lineal",
+      "description": "Muévete por la red conceptual, detecta conexiones entre posiciones y cambia de vista con un solo toque cuando quieras volver al catálogo o al home."
     },
     "videoDetail": {
       "explore": "Explorar",

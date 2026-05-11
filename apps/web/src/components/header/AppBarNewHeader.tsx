@@ -83,13 +83,15 @@ export default function AppBarHeader() {
               />
             </Box>
 
-            <HeaderActions
-              isMobile={isMobile}
-              isLogin={isAuthenticated}
-              isLoading={isLoading}
-              userInitials={user?.initials}
-              onAvatarClick={(e) => setAnchorEl(e.currentTarget)}
-            />
+            <Box sx={style.actionsSlot}>
+              <HeaderActions
+                isMobile={isMobile}
+                isLogin={isAuthenticated}
+                isLoading={isLoading}
+                userInitials={user?.initials}
+                onAvatarClick={(e) => setAnchorEl(e.currentTarget)}
+              />
+            </Box>
           </Container>
         </Toolbar>
       </AppBar>

@@ -18,8 +18,14 @@ export default function PageContainer({
   sx,
 }: PageContainerProps) {
   return (
-    <Box sx={{ backgroundColor: "background.default", minHeight: "100vh" }}>
-      <Container maxWidth={maxWidth} sx={{ py: { xs: 3, md: 4 }, ...sx }}>
+    <Box sx={{ backgroundColor: "background.default", minHeight: "100dvh" }}>
+      <Container
+        maxWidth={maxWidth}
+        sx={{
+          py: { xs: 3, md: 4 },
+          ...sx,
+        }}
+      >
         {children}
       </Container>
     </Box>

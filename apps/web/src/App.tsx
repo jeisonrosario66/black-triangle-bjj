@@ -7,9 +7,10 @@ import {
   LandingPage,
   NotFoundPage,
   ExplorerScreen,
+  Explorer3DScreen,
   CourseDetailScreen,
-  VideoDetailScreen, 
-  HomeScreenWeb
+  VideoDetailScreen,
+  HomeScreenWeb,
 } from "@src/screens/index";
 import { useTranslation } from "react-i18next";
 import { RequireAuth } from "@src/components/index";
@@ -64,6 +65,14 @@ function App() {
         )}
       />
       <Route
+        path={routeList.explorerGraphScreen}
+        element={(
+          <RequireAuth>
+            <Explorer3DScreen />
+          </RequireAuth>
+        )}
+      />
+      <Route
         path={routeList.courseDetailScreen}
         element={(
           <RequireAuth>
@@ -80,7 +89,6 @@ function App() {
         )}
       />
       <Route path="*" element={<NotFoundPage />} />
-      {/* <Route path={routeList.nodeViewer} element={<MainAppLayout />} /> */}
       {/* <Route path={routeList.addNode} element={<AddNodeForm />} /> */}
       {/* <Route path={routeList.profile} element={<Profile />} /> */}
       {/* <Route path={routeList.loginUser} element={<LoginUser />} />  */}

@@ -29,6 +29,12 @@ const Transition = React.forwardRef(function Transition(
   return <Slide direction="up" ref={ref} {...props} />;
 });
 const textHardcoded = "components.navigationgestures.";
+const gestureAsset = (fileName: string) => `/gestures/${fileName}`;
+const gestureIconStyle: React.CSSProperties = {
+  width: 40,
+  filter: "brightness(0) invert(0.92)",
+  opacity: 0.96,
+};
 
 const NavigationGestures: React.FC = () => {
   const { t } = useTranslation();
@@ -91,9 +97,9 @@ const NavigationGestures: React.FC = () => {
               <>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <img
-                    src="gestures/one-swipe.svg"
+                    src={gestureAsset("one-swipe.svg")}
                     alt="One Swipe"
-                    style={{ width: 30 }}
+                    style={gestureIconStyle}
                   />
                   <Typography variant="h6">
                     {t(textHardcoded + "touch.text1")}
@@ -102,9 +108,9 @@ const NavigationGestures: React.FC = () => {
 
                 <Stack direction="row" spacing={1} alignItems="center">
                   <img
-                    src="gestures/two-swipe.svg"
+                    src={gestureAsset("two-swipe.svg")}
                     alt="Two Swipe"
-                    style={{ width: 30 }}
+                    style={gestureIconStyle}
                   />
                   <Typography variant="h6">
                     {t(textHardcoded + "touch.text2")}
@@ -113,9 +119,9 @@ const NavigationGestures: React.FC = () => {
 
                 <Stack direction="row" spacing={1} alignItems="center">
                   <img
-                    src="gestures/zoom-in.svg"
+                    src={gestureAsset("zoom-in.svg")}
                     alt="Scroll"
-                    style={{ width: 30 }}
+                    style={gestureIconStyle}
                   />
                   <Typography variant="h6">
                     {t(textHardcoded + "touch.text3")}
@@ -126,26 +132,33 @@ const NavigationGestures: React.FC = () => {
               <>
                 <Stack direction="row" spacing={1} alignItems="center">
                   <img
-                    src="gestures/left-click.svg"
+                    src={gestureAsset("left-click.svg")}
                     alt="Left Click"
-                    style={{ width: 30 }}
+                    style={gestureIconStyle}
                   />
                   <Typography variant="h6">+</Typography>
-                  <img src="gestures/360.svg" alt="360" style={{ width: 30 }} />
+                  <img
+                    src={gestureAsset("360.svg")}
+                    alt="360"
+                    style={gestureIconStyle}
+                  />
                   <Typography variant="h6">
-                    Clic izquierdo + arrastrar: Orbitar
                     {t(textHardcoded + "desk.text1")}
                   </Typography>
                 </Stack>
 
                 <Stack direction="row" spacing={1} alignItems="center">
                   <img
-                    src="gestures/right-click.svg"
+                    src={gestureAsset("right-click.svg")}
                     alt="Right Click"
-                    style={{ width: 30 }}
+                    style={gestureIconStyle}
                   />
                   <Typography variant="h6">+</Typography>
-                  <img src="gestures/360.svg" alt="360" style={{ width: 30 }} />
+                  <img
+                    src={gestureAsset("360.svg")}
+                    alt="360"
+                    style={gestureIconStyle}
+                  />
                   <Typography variant="h6">
                     {t(textHardcoded + "desk.text2")}
                   </Typography>
@@ -153,9 +166,9 @@ const NavigationGestures: React.FC = () => {
 
                 <Stack direction="row" spacing={1} alignItems="center">
                   <img
-                    src="gestures/scroll.svg"
+                    src={gestureAsset("scroll.svg")}
                     alt="Scroll"
-                    style={{ width: 30 }}
+                    style={gestureIconStyle}
                   />
                   <Typography variant="h6">
                     {t(textHardcoded + "desk.text3")}

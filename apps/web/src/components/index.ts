@@ -44,6 +44,7 @@ export { default as SimpleGrid } from "@src/components/ui/SimpleGrid";
 export { default as SystemCover } from "@src/components/ui/SystemCover";
 export { default as EditorialImagePanel } from "@src/components/ui/EditorialImagePanel";
 export { default as RequireAuth } from "@src/components/ui/RequireAuth";
+export { default as PrimaryScreenSwitcher } from "@src/components/navigation/PrimaryScreenSwitcher";
 
 // Components/header
 export { default as AppBarNewHeader } from "@src/components/header/AppBarNewHeader";

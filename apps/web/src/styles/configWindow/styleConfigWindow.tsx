@@ -22,6 +22,32 @@ export const containerConfigWindow: SxProps<Theme> = (theme) => ({
   overflow: "auto",
 });
 
+export const sectionCard: SxProps<Theme> = (theme) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: 1.1,
+  padding: "1rem",
+  marginBottom: "1.5rem",
+  borderRadius: 16,
+  border: `1px solid ${theme.palette.outlineVariant}`,
+  background: `
+    linear-gradient(180deg, ${theme.palette.surfaceContainerHigh} 0%, ${theme.palette.surfaceContainerHighest} 100%)
+  `,
+});
+
+export const sectionEyebrow: SxProps<Theme> = (theme) => ({
+  fontSize: "0.74rem",
+  fontWeight: 700,
+  letterSpacing: "0.12em",
+  textTransform: "uppercase",
+  color: theme.palette.text.secondary,
+});
+
+export const sectionBody: SxProps<Theme> = (theme) => ({
+  marginBottom: "0.15rem",
+  color: theme.palette.text.secondary,
+});
+
 /** Espaciado y formato general de los formularios */
 export const formGeneral: SxProps<Theme> = {
   marginBottom: "1.5rem",

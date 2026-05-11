@@ -10,6 +10,8 @@ export const appBar: SxProps<Theme> = (theme) => ({
 export const toolbarContainer: SxProps = {
   display: "flex",
   alignItems: "center",
+  justifyContent: "space-between",
+  py: { xs: 0.5, md: 0.35 },
 };
 
 export const brandButton: SxProps = {
@@ -49,3 +51,9 @@ export const brandWordmark: SxProps<Theme> = (theme) => ({
   pr: 1,
   filter: `drop-shadow(0 0 12px ${alpha(theme.palette.primary.main, 0.1)})`,
 });
+
+export const actionsSlot: SxProps = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "flex-end",
+};

@@ -19,6 +19,8 @@
     },
     "configWindow": {
       "title": "Settings",
+      "navigationTitle": "Navigation",
+      "navigationDescription": "Move between the main views from this technical control panel without cluttering the header.",
       "language.label": "Language",
       "language.description": "Select the preferred application language.",
       "es": "Spanish",
@@ -70,12 +72,18 @@
       "goHome": "Go to home",
       "continueWithGoogle": "Continue with Google",
       "logOut": "Log out",
+      "navigationTitle": "Navigation",
       "languageTitle": "Language",
       "languageSpanish": "Spanish",
       "languageEnglish": "English",
       "brandIconAlt": "Black Triangle icon",
       "brandWordmarkAlt": "Black Triangle",
       "googleAlt": "Google"
+    },
+    "primaryNavigation": {
+      "home": "Home",
+      "list": "Systems",
+      "graph": "Graph"
     },
     "landing": {
       "eyebrow": "Learn without losing your place",
@@ -156,6 +164,11 @@
       "idleTitle": "Start with a search or filter to explore the catalog",
       "idleDescription": "You can search by technique, coach, or system, filter by category, or show all courses using a specific order.",
       "emptyResults": "No results matched those filters."
+    },
+    "explorer3d": {
+      "eyebrow": "3D Explorer",
+      "title": "See courses as a non-linear technical map",
+      "description": "Move through the conceptual graph, spot connections between positions, and switch back to the catalog or home in a single tap."
     },
     "videoDetail": {
       "explore": "Explore",

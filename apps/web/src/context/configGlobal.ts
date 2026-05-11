@@ -132,6 +132,8 @@ export const routeList = {
     loginUser: "/login_user",
     profile: "/profile",
     explorerScreen: "/explorer",
+    explorerGraphScreen: "/explorer/3d",
     courseDetailScreen: "/course_detail/:systemName",
-    videoDetailScreen: "/video_detail/:systemName/:nodeId"
+    videoDetailScreen: "/video_detail/:systemName/:nodeId",
+    nodeViewer: "/explorer/3d"
 };

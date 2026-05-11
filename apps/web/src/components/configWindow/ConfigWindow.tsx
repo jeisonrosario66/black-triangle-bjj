@@ -19,7 +19,7 @@ import Check from "@mui/icons-material/Check";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTranslation } from "react-i18next";
 
-import { ButtonClose } from "@src/components/index";
+import { ButtonClose, PrimaryScreenSwitcher } from "@src/components/index";
 import { useUIStore } from "@src/store/index";
 import { cacheUser, DagMode } from "@src/context/index";
 import { ToolTipInfo } from "@src/utils/index";
@@ -169,6 +169,21 @@ const ConfigWindow: React.FC = () => {
       <Typography variant="h4" sx={{ fontWeight: "600", marginBottom: "2rem" }}>
         {t(textHardcoded + "title")}
       </Typography>
+
+      <Box sx={style.sectionCard}>
+        <Typography sx={style.sectionEyebrow}>
+          {t(textHardcoded + "navigationTitle")}
+        </Typography>
+        <Typography sx={style.sectionBody}>
+          {t(textHardcoded + "navigationDescription")}
+        </Typography>
+        <PrimaryScreenSwitcher
+          variant="panel"
+          onNavigate={() =>
+            useUIStore.setState({ isConfigWindowActive: false })
+          }
+        />
+      </Box>
 
       {/* Selector de idioma */}
       <FormControl fullWidth sx={style.formGeneral}>
