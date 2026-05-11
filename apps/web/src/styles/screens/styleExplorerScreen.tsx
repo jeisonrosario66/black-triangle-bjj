@@ -77,20 +77,20 @@ export const heroEyebrow: SxProps<Theme> = (theme) => ({
   color: alpha(theme.palette.primary.light, 0.9),
 });
 
-export const heroTitle: SxProps<Theme> = (theme) => ({
+export const heroTitle: SxProps<Theme> = {
   fontSize: { xs: "1.35rem", md: "1.9rem" },
   lineHeight: 1.06,
   fontWeight: 800,
   color: alpha("#F8FAFC", 0.96),
   textWrap: "balance",
-});
+};
 
-export const heroDescription: SxProps<Theme> = (theme) => ({
+export const heroDescription: SxProps<Theme> = {
   maxWidth: 560,
   color: alpha("#E2E8F0", 0.82),
   fontSize: { xs: "0.92rem", md: "0.98rem" },
   lineHeight: 1.5,
-});
+};
 
 export const emptyState: SxProps<Theme> = (theme) => ({
   ...surfaceRecipes.panel(theme),

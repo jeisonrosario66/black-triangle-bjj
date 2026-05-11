@@ -74,7 +74,7 @@ export const recentDots: SxProps = {
   gap: 0.75,
 };
 
-export const recentDot: SxProps<Theme> = (theme) => ({
+export const recentDot = (theme: Theme) => ({
   width: 7,
   height: 7,
   borderRadius: "50%",
@@ -83,7 +83,7 @@ export const recentDot: SxProps<Theme> = (theme) => ({
   transition: "all 180ms ease",
 });
 
-export const recentDotActive: SxProps<Theme> = (theme) => ({
+export const recentDotActive = (theme: Theme) => ({
   width: 18,
   borderRadius: 999,
   backgroundColor: theme.palette.primary.main,
