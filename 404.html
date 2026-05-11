@@ -1,9 +1,25 @@
 <!DOCTYPE html>
 <html lang="es" xml:lang="es">
   <head>
-    <meta content="0; url=/black-triangle-bjj/" />
     <meta charset="UTF-8">
     <title>Redirecting...</title>
+    <script type="text/javascript">
+      (function redirectToSpaEntry(location) {
+        const redirectTarget =
+          location.protocol +
+          "//" +
+          location.hostname +
+          (location.port ? ":" + location.port : "") +
+          "/?/" +
+          location.pathname.slice(1).replace(/&/g, "~and~") +
+          (location.search
+            ? "&" + location.search.slice(1).replace(/&/g, "~and~")
+            : "") +
+          location.hash;
+
+        location.replace(redirectTarget);
+      })(window.location);
+    </script>
   </head>
   <body>
     <h1>404 Not Found</h1>
