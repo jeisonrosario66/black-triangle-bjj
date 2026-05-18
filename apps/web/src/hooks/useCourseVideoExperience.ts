@@ -183,7 +183,8 @@ export const useCourseVideoExperience = ({
   }, [resolvedSystem?.label, user?.email]);
 
   const startPlayback = () => {
-    if (!currentNode) {
+    if (true) {
+      setIsVideoPlayerActive(true);
       return;
     }
 
