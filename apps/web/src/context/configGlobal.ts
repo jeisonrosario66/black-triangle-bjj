@@ -56,6 +56,9 @@ export const scenePropsDev = {
 export const cacheUser = {
     languageUser: "languageApp",
     languageDefault: getPreferredAppLanguage(),
+    subtitlesEnabledCache: "subtitlesEnabled",
+    subtitlesEnabledDefault:
+        localStorage.getItem("subtitlesEnabled") !== "false",
     navigationsGestures: "hideNavigationGestures",
 
     dagModeCache: "dagMode",

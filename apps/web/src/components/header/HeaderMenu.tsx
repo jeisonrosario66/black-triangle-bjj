@@ -12,6 +12,7 @@ import TranslateRoundedIcon from "@mui/icons-material/TranslateRounded";
 import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
+import SubtitlesRoundedIcon from "@mui/icons-material/SubtitlesRounded";
 import { useTheme } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
 import { matchPath, useLocation } from "react-router-dom";
@@ -53,6 +54,7 @@ export default function HeaderMenu({
   const location = useLocation();
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language.startsWith("en") ? "en" : "es";
+  const subtitlesEnabled = useUIStore((state) => state.subtitlesEnabled);
   const isGraphView = Boolean(
     matchPath(
       { path: routeList.explorerGraphScreen, end: true },
@@ -79,6 +81,11 @@ export default function HeaderMenu({
 
   const handleOpenSettings = () => {
     useUIStore.setState({ isConfigWindowActive: true });
+    onClose();
+  };
+
+  const handleSubtitlesToggle = () => {
+    useUIStore.getState().setSubtitlesEnabled(!subtitlesEnabled);
     onClose();
   };
 
@@ -191,6 +198,21 @@ export default function HeaderMenu({
           {currentLanguage === "en" ? <CheckRoundedIcon fontSize="small" /> : null}
         </ListItemIcon>
         <ListItemText primary={t("components.header.languageEnglish")} />
+      </MenuItem>
+
+      <MenuItem onClick={handleSubtitlesToggle}>
+        <ListItemIcon>
+          <SubtitlesRoundedIcon fontSize="small" />
+        </ListItemIcon>
+        <ListItemText
+          primary={t("components.header.subtitlesTitle")}
+          secondary={
+            subtitlesEnabled
+              ? t("components.header.subtitlesOn")
+              : t("components.header.subtitlesOff")
+          }
+        />
+        {subtitlesEnabled ? <CheckRoundedIcon fontSize="small" /> : null}
       </MenuItem>
 
       {isLogin && (

@@ -199,6 +199,25 @@ export default function VideoDetailScreen() {
     );
   };
 
+  const navigateToCourse = () => {
+    if (!system) {
+      return;
+    }
+
+    navigate(
+      routeList.courseDetailScreen.replace(
+        ":systemName",
+        buildCoursePath(system.label, system.coach),
+      ),
+      {
+        state: {
+          entryPoint,
+          system,
+        },
+      },
+    );
+  };
+
   const heroCard = system ? (
     <Card sx={styles.heroCard}>
       <Box sx={styles.heroMedia}>
@@ -272,7 +291,10 @@ export default function VideoDetailScreen() {
                   entryPoint === "home" ? routeList.home : routeList.explorerScreen,
                 ),
             },
-            { label: systemBreadcrumbLabel },
+            {
+              label: systemBreadcrumbLabel,
+              onClick: system ? navigateToCourse : undefined,
+            },
             { label: currentNode?.name ?? t(textVideoDetail + "content") },
           ]}
         />

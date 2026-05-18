@@ -21,6 +21,7 @@ export {
   invalidateHomePersonalizationShared,
   trackCourseSelectionShared,
   trackVideoOpenedShared,
+  trackVideoProgressShared,
 } from "./personalizationShared";
 export type {
   CourseMetricDoc,
@@ -31,4 +32,5 @@ export type {
   HomeRecommendedSystem,
   HomeRecommendedSystemReason,
   UserCourseStatDoc,
+  VideoProgressEntry,
 } from "./personalizationShared";

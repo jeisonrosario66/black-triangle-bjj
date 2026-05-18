@@ -85,6 +85,9 @@
       "languageTitle": "Language",
       "languageSpanish": "Spanish",
       "languageEnglish": "English",
+      "subtitlesTitle": "Subtitles",
+      "subtitlesOn": "On",
+      "subtitlesOff": "Off",
       "brandIconAlt": "Black Triangle icon",
       "brandWordmarkAlt": "Black Triangle",
       "googleAlt": "Google"

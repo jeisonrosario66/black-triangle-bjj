@@ -102,6 +102,9 @@ interface UIState {
   overlayDontShowAgain: boolean;
   setOverlayDontShowAgain: (dontShow: boolean) => void;
 
+  subtitlesEnabled: boolean;
+  setSubtitlesEnabled: (enabled: boolean) => void;
+
   isConfigWindowActive: boolean;
   setIsconfigWindowActive: (configWindow: boolean) => void;
 
@@ -172,6 +175,12 @@ const useUIStore = create<AppState>((set, get) => ({
   overlayDontShowAgain: false,
   setOverlayDontShowAgain: (dontShow) =>
     set({ overlayDontShowAgain: dontShow }),
+
+  subtitlesEnabled: cacheUser.subtitlesEnabledDefault,
+  setSubtitlesEnabled: (enabled) => {
+    localStorage.setItem(cacheUser.subtitlesEnabledCache, String(enabled));
+    set({ subtitlesEnabled: enabled });
+  },
 
   languageGlobal: { locale: getPreferredAppLanguage() },
   setLanguageGlobal: (language) => set({ languageGlobal: language }),

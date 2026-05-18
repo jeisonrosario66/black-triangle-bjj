@@ -85,6 +85,9 @@
       "languageTitle": "Idioma",
       "languageSpanish": "Español",
       "languageEnglish": "Inglés",
+      "subtitlesTitle": "Subtítulos",
+      "subtitlesOn": "Activados",
+      "subtitlesOff": "Desactivados",
       "brandIconAlt": "Icono de Black Triangle",
       "brandWordmarkAlt": "Black Triangle",
       "googleAlt": "Google"
@@ -133,7 +136,7 @@
       "defaultName": "Usuario"
     },
     "home": {
-      "breadcrumb": "Home",
+      "breadcrumb": "Inicio",
       "title": "Hola, {{name}}",
       "defaultName": "Fighter",
       "continueTitle": "Sigue donde quedaste",

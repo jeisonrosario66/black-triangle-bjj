@@ -7,7 +7,9 @@ import {
   getCachedCourseStatShared,
   getCourseStatShared,
   trackVideoOpenedShared,
+  trackVideoProgressShared,
   updateCachedNodeViewsShared,
+  type VideoProgressEntry,
 } from "@bt/shared/services";
 import type { TagItem } from "@src/components/ui/TagList";
 import type { NodeTaxonomy } from "@bt/shared/context";
@@ -40,7 +42,10 @@ export interface CourseVideoExperienceState {
   taxonomy: NodeTaxonomy | null;
   tabs: Tab[];
   tagItems: TagItem[];
-  onVideoPlay: () => void;
+  videoProgressById: Record<string, VideoProgressEntry>;
+  onQualifiedVideoView: () => void;
+  onVideoProgress: (currentTimeSeconds: number, durationSeconds: number) => void;
+  onVideoCompleted: (currentTimeSeconds: number, durationSeconds: number) => void;
 }
 
 export const useCourseVideoExperience = ({
@@ -89,6 +94,9 @@ export const useCourseVideoExperience = ({
   const [visitedModuleIds, setVisitedModuleIds] = useState<number[]>(
     () => cachedCourseStat?.watchedVideoIds ?? [],
   );
+  const [videoProgressById, setVideoProgressById] = useState<
+    Record<string, VideoProgressEntry>
+  >(() => cachedCourseStat?.videoProgressById ?? {});
   const [viewsCount, setViewsCount] = useState<number>(currentNode?.viewsCount ?? 0);
   const trackedVideoRef = useRef("");
 
@@ -148,6 +156,7 @@ export const useCourseVideoExperience = ({
       if (!user?.email || !resolvedSystem?.label) {
         if (mounted) {
           setVisitedModuleIds([]);
+          setVideoProgressById({});
         }
         return;
       }
@@ -168,6 +177,7 @@ export const useCourseVideoExperience = ({
         }
 
         setVisitedModuleIds(courseStat?.watchedVideoIds ?? []);
+        setVideoProgressById(courseStat?.videoProgressById ?? {});
       } catch (error) {
         console.error("No se pudo cargar el historial del curso:", error);
       }
@@ -180,7 +190,7 @@ export const useCourseVideoExperience = ({
     };
   }, [resolvedSystem?.label, user?.email]);
 
-  const onVideoPlay = () => {
+  const onQualifiedVideoView = () => {
     if (!currentNode || !user?.email || !resolvedSystem) {
       return;
     }
@@ -233,6 +243,71 @@ export const useCourseVideoExperience = ({
     })();
   };
 
+  const persistVideoProgress = (
+    currentTimeSeconds: number,
+    durationSeconds: number,
+    completed = false,
+  ) => {
+    if (!currentNode || !user?.email || !resolvedSystem) {
+      return;
+    }
+
+    void (async () => {
+      const wasTracked = await trackVideoProgressShared({
+        email: user.email,
+        firestore: {
+          database,
+          doc,
+          setDoc,
+        },
+        module: currentNode,
+        system: resolvedSystem,
+        completed,
+        currentTimeSeconds,
+        durationSeconds,
+      });
+
+      if (!wasTracked) {
+        return;
+      }
+
+      setVideoProgressById((current) => {
+        const currentProgressEntry = current[String(currentNode.id)] ?? {};
+        const nextProgressPercent = Math.min(
+          100,
+          Math.max(
+            currentProgressEntry.progressPercent ?? 0,
+            durationSeconds > 0 ? (currentTimeSeconds / durationSeconds) * 100 : 0,
+            completed ? 100 : 0,
+          ),
+        );
+        const nextProgressEntry: VideoProgressEntry = {
+          completed:
+            currentProgressEntry.completed ||
+            completed ||
+            nextProgressPercent >= 90,
+          durationSeconds,
+          lastPositionSeconds: currentTimeSeconds,
+          progressPercent: nextProgressPercent,
+          updatedAt: new Date().toISOString(),
+        };
+
+        return {
+          ...current,
+          [String(currentNode.id)]: nextProgressEntry,
+        };
+      });
+    })();
+  };
+
+  const onVideoProgress = (currentTimeSeconds: number, durationSeconds: number) => {
+    persistVideoProgress(currentTimeSeconds, durationSeconds, false);
+  };
+
+  const onVideoCompleted = (currentTimeSeconds: number, durationSeconds: number) => {
+    persistVideoProgress(currentTimeSeconds, durationSeconds, true);
+  };
+
   return {
     currentNode: currentNode ?? null,
     orderedModules,
@@ -246,6 +321,9 @@ export const useCourseVideoExperience = ({
     taxonomy,
     tabs,
     tagItems,
-    onVideoPlay,
+    videoProgressById,
+    onQualifiedVideoView,
+    onVideoProgress,
+    onVideoCompleted,
   };
 };

@@ -13,7 +13,8 @@ import {
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { SystemStyleObject } from "@mui/system";
-import { type ReactNode, useEffect, useMemo, useState } from "react";
+import type { MouseEvent, ReactNode, SyntheticEvent } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { CourseVideoExperienceState, CourseVideoNode } from "@src/hooks/useCourseVideoExperience";
@@ -28,6 +29,7 @@ import { formatCompactNumber } from "@bt/shared/utils";
 import { capitalizeFirstLetter } from "@src/utils";
 import { resolveStorageAssetUrl } from "@src/utils/resolveStorageAssetUrl";
 import { srtToVtt } from "@src/utils/srtToVtt";
+import { useUIStore } from "@src/store";
 
 interface CourseVideoExperiencePanelProps {
   experience: CourseVideoExperienceState;
@@ -43,6 +45,9 @@ type ResolvedSubtitleTrack = {
   srcLang: "es" | "en";
   label: string;
 };
+
+const QUALIFIED_VIEW_SECONDS = 10;
+const PROGRESS_SAVE_INTERVAL_SECONDS = 5;
 
 const resolveStyle = (
   theme: Theme,
@@ -93,18 +98,38 @@ export default function CourseVideoExperiencePanel({
     nextModule,
     visitedModuleIds,
     viewsCount,
+    resolvedSystem,
     tagItems,
-    onVideoPlay,
+    videoProgressById,
+    onQualifiedVideoView,
+    onVideoProgress,
+    onVideoCompleted,
   } = experience;
+  const subtitlesEnabled = useUIStore((state) => state.subtitlesEnabled);
   const resolvedTagItems = tagItemsOverride ?? tagItems;
   const resolvedVideoUrl = useMemo(
     () => resolveStorageAssetUrl(currentNode?.videoid),
     [currentNode?.videoid],
   );
+  const resolvedPosterUrl = useMemo(
+    () => resolveStorageAssetUrl(resolvedSystem?.coverUrl),
+    [resolvedSystem?.coverUrl],
+  );
   const [subtitleTracks, setSubtitleTracks] = useState<ResolvedSubtitleTrack[]>([]);
+  const hasTrackedQualifiedViewRef = useRef(false);
+  const hasTrackedCompletionRef = useRef(false);
+  const lastSavedPositionRef = useRef(0);
+  const hasRestoredPositionRef = useRef(false);
 
   useEffect(() => {
-    if (!currentNode) {
+    hasTrackedQualifiedViewRef.current = false;
+    hasTrackedCompletionRef.current = false;
+    lastSavedPositionRef.current = 0;
+    hasRestoredPositionRef.current = false;
+  }, [currentNode?.id]);
+
+  useEffect(() => {
+    if (!currentNode || !subtitlesEnabled) {
       setSubtitleTracks([]);
       return;
     }
@@ -204,12 +229,50 @@ export default function CourseVideoExperiencePanel({
     currentNode?.id,
     currentNode?.subtitleEn,
     currentNode?.subtitleEs,
+    subtitlesEnabled,
     t,
   ]);
 
   if (!currentNode) {
     return null;
   }
+
+  const registerQualifiedView = () => {
+    if (hasTrackedQualifiedViewRef.current) {
+      return;
+    }
+
+    hasTrackedQualifiedViewRef.current = true;
+    onQualifiedVideoView();
+  };
+
+  const currentVideoProgress = currentNode
+    ? videoProgressById[String(currentNode.id)]
+    : undefined;
+  const resumePositionSeconds =
+    currentVideoProgress?.completed
+      ? 0
+      : Math.max(0, currentVideoProgress?.lastPositionSeconds ?? 0);
+
+  const persistProgressIfNeeded = (
+    currentTimeSeconds: number,
+    durationSeconds: number,
+    completed = false,
+  ) => {
+    if (completed) {
+      onVideoCompleted(currentTimeSeconds, durationSeconds);
+      lastSavedPositionRef.current = currentTimeSeconds;
+      hasTrackedCompletionRef.current = true;
+      return;
+    }
+
+    if (currentTimeSeconds - lastSavedPositionRef.current < PROGRESS_SAVE_INTERVAL_SECONDS) {
+      return;
+    }
+
+    lastSavedPositionRef.current = currentTimeSeconds;
+    onVideoProgress(currentTimeSeconds, durationSeconds);
+  };
 
   return (
     <>
@@ -234,7 +297,68 @@ export default function CourseVideoExperiencePanel({
             playsInline
             preload="metadata"
             crossOrigin="anonymous"
-            onPlay={onVideoPlay}
+            poster={resolvedPosterUrl}
+            controlsList="nodownload noremoteplayback"
+            disableRemotePlayback
+            onContextMenu={(event: MouseEvent) => event.preventDefault()}
+            onLoadedMetadata={(event: SyntheticEvent<HTMLVideoElement>) => {
+              if (hasRestoredPositionRef.current) {
+                return;
+              }
+
+              const mediaElement = event.currentTarget;
+
+              if (
+                !Number.isFinite(mediaElement.duration) ||
+                mediaElement.duration <= 0 ||
+                resumePositionSeconds <= 0 ||
+                resumePositionSeconds >= mediaElement.duration - 2
+              ) {
+                hasRestoredPositionRef.current = true;
+                return;
+              }
+
+              mediaElement.currentTime = resumePositionSeconds;
+              lastSavedPositionRef.current = resumePositionSeconds;
+              hasRestoredPositionRef.current = true;
+            }}
+            onTimeUpdate={(event: SyntheticEvent<HTMLVideoElement>) => {
+              const { currentTime, duration } = event.currentTarget;
+
+              if (currentTime >= QUALIFIED_VIEW_SECONDS) {
+                registerQualifiedView();
+              }
+
+              if (!Number.isFinite(duration) || duration <= 0) {
+                return;
+              }
+
+              const progressPercent = (currentTime / duration) * 100;
+
+              if (progressPercent >= 90 && !hasTrackedCompletionRef.current) {
+                persistProgressIfNeeded(currentTime, duration, true);
+                return;
+              }
+
+              persistProgressIfNeeded(currentTime, duration);
+            }}
+            onPause={(event: SyntheticEvent<HTMLVideoElement>) => {
+              const { currentTime, duration } = event.currentTarget;
+
+              if (Number.isFinite(duration) && duration > 0) {
+                onVideoProgress(currentTime, duration);
+                lastSavedPositionRef.current = currentTime;
+              }
+            }}
+            onEnded={(event: SyntheticEvent<HTMLVideoElement>) => {
+              const { currentTime, duration } = event.currentTarget;
+
+              registerQualifiedView();
+
+              if (Number.isFinite(duration) && duration > 0) {
+                persistProgressIfNeeded(currentTime || duration, duration, true);
+              }
+            }}
             title={currentNode.name ?? t(textVideoDetail + "content")}
             sx={styles.videoPlayer}
           >
@@ -351,6 +475,7 @@ export default function CourseVideoExperiencePanel({
               modules={orderedModules}
               selectedModuleId={currentNode.id}
               visitedModuleIds={visitedModuleIds}
+              videoProgressById={videoProgressById}
               onSelect={(module) => onSelectModule(module)}
             />
           </AccordionDetails>

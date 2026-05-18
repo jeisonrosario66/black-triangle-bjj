@@ -4,6 +4,7 @@ import {
   getCourseStatShared,
   getCachedDataNodesShared,
   getDataNodesShared,
+  type VideoProgressEntry,
 } from "@bt/shared/services/index";
 import { capitalizeFirstLetter } from "@bt/shared/utils/index";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
@@ -70,6 +71,9 @@ export default function CourseDetailScreen() {
   const [visitedModuleIds, setVisitedModuleIds] = useState<number[]>(
     () => cachedCourseStat?.watchedVideoIds ?? [],
   );
+  const [videoProgressById, setVideoProgressById] = useState<
+    Record<string, VideoProgressEntry>
+  >(() => cachedCourseStat?.videoProgressById ?? {});
 
   useEffect(() => {
     let mounted = true;
@@ -118,6 +122,7 @@ export default function CourseDetailScreen() {
       if (!user?.email || !system?.label) {
         if (mounted) {
           setVisitedModuleIds([]);
+          setVideoProgressById({});
         }
         return;
       }
@@ -138,6 +143,7 @@ export default function CourseDetailScreen() {
         }
 
         setVisitedModuleIds(courseStat?.watchedVideoIds ?? []);
+        setVideoProgressById(courseStat?.videoProgressById ?? {});
       } catch (error) {
         console.error("No se pudo cargar el estado visto del curso:", error);
       }
@@ -245,6 +251,7 @@ export default function CourseDetailScreen() {
             <ModuleList
               modules={orderedModules}
               visitedModuleIds={visitedModuleIds}
+              videoProgressById={videoProgressById}
               onSelect={(item) =>
                 navigate(
                   routeList.videoDetailScreen

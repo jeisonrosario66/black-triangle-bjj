@@ -8,7 +8,6 @@ const USERS_COLLECTION = "users";
 const USER_COURSE_STATS_COLLECTION = "course_stats";
 const COURSE_METRICS_COLLECTION = "course_metrics";
 const VIDEO_METRICS_SUBCOLLECTION = "videos";
-const VIDEO_VIEW_THROTTLE_MS = 45_000;
 
 type FirestoreCollectionReadApi = {
   collection: any;
@@ -27,6 +26,12 @@ type FirestoreTrackVideoApi = FirestoreTrackCourseApi & {
   arrayUnion: any;
 };
 
+type FirestoreTrackProgressApi = {
+  database: any;
+  doc: any;
+  setDoc: any;
+};
+
 type CourseSnapshot = Pick<
   SystemCardUI,
   | "coach"
@@ -41,6 +46,7 @@ type CourseSnapshot = Pick<
 >;
 
 export type UserCourseStatDoc = CourseSnapshot & {
+  completedVideoIds?: number[];
   courseViews?: number;
   lastCourseAt?: string;
   lastExplorerAt?: string;
@@ -49,7 +55,17 @@ export type UserCourseStatDoc = CourseSnapshot & {
   lastVideoName?: string;
   updatedAt?: string;
   videoViews?: number;
+  videoReplayCounts?: Record<string, number>;
+  videoProgressById?: Record<string, VideoProgressEntry>;
   watchedVideoIds?: number[];
+};
+
+export type VideoProgressEntry = {
+  completed?: boolean;
+  durationSeconds?: number;
+  lastPositionSeconds?: number;
+  progressPercent?: number;
+  updatedAt?: string;
 };
 
 export type CourseMetricDoc = CourseSnapshot & {
@@ -103,7 +119,6 @@ const courseMetricsCache = new Map<string, Promise<CourseMetricsMap>>();
 const courseMetricsSnapshotCache = new Map<string, CourseMetricsMap>();
 const optimisticUserCourseStatsCache = new Map<string, UserCourseStatsMap>();
 const optimisticCourseMetricsCache = new Map<string, CourseMetricsMap>();
-const videoViewSessionCache = new Map<string, number>();
 
 const normalizeEmail = (email: string) => email.trim().toLowerCase();
 
@@ -114,9 +129,6 @@ const getUserCourseStatsCacheKey = (email: string) =>
   `user-course-stats:${normalizeEmail(email)}`;
 
 const getCourseMetricsCacheKey = () => "course-metrics";
-
-const buildVideoViewKey = (email: string, courseLabel: string, nodeId: number) =>
-  `${normalizeEmail(email)}:${courseLabel}:${nodeId}`;
 
 const toDateString = () => new Date().toISOString();
 
@@ -146,6 +158,16 @@ const mergeCourseStatDoc = (
   return {
     ...(current ?? {}),
     ...(next ?? {}),
+    completedVideoIds:
+      next?.completedVideoIds ?? current?.completedVideoIds ?? [],
+    videoReplayCounts: {
+      ...(current?.videoReplayCounts ?? {}),
+      ...(next?.videoReplayCounts ?? {}),
+    },
+    videoProgressById: {
+      ...(current?.videoProgressById ?? {}),
+      ...(next?.videoProgressById ?? {}),
+    },
     watchedVideoIds: next?.watchedVideoIds ?? current?.watchedVideoIds ?? [],
   } as UserCourseStatDoc;
 };
@@ -312,31 +334,6 @@ const clearOptimisticCourseMetric = (courseLabel: string) => {
   }
 
   optimisticCourseMetricsCache.set(cacheKey, nextMap);
-};
-
-const shouldTrackVideoView = (
-  email: string,
-  courseLabel: string,
-  nodeId: number,
-) => {
-  const key = buildVideoViewKey(email, courseLabel, nodeId);
-  const now = Date.now();
-  const lastTrackedAt = videoViewSessionCache.get(key) ?? 0;
-
-  if (now - lastTrackedAt < VIDEO_VIEW_THROTTLE_MS) {
-    return false;
-  }
-
-  videoViewSessionCache.set(key, now);
-  return true;
-};
-
-const clearTrackedVideoViewLock = (
-  email: string,
-  courseLabel: string,
-  nodeId: number,
-) => {
-  videoViewSessionCache.delete(buildVideoViewKey(email, courseLabel, nodeId));
 };
 
 const buildRouteFromSet = (
@@ -688,11 +685,6 @@ export const trackVideoOpenedShared = async ({
   }
 
   const normalizedEmail = normalizeEmail(email);
-
-  if (!shouldTrackVideoView(normalizedEmail, system.label, module.id)) {
-    return false;
-  }
-
   const { arrayUnion, database, doc, increment, setDoc } = firestore;
   const timestamp = toDateString();
   const snapshot = toCourseSnapshot(system);
@@ -711,6 +703,17 @@ export const trackVideoOpenedShared = async ({
   const cachedStat =
     getCachedCourseStatShared(normalizedEmail, system.label) ?? undefined;
   const cachedMetric = getCachedCourseMetric(system.label);
+  const hadPreviousView =
+    Boolean(cachedStat?.watchedVideoIds?.includes(module.id)) ||
+    Boolean(cachedStat?.videoProgressById?.[String(module.id)]);
+  const nextReplayCounts =
+    hadPreviousView
+      ? {
+          ...(cachedStat?.videoReplayCounts ?? {}),
+          [String(module.id)]:
+            (cachedStat?.videoReplayCounts?.[String(module.id)] ?? 0) + 1,
+        }
+      : cachedStat?.videoReplayCounts ?? {};
 
   setOptimisticUserCourseStat(normalizedEmail, system.label, (current) => {
     const mergedStat = mergeCourseStatDoc(cachedStat, current);
@@ -723,6 +726,7 @@ export const trackVideoOpenedShared = async ({
       lastVideoName: module.name,
       updatedAt: timestamp,
       videoViews: (mergedStat?.videoViews ?? 0) + 1,
+      videoReplayCounts: nextReplayCounts,
       watchedVideoIds: toUniqueVideoIds(mergedStat?.watchedVideoIds, module.id),
     };
   });
@@ -751,6 +755,7 @@ export const trackVideoOpenedShared = async ({
         lastVideoName: module.name,
         updatedAt: timestamp,
         videoViews: increment(1),
+        videoReplayCounts: nextReplayCounts,
         watchedVideoIds: arrayUnion(module.id),
       },
       { merge: true },
@@ -801,9 +806,128 @@ export const trackVideoOpenedShared = async ({
   } catch (error) {
     clearOptimisticUserCourseStat(normalizedEmail, system.label);
     clearOptimisticCourseMetric(system.label);
-    clearTrackedVideoViewLock(normalizedEmail, system.label, module.id);
     invalidateHomePersonalizationShared(normalizedEmail);
     console.error("No se pudo registrar la reproducción del video:", error);
+    return false;
+  }
+};
+
+export const trackVideoProgressShared = async ({
+  email,
+  firestore,
+  module,
+  system,
+  completed = false,
+  currentTimeSeconds,
+  durationSeconds,
+}: {
+  email: string;
+  firestore: FirestoreTrackProgressApi;
+  module: NodeOptionFirestore;
+  system: SystemCardUI;
+  completed?: boolean;
+  currentTimeSeconds: number;
+  durationSeconds: number;
+}) => {
+  if (
+    !email ||
+    !module?.id ||
+    !system?.label ||
+    !Number.isFinite(currentTimeSeconds) ||
+    !Number.isFinite(durationSeconds) ||
+    durationSeconds <= 0
+  ) {
+    return false;
+  }
+
+  const normalizedEmail = normalizeEmail(email);
+  const { database, doc, setDoc } = firestore;
+  const timestamp = toDateString();
+  const snapshot = toCourseSnapshot(system);
+  const userStatRef = doc(
+    database,
+    USERS_COLLECTION,
+    normalizedEmail,
+    USER_COURSE_STATS_COLLECTION,
+    system.label,
+  );
+  const cachedStat =
+    getCachedCourseStatShared(normalizedEmail, system.label) ?? undefined;
+
+  setOptimisticUserCourseStat(normalizedEmail, system.label, (current) => {
+    const mergedStat = mergeCourseStatDoc(cachedStat, current);
+    const currentProgressEntry =
+      mergedStat?.videoProgressById?.[String(module.id)] ?? {};
+    const nextProgressPercent = Math.min(
+      100,
+      Math.max(
+        currentProgressEntry.progressPercent ?? 0,
+        (currentTimeSeconds / durationSeconds) * 100,
+        completed ? 100 : 0,
+      ),
+    );
+    const nextProgressEntry: VideoProgressEntry = {
+      completed:
+        currentProgressEntry.completed ||
+        completed ||
+        nextProgressPercent >= 90,
+      durationSeconds,
+      lastPositionSeconds: currentTimeSeconds,
+      progressPercent: nextProgressPercent,
+      updatedAt: timestamp,
+    };
+
+    return {
+      ...(mergedStat ?? {}),
+      ...snapshot,
+      completedVideoIds: nextProgressEntry.completed
+        ? toUniqueVideoIds(mergedStat?.completedVideoIds, module.id)
+        : mergedStat?.completedVideoIds ?? [],
+      lastVideoAt: timestamp,
+      lastVideoId: module.id,
+      lastVideoName: module.name,
+      updatedAt: timestamp,
+      videoProgressById: {
+        ...(mergedStat?.videoProgressById ?? {}),
+        [String(module.id)]: nextProgressEntry,
+      },
+    };
+  });
+
+  invalidateHomePersonalizationShared(normalizedEmail);
+
+  try {
+    const optimisticStat =
+      getOptimisticUserCourseStats(normalizedEmail)?.get(system.label);
+
+    await setDoc(
+      userStatRef,
+      {
+        ...snapshot,
+        completedVideoIds: optimisticStat?.completedVideoIds ?? [],
+        lastVideoAt: timestamp,
+        lastVideoId: module.id,
+        lastVideoName: module.name,
+        updatedAt: timestamp,
+        videoProgressById: optimisticStat?.videoProgressById ?? {},
+      },
+      { merge: true },
+    );
+
+    setCachedUserCourseStat(normalizedEmail, system.label, (current) => ({
+      ...mergeCourseStatDoc(
+        current,
+        getOptimisticUserCourseStats(normalizedEmail)?.get(system.label),
+      ),
+      ...snapshot,
+    }));
+
+    clearOptimisticUserCourseStat(normalizedEmail, system.label);
+    return true;
+  } catch (error) {
+    clearOptimisticUserCourseStat(normalizedEmail, system.label);
+    invalidateHomePersonalizationShared(normalizedEmail);
+    console.error("No se pudo registrar el progreso del video:", error);
     return false;
   }
 };
