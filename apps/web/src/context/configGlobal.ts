@@ -7,10 +7,10 @@ import { getPreferredAppLanguage, parseCacheArray } from "@src/utils/index";
  * Define colores, iluminación, posición de la cámara y nombre de la aplicación.
  */
 export const configGlobal = {
-    canvasBackgraundColor: "#002",
-    intensity: 0.7,
-    colorLight: "#fff",
-    position: [100, 20, 10] as [number, number, number],
+    canvasBackgraundColor: "#040B18",
+    intensity: 0.9,
+    colorLight: "#9AD7FF",
+    position: [120, 48, 28] as [number, number, number],
     logoApp: "/logoApp.svg",
     namePage: "BLACK \n TRIANGLE BJJ"
 };
@@ -42,11 +42,11 @@ export const cameraPropsDev = {
  */
 export const scenePropsDev = {
     radius: 320,
-    depth: 24,
-    count: 1200,
-    factor: 6,
-    saturation: 1,
-    speed: 0.08
+    depth: 28,
+    count: 980,
+    factor: 7,
+    saturation: 1.45,
+    speed: 0.16
 };
 
 /**

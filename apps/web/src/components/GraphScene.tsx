@@ -1,5 +1,6 @@
 import {
   Stars,
+  Sparkles,
   CameraControls,
 } from "@react-three/drei";
 
@@ -32,15 +33,32 @@ const GraphScene: React.FC<GraphSceneProps> = ({ cameraControlsRef }) => {
         fade
         speed={scenePropsDev.speed}
       />
+      <Sparkles
+        count={72}
+        size={2.4}
+        scale={[260, 160, 260]}
+        speed={0.22}
+        opacity={0.5}
+        color="#62DAFF"
+        noise={0.8}
+      />
       {/* Grafo 3D */}
       <NodeComponent cameraControlsRef={cameraControlsRef} />
 
       {/* Luces */}
       <ambientLight intensity={configGlobal.intensity} />
+      <hemisphereLight
+        intensity={0.55}
+        color="#78CFFF"
+        groundColor="#050816"
+      />
       <directionalLight
         position={configGlobal.position}
         color={configGlobal.colorLight}
+        intensity={1.2}
       />
+      <pointLight position={[-90, 32, -60]} color="#FF6FB0" intensity={16} distance={340} />
+      <pointLight position={[110, -18, 85]} color="#47E7C2" intensity={12} distance={300} />
     </>
   );
 };

@@ -1,6 +1,8 @@
 import {
   collection,
   getDocs,
+  query,
+  where,
 } from "firebase/firestore";
 
 import { debugLog } from "@src/utils/index";
@@ -12,6 +14,7 @@ import {
   NodeOptionFirestore,
   SystemOption,
   SystemOptionGroup,
+  groupColor,
 } from "@src/context/index";
 import { useUIStore } from "@src/store/index";
 
@@ -28,6 +31,116 @@ const getLinksPathFromNodesPath = (path: string) =>
 
 const buildVideoMetricsPath = (courseLabel: string) =>
   `${COURSE_METRICS_COLLECTION}/${courseLabel}/${VIDEO_METRICS_SUBCOLLECTION}`;
+
+const buildTabsPathFromNodesPath = (path: string) =>
+  path.endsWith("/nodes") ? `${path.slice(0, -"/nodes".length)}/tabs` : path;
+
+const chunkNumbers = (values: number[], size: number) => {
+  const chunks: number[][] = [];
+
+  for (let index = 0; index < values.length; index += size) {
+    chunks.push(values.slice(index, index + size));
+  }
+
+  return chunks;
+};
+
+const normalizeCategoryId = (value: unknown) =>
+  typeof value === "string" ? value.trim().toLowerCase() : "";
+
+const buildNodeCategoryKey = (valueNodes: string, nodeId: number) =>
+  `${valueNodes}:${nodeId}`;
+
+const resolveNodeTaxonomyCategories = async (nodes: NodeOptionFirestore[]) => {
+  const nodeIdsByCollection = new Map<string, Set<number>>();
+  const categoryByNodeKey = new Map<string, string>();
+
+  nodes.forEach((node) => {
+    if (!node.valueNodes || !Number.isFinite(node.id)) {
+      return;
+    }
+
+    const currentIds = nodeIdsByCollection.get(node.valueNodes) ?? new Set<number>();
+    currentIds.add(node.id);
+    nodeIdsByCollection.set(node.valueNodes, currentIds);
+  });
+
+  await Promise.all(
+    [...nodeIdsByCollection.entries()].map(async ([valueNodes, nodeIdsSet]) => {
+      const uniqueNodeIds = [...nodeIdsSet];
+
+      if (uniqueNodeIds.length === 0) {
+        return;
+      }
+
+      const tabsPath = buildTabsPathFromNodesPath(valueNodes);
+      const dynamicSnapshots = await Promise.all(
+        chunkNumbers(uniqueNodeIds, 10).map((nodeIdsChunk) =>
+          getDocs(
+            query(
+              collection(database, tabsPath),
+              where("node_index", "in", nodeIdsChunk),
+            ),
+          ),
+        ),
+      );
+
+      const resolvedNodeIds = new Set<number>();
+
+      dynamicSnapshots
+        .flatMap((snapshot) => snapshot.docs)
+        .forEach((taxonomyDoc) => {
+          const taxonomyData = taxonomyDoc.data();
+          const nodeId = Number(taxonomyData.node_index);
+          const categoryId = normalizeCategoryId(taxonomyData.category_id);
+
+          if (!Number.isFinite(nodeId) || !categoryId) {
+            return;
+          }
+
+          resolvedNodeIds.add(nodeId);
+          categoryByNodeKey.set(buildNodeCategoryKey(valueNodes, nodeId), categoryId);
+        });
+
+      const missingNodeIds = uniqueNodeIds.filter((nodeId) => !resolvedNodeIds.has(nodeId));
+
+      if (missingNodeIds.length === 0) {
+        return;
+      }
+
+      const fallbackSnapshots = await Promise.all(
+        chunkNumbers(missingNodeIds, 10).map((nodeIdsChunk) =>
+          getDocs(
+            query(
+              collection(database, tableNameDB.nodeTaxonomy),
+              where("node_index", "in", nodeIdsChunk),
+            ),
+          ),
+        ),
+      );
+
+      fallbackSnapshots
+        .flatMap((snapshot) => snapshot.docs)
+        .forEach((taxonomyDoc) => {
+          const taxonomyData = taxonomyDoc.data();
+          const nodeId = Number(taxonomyData.node_index);
+          const categoryId = normalizeCategoryId(taxonomyData.category_id);
+
+          if (!Number.isFinite(nodeId) || !categoryId) {
+            return;
+          }
+
+          const cacheKey = buildNodeCategoryKey(valueNodes, nodeId);
+
+          if (!categoryByNodeKey.has(cacheKey)) {
+            categoryByNodeKey.set(cacheKey, categoryId);
+          }
+        });
+    }),
+  );
+
+  return categoryByNodeKey;
+};
 
 const normalizeCoachName = (coach: unknown, language: string) => {
   const coachName =
@@ -138,7 +251,7 @@ export const getDataNodes = async (dbNames: string[]) => {
       Promise.all(videoMetricsRequests),
     ]);
 
-    const results: NodeOptionFirestore[] = snapshots
+    const rawResults: NodeOptionFirestore[] = snapshots
       .map((querySnapshot, index) => {
         const valueNodes = dbNames[index];
         const valueLinks = getLinksPathFromNodesPath(valueNodes);
@@ -183,6 +296,22 @@ export const getDataNodes = async (dbNames: string[]) => {
         });
       })
       .flat();
+
+    const taxonomyCategories = await resolveNodeTaxonomyCategories(rawResults);
+    const results: NodeOptionFirestore[] = rawResults.map((node) => {
+      const taxonomyCategoryId = node.valueNodes
+        ? taxonomyCategories.get(buildNodeCategoryKey(node.valueNodes, node.id))
+        : undefined;
+      const nodeColor =
+        (taxonomyCategoryId ? groupColor[taxonomyCategoryId] : undefined) ??
+        groupColor[node.group ?? ""] ??
+        undefined;
+
+      return {
+        ...node,
+        color: nodeColor,
+      };
+    });
 
     useUIStore.setState({ documentsFirestore: results });
     debugLog(

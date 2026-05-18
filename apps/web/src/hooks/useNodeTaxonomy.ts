@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import {
   collection,
-  documentId,
-  query,
   where,
   getDocs,
   limit,
+  query,
 } from "firebase/firestore";
 
 import { tableNameDB, NodeTaxonomy } from "@bt/shared/context/index";
 import { database } from "@src/hooks";
+import {
+  mergeTabs,
+} from "@src/utils/nodeEditorTaxonomy";
 
 /**
  * Hook que resuelve la taxonomía asociada a un nodo específico.
@@ -98,6 +100,11 @@ export interface Tab {
   label: string;
   title_es?: string;
   title_en?: string;
+  description_es?: string;
+  description_en?: string;
+  type?: string;
+  groupId?: string;
+  groupLabel?: string;
 }
 
 const taxonomyCache = new Map<string, NodeTaxonomy | null>();
@@ -120,28 +127,53 @@ export const primeNodeTaxonomyCache = (
 };
 
 export const primeTabsCache = (tabs: Tab[]) => {
-  tabs.forEach((tab) => {
+  const nextTabs = mergeTabs(allTabsCache ?? [], tabs);
+
+  nextTabs.forEach((tab) => {
     tabsCache.set(tab.id, tab);
   });
 
-  if (!allTabsCache) {
-    return;
-  }
-
-  const nextTabs = new Map(allTabsCache.map((tab) => [tab.id, tab]));
-  tabs.forEach((tab) => {
-    nextTabs.set(tab.id, tab);
-  });
-  allTabsCache = [...nextTabs.values()];
+  allTabsCache = nextTabs;
 };
-const chunkIds = (ids: string[], size: number) => {
-  const chunks: string[][] = [];
 
-  for (let index = 0; index < ids.length; index += size) {
-    chunks.push(ids.slice(index, index + size));
+const loadAllTabs = () => {
+  if (!allTabsRequest) {
+    allTabsRequest = getDocs(collection(database, tableNameDB.tabs))
+      .then((snapshot) =>
+        snapshot.docs.map((tabSnapshot) => {
+          const data = tabSnapshot.data() as Record<string, unknown>;
+          const resolvedId =
+            (typeof data.label === "string" && data.label.trim()) ||
+            tabSnapshot.id;
+
+          return {
+            id: resolvedId,
+            label: resolvedId,
+            title_es: typeof data.title_es === "string" ? data.title_es : undefined,
+            title_en: typeof data.title_en === "string" ? data.title_en : undefined,
+            description_es:
+              typeof data.description_es === "string"
+                ? data.description_es
+                : undefined,
+            description_en:
+              typeof data.description_en === "string"
+                ? data.description_en
+                : undefined,
+            type: typeof data.type === "string" ? data.type : undefined,
+          } satisfies Tab;
+        }),
+      )
+        .then((resolvedTabs) => {
+          primeTabsCache(resolvedTabs);
+        return allTabsCache ?? [];
+      })
+      .catch((error) => {
+        allTabsRequest = null;
+        throw error;
+      });
   }
 
-  return chunks;
+  return allTabsRequest;
 };
 
 /**
@@ -170,31 +202,20 @@ export const useTabsByIds = (tabIds?: string[]) => {
         return;
       }
 
-      const snapshots = await Promise.all(
-        chunkIds(missingIds, 10).map((idsChunk) =>
-          getDocs(
-            query(
-              collection(database, tableNameDB.tabs),
-              where(documentId(), "in", idsChunk),
-            ),
-          ),
-        ),
-      );
+      await loadAllTabs();
 
-      const fetchedTabs = snapshots
-        .flatMap((snapshot) => snapshot.docs)
-        .map((snapshot) => ({
-          id: snapshot.id,
-          ...(snapshot.data() as { label: string }),
-          title_es: (snapshot.data() as { title_es?: string }).title_es,
-          title_en: (snapshot.data() as { title_en?: string }).title_en,
+      const unresolvedTabs = uniqueTabIds
+        .filter((id) => !tabsCache.has(id))
+        .map((id) => ({
+          id,
+          label: id,
         }));
 
-      primeTabsCache(fetchedTabs);
+      if (unresolvedTabs.length > 0) {
+        primeTabsCache(unresolvedTabs);
+      }
 
-      const resolved = uniqueTabIds
-        .map((id) => tabsCache.get(id))
-        .filter(Boolean) as Tab[];
+      const resolved = uniqueTabIds.map((id) => tabsCache.get(id) ?? { id, label: id });
 
       setTabs(resolved);
     };
@@ -208,39 +229,15 @@ export const useAllTabs = () => {
   const [tabs, setTabs] = useState<Tab[]>(allTabsCache ?? []);
 
   useEffect(() => {
-    if (allTabsCache) {
-      setTabs(allTabsCache);
-      return;
-    }
+    setTabs(allTabsCache ?? []);
 
-    if (!allTabsRequest) {
-      allTabsRequest = getDocs(collection(database, tableNameDB.tabs))
-        .then((snapshot) =>
-          snapshot.docs.map((tabSnapshot) => ({
-            id: tabSnapshot.id,
-            ...(tabSnapshot.data() as { label: string }),
-            title_es: (tabSnapshot.data() as { title_es?: string }).title_es,
-            title_en: (tabSnapshot.data() as { title_en?: string }).title_en,
-          })),
-        )
-        .then((resolvedTabs) => {
-          allTabsCache = resolvedTabs;
-          primeTabsCache(resolvedTabs);
-          return resolvedTabs;
-        })
-        .catch((error) => {
-          allTabsRequest = null;
-          throw error;
-        });
-    }
-
-    allTabsRequest
+    loadAllTabs()
       ?.then((resolvedTabs) => {
         setTabs(resolvedTabs);
       })
       .catch((error) => {
         console.error("No se pudieron cargar las tabs globales:", error);
-        setTabs([]);
+        setTabs(allTabsCache ?? []);
       });
   }, []);
 

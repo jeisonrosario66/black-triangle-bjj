@@ -16,6 +16,9 @@ type NodeComponentProps = {
 const getLinkEndpointId = (endpoint: GraphLink["source"] | GraphLink["target"]) =>
   typeof endpoint === "number" ? endpoint : endpoint?.id;
 
+const brightenColor = (colorValue: string, amount: number) =>
+  `#${new THREE.Color(colorValue).lerp(new THREE.Color("#ffffff"), amount).getHexString()}`;
+
 /**
  * @deprecated Este componente está fuera de uso.
  * Se mantiene temporalmente por compatibilidad histórica.
@@ -81,6 +84,37 @@ const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
     };
   }, [gData, rootGroup, showFullGraph]);
 
+  const nodeColorById = useMemo(
+    () =>
+      new Map(
+        displayedGraph.nodes.map((node) => [
+          node.id,
+          node.color ?? groupColor[node.group ?? "default"] ?? "#8E8E8E",
+        ]),
+      ),
+    [displayedGraph.nodes],
+  );
+  const linkLineColorById = useMemo(
+    () =>
+      new Map(
+        [...nodeColorById.entries()].map(([nodeId, colorValue]) => [
+          nodeId,
+          brightenColor(colorValue, 0.18),
+        ]),
+      ),
+    [nodeColorById],
+  );
+  const linkParticleColorById = useMemo(
+    () =>
+      new Map(
+        [...nodeColorById.entries()].map(([nodeId, colorValue]) => [
+          nodeId,
+          brightenColor(colorValue, 0.38),
+        ]),
+      ),
+    [nodeColorById],
+  );
+
   const handleNodeClick = useCallback((node: GraphNode) => {
     if (!node) {
       return;
@@ -111,11 +145,23 @@ const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
       dagMode={dagMode}
       dagLevelDistance={dagLevel}
       cooldownTicks={80}
-      linkWidth={1.5}
-      linkCurvature={0.02}
-      linkDirectionalParticles={0}
+      linkWidth={2.4}
+      linkOpacity={0.92}
+      linkCurvature={0.045}
+      linkColor={(link) =>
+        linkLineColorById.get(getLinkEndpointId(link.source) ?? -1) ?? "#A3B7D8"
+      }
+      linkDirectionalParticles={4}
+      linkDirectionalParticleWidth={3.1}
+      linkDirectionalParticleSpeed={0.0035}
+      linkDirectionalParticleColor={(link) =>
+        linkParticleColorById.get(getLinkEndpointId(link.source) ?? -1) ?? "#EAF4FF"
+      }
       onNodeClick={(node) => handleNodeClick(node as GraphNode)}
-      nodeAutoColorBy={(node) => (node.group ? groupColor[node.group] : "gray")}
+      nodeAutoColorBy={(node) =>
+        (node as GraphNode).color ??
+        ((node as GraphNode).group ? groupColor[(node as GraphNode).group] : "gray")
+      }
       nodeThreeObject={resolveNodeObject}
     />
   );

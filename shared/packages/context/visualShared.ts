@@ -1,14 +1,16 @@
 export type VisualThemeKey =
   | "system"
   | "submission"
-  | "pass"
+  | "guard_pass"
   | "switch"
   | "transition"
   | "control"
   | "takedown"
-  | "defence"
+  | "judo_throw"
   | "guard"
   | "defense_escape";
+
+type VisualThemeAliasKey = "pass" | "defence";
 
 type VisualTheme = {
   accent: string;
@@ -24,70 +26,83 @@ type VisualTheme = {
  */
 export const visualThemes: Record<VisualThemeKey, VisualTheme> = {
   system: {
-    accent: "#B38A4B",
-    glow: "#E1C48C",
-    base: "#0A0A0A",
-    edge: "#1A1A1A",
+    accent: "#F6C445",
+    glow: "#FFE39A",
+    base: "#0B0A08",
+    edge: "#2C1906",
   },
   submission: {
-    accent: "#C79A5B",
-    glow: "#E7C58F",
-    base: "#0A0A0A",
-    edge: "#1C1711",
+    accent: "#FF6B57",
+    glow: "#FFB29E",
+    base: "#120909",
+    edge: "#34110D",
   },
-  pass: {
-    accent: "#D0AE73",
-    glow: "#F0D6A8",
-    base: "#090909",
-    edge: "#1A1A1A",
+  guard_pass: {
+    accent: "#FFD447",
+    glow: "#FFF0A1",
+    base: "#111008",
+    edge: "#332A08",
   },
   switch: {
-    accent: "#E1C48C",
-    glow: "#F6E0B7",
-    base: "#0A0A0A",
-    edge: "#211A11",
+    accent: "#55E7B7",
+    glow: "#A7F8DD",
+    base: "#07110E",
+    edge: "#0C2F25",
   },
   transition: {
-    accent: "#9F7B46",
-    glow: "#D9BE92",
-    base: "#090909",
-    edge: "#181410",
+    accent: "#53A7FF",
+    glow: "#A9D3FF",
+    base: "#07101A",
+    edge: "#102A47",
   },
   control: {
-    accent: "#B79055",
-    glow: "#E4C895",
-    base: "#090909",
-    edge: "#171717",
+    accent: "#FF5D8F",
+    glow: "#FFABC6",
+    base: "#15080F",
+    edge: "#3A0E21",
   },
   takedown: {
-    accent: "#C18C4A",
-    glow: "#EABF87",
-    base: "#090909",
-    edge: "#1D1711",
+    accent: "#FF8A2A",
+    glow: "#FFC08C",
+    base: "#140B07",
+    edge: "#3E1C07",
   },
-  defence: {
-    accent: "#C7A266",
-    glow: "#E7D0A1",
-    base: "#0A0A0A",
-    edge: "#181613",
+  judo_throw: {
+    accent: "#9A7CFF",
+    glow: "#CFC1FF",
+    base: "#0D0A16",
+    edge: "#24154B",
   },
   guard: {
-    accent: "#A57B44",
-    glow: "#DDB883",
-    base: "#090909",
-    edge: "#1B1712",
+    accent: "#7ED957",
+    glow: "#BEF5A4",
+    base: "#081108",
+    edge: "#163315",
   },
   defense_escape: {
-    accent: "#D2AF75",
-    glow: "#F0D9AD",
-    base: "#090909",
-    edge: "#1C1712",
+    accent: "#38D6C5",
+    glow: "#99F2E9",
+    base: "#071110",
+    edge: "#0F2E2A",
   },
 };
 
-export const groupColor: Record<string, string> = Object.fromEntries(
-  Object.entries(visualThemes).map(([key, value]) => [key, value.accent]),
-);
+const visualThemeAliases: Record<VisualThemeAliasKey, VisualThemeKey> = {
+  pass: "guard_pass",
+  defence: "defense_escape",
+};
+
+export const groupColor: Record<string, string> = {
+  ...Object.fromEntries(
+    Object.entries(visualThemes).map(([key, value]) => [key, value.accent]),
+  ),
+  ...Object.fromEntries(
+    Object.entries(visualThemeAliases).map(([alias, targetKey]) => [
+      alias,
+      visualThemes[targetKey].accent,
+    ]),
+  ),
+};
 
 const coverThemeKeys = Object.keys(visualThemes) as VisualThemeKey[];
 
