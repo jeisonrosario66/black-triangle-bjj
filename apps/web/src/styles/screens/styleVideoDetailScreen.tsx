@@ -34,10 +34,12 @@ export const videoFrame: SxProps<Theme> = () => ({
   },
 });
 
-export const videoIframe: SxProps = {
+export const videoPlayer: SxProps = {
   width: "100%",
   height: "100%",
   border: 0,
+  display: "block",
+  backgroundColor: "#000",
 };
 
 export const videoPlaceholder: SxProps<Theme> = (theme) => ({

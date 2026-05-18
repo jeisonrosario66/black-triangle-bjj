@@ -523,6 +523,10 @@ export const getDataNodesShared = async (
             name: language === "es" ? docData.name_es : docData.name_en,
             group: docData.group,
             videoid: docData.videoid,
+            subtitleEs:
+              typeof docData.subtitleEs === "string" ? docData.subtitleEs : undefined,
+            subtitleEn:
+              typeof docData.subtitleEn === "string" ? docData.subtitleEn : undefined,
             viewsCount:
               videoMetricsByNodeId.get(nodeId) ??
               docData.viewsCount ??

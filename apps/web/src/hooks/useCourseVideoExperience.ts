@@ -2,11 +2,12 @@ import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { arrayUnion, collection, doc, getDocs, increment, setDoc } from "firebase/firestore";
 import { useTranslation } from "react-i18next";
 
-import type { NodeOptionFirestore as SharedNodeOptionFirestore, SystemCardUI } from "@bt/shared/context";
+import type { SystemCardUI } from "@bt/shared/context";
 import {
   getCachedCourseStatShared,
   getCourseStatShared,
   trackVideoOpenedShared,
+  updateCachedNodeViewsShared,
 } from "@bt/shared/services";
 import type { TagItem } from "@src/components/ui/TagList";
 import type { NodeTaxonomy } from "@bt/shared/context";
@@ -34,13 +35,12 @@ export interface CourseVideoExperienceState {
   nextModule?: CourseVideoNode;
   visitedModuleIds: number[];
   viewsCount: number;
-  isVideoPlayerActive: boolean;
   resolvedSystem: SystemCardUI | null;
   isResolvingSystem: boolean;
   taxonomy: NodeTaxonomy | null;
   tabs: Tab[];
   tagItems: TagItem[];
-  startPlayback: () => void;
+  onVideoPlay: () => void;
 }
 
 export const useCourseVideoExperience = ({
@@ -82,7 +82,6 @@ export const useCourseVideoExperience = ({
     };
   }, [courseModules.length, currentNode?.systemLabel, currentNode?.valueLinks, currentNode?.valueNodes, fallbackSystemLabel, firestoreRoute, system?.label, system?.valueLinks, system?.valueNodes]);
   const resolvedSystem = system ?? resolvedSystemCard ?? fallbackSystem;
-  const trackedVideoRef = useRef("");
   const cachedCourseStat =
     user?.email && resolvedSystem?.label
       ? getCachedCourseStatShared(user.email, resolvedSystem.label)
@@ -91,7 +90,7 @@ export const useCourseVideoExperience = ({
     () => cachedCourseStat?.watchedVideoIds ?? [],
   );
   const [viewsCount, setViewsCount] = useState<number>(currentNode?.viewsCount ?? 0);
-  const [isVideoPlayerActive, setIsVideoPlayerActive] = useState(false);
+  const trackedVideoRef = useRef("");
 
   const orderedModules = useMemo(
     () => [...courseModules].sort((moduleA, moduleB) => Number(moduleA.id) - Number(moduleB.id)),
@@ -139,7 +138,6 @@ export const useCourseVideoExperience = ({
   }, [currentNode?.id, currentNode?.viewsCount]);
 
   useEffect(() => {
-    setIsVideoPlayerActive(false);
     trackedVideoRef.current = "";
   }, [currentNode?.id]);
 
@@ -182,15 +180,8 @@ export const useCourseVideoExperience = ({
     };
   }, [resolvedSystem?.label, user?.email]);
 
-  const startPlayback = () => {
-    if (true) {
-      setIsVideoPlayerActive(true);
-      return;
-    }
-
-    setIsVideoPlayerActive(true);
-
-    if (!user?.email || !resolvedSystem) {
+  const onVideoPlay = () => {
+    if (!currentNode || !user?.email || !resolvedSystem) {
       return;
     }
 
@@ -212,11 +203,12 @@ export const useCourseVideoExperience = ({
           increment,
           setDoc,
         },
-        module: currentNode as SharedNodeOptionFirestore,
+        module: currentNode,
         system: resolvedSystem,
       });
 
       if (!wasTracked) {
+        trackedVideoRef.current = "";
         return;
       }
 
@@ -227,7 +219,17 @@ export const useCourseVideoExperience = ({
 
         return [...currentVisitedIds, currentNode.id].sort((idA, idB) => idA - idB);
       });
-      setViewsCount((currentViews) => currentViews + 1);
+      setViewsCount((currentViews) => {
+        const nextViewsCount = currentViews + 1;
+
+        updateCachedNodeViewsShared({
+          docId: currentNode.docId,
+          id: currentNode.id,
+          nextViewsCount,
+        });
+
+        return nextViewsCount;
+      });
     })();
   };
 
@@ -239,12 +241,11 @@ export const useCourseVideoExperience = ({
     nextModule,
     visitedModuleIds,
     viewsCount,
-    isVideoPlayerActive,
     resolvedSystem,
     isResolvingSystem,
     taxonomy,
     tabs,
     tagItems,
-    startPlayback,
+    onVideoPlay,
   };
 };

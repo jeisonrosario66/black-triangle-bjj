@@ -8,12 +8,36 @@ import {
   GraphLink,
   LanguageConfig,
   SystemOptionGroup,
+  tableNameDB,
 } from "@src/context/index";
 import { getPreferredAppLanguage, parseCacheArray } from "@src/utils/index";
 import { getSystem } from "@src/services/index";
 
-const systemCacheLoadedLinks = parseCacheArray(cacheUser.systemsCacheNameLinks);
-const systemCacheLoadedNodes = parseCacheArray(cacheUser.systemsCacheNameNodes);
+const getValidCachedSystemPaths = (
+  key: string,
+  expectedSuffix: "nodes" | "links",
+) => {
+  const validPrefix = `${tableNameDB.systemsCollections}/`;
+  const cachedPaths = parseCacheArray(key);
+  const sanitizedPaths = cachedPaths.filter((path) =>
+    path.startsWith(validPrefix) && path.endsWith(`/${expectedSuffix}`),
+  );
+
+  if (sanitizedPaths.length !== cachedPaths.length) {
+    localStorage.setItem(key, JSON.stringify(sanitizedPaths));
+  }
+
+  return sanitizedPaths;
+};
+
+const systemCacheLoadedLinks = getValidCachedSystemPaths(
+  cacheUser.systemsCacheNameLinks,
+  "links",
+);
+const systemCacheLoadedNodes = getValidCachedSystemPaths(
+  cacheUser.systemsCacheNameNodes,
+  "nodes",
+);
 // -------------------------------------------------------------------------
 // Definición del estado de datos globales
 // -------------------------------------------------------------------------

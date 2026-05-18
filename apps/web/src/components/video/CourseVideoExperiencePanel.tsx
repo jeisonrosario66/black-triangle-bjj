@@ -1,7 +1,6 @@
 import ArrowBackRoundedIcon from "@mui/icons-material/ArrowBackRounded";
 import ArrowForwardRoundedIcon from "@mui/icons-material/ArrowForwardRounded";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
-import PlayArrowRoundedIcon from "@mui/icons-material/PlayArrowRounded";
 import QueuePlayNextRoundedIcon from "@mui/icons-material/QueuePlayNextRounded";
 import {
   Accordion,
@@ -14,7 +13,7 @@ import {
 } from "@mui/material";
 import type { Theme } from "@mui/material/styles";
 import type { SystemStyleObject } from "@mui/system";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import type { CourseVideoExperienceState, CourseVideoNode } from "@src/hooks/useCourseVideoExperience";
@@ -27,6 +26,8 @@ import type { TagItem } from "@src/components/ui/TagList";
 import * as styles from "@src/styles/screens/styleVideoDetailScreen";
 import { formatCompactNumber } from "@bt/shared/utils";
 import { capitalizeFirstLetter } from "@src/utils";
+import { resolveStorageAssetUrl } from "@src/utils/resolveStorageAssetUrl";
+import { srtToVtt } from "@src/utils/srtToVtt";
 
 interface CourseVideoExperiencePanelProps {
   experience: CourseVideoExperienceState;
@@ -36,6 +37,12 @@ interface CourseVideoExperiencePanelProps {
   metaExtra?: ReactNode;
   afterNavigation?: ReactNode;
 }
+
+type ResolvedSubtitleTrack = {
+  src: string;
+  srcLang: "es" | "en";
+  label: string;
+};
 
 const resolveStyle = (
   theme: Theme,
@@ -73,10 +80,11 @@ export default function CourseVideoExperiencePanel({
   metaExtra,
   afterNavigation,
 }: CourseVideoExperiencePanelProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [navigationExpanded, setNavigationExpanded] = useState(true);
   const textVideoDetail = "components.videoDetail.";
   const textHardcoded = "components.nodeConnectionViewer.";
+  const preferredLanguage = i18n.language.startsWith("en") ? "en" : "es";
   const {
     currentNode,
     orderedModules,
@@ -85,11 +93,119 @@ export default function CourseVideoExperiencePanel({
     nextModule,
     visitedModuleIds,
     viewsCount,
-    isVideoPlayerActive,
     tagItems,
-    startPlayback,
+    onVideoPlay,
   } = experience;
   const resolvedTagItems = tagItemsOverride ?? tagItems;
+  const resolvedVideoUrl = useMemo(
+    () => resolveStorageAssetUrl(currentNode?.videoid),
+    [currentNode?.videoid],
+  );
+  const [subtitleTracks, setSubtitleTracks] = useState<ResolvedSubtitleTrack[]>([]);
+
+  useEffect(() => {
+    if (!currentNode) {
+      setSubtitleTracks([]);
+      return;
+    }
+
+    const subtitleCandidates = [
+      {
+        label: t("components.header.languageSpanish"),
+        srcLang: "es" as const,
+        storageKey: currentNode.subtitleEs,
+      },
+      {
+        label: t("components.header.languageEnglish"),
+        srcLang: "en" as const,
+        storageKey: currentNode.subtitleEn,
+      },
+    ].filter((candidate) => Boolean(candidate.storageKey));
+
+    if (subtitleCandidates.length === 0) {
+      setSubtitleTracks([]);
+      return;
+    }
+
+    const abortController = new AbortController();
+    const objectUrls: string[] = [];
+    let cancelled = false;
+
+    const loadSubtitleTracks = async () => {
+      try {
+        const resolvedTracks = await Promise.all(
+          subtitleCandidates.map(async (candidate) => {
+            const resolvedSubtitleUrl = resolveStorageAssetUrl(candidate.storageKey);
+
+            if (!resolvedSubtitleUrl) {
+              return null;
+            }
+
+            if (resolvedSubtitleUrl.toLowerCase().endsWith(".vtt")) {
+              return {
+                label: candidate.label,
+                src: resolvedSubtitleUrl,
+                srcLang: candidate.srcLang,
+              } satisfies ResolvedSubtitleTrack;
+            }
+
+            const response = await fetch(resolvedSubtitleUrl, {
+              signal: abortController.signal,
+            });
+
+            if (!response.ok) {
+              throw new Error(`Subtitle request failed: ${response.status}`);
+            }
+
+            const subtitleText = await response.text();
+            const objectUrl = URL.createObjectURL(
+              new Blob([srtToVtt(subtitleText)], { type: "text/vtt" }),
+            );
+
+            objectUrls.push(objectUrl);
+
+            return {
+              label: candidate.label,
+              src: objectUrl,
+              srcLang: candidate.srcLang,
+            } satisfies ResolvedSubtitleTrack;
+          }),
+        );
+
+        if (!cancelled) {
+          setSubtitleTracks(
+            resolvedTracks.filter(
+              (track): track is ResolvedSubtitleTrack => Boolean(track),
+            ),
+          );
+        }
+      } catch (error) {
+        if (abortController.signal.aborted) {
+          return;
+        }
+
+        console.error("No se pudieron cargar los subtítulos del video:", error);
+
+        if (!cancelled) {
+          setSubtitleTracks([]);
+        }
+      }
+    };
+
+    void loadSubtitleTracks();
+
+    return () => {
+      cancelled = true;
+      abortController.abort();
+      objectUrls.forEach((objectUrl) => URL.revokeObjectURL(objectUrl));
+    };
+  }, [
+    currentNode,
+    currentNode?.id,
+    currentNode?.subtitleEn,
+    currentNode?.subtitleEs,
+    t,
+  ]);
 
   if (!currentNode) {
     return null;
@@ -110,31 +226,40 @@ export default function CourseVideoExperiencePanel({
             : {}),
         })}
       >
-        {isVideoPlayerActive ? (
+        {resolvedVideoUrl ? (
           <Box
-            component="iframe"
-            src={`https://drive.google.com/file/d/${currentNode.videoid}/preview`}
-            allow="autoplay; fullscreen; picture-in-picture"
-            allowFullScreen
+            component="video"
+            src={resolvedVideoUrl}
+            controls
+            playsInline
+            preload="metadata"
+            crossOrigin="anonymous"
+            onPlay={onVideoPlay}
             title={currentNode.name ?? t(textVideoDetail + "content")}
-            sx={styles.videoIframe}
-          />
+            sx={styles.videoPlayer}
+          >
+            {subtitleTracks.map((track) => (
+              <track
+                key={`${currentNode.id}-${track.srcLang}`}
+                kind="subtitles"
+                src={track.src}
+                srcLang={track.srcLang}
+                label={track.label}
+                default={track.srcLang === preferredLanguage}
+              />
+            ))}
+          </Box>
         ) : (
           <Box sx={styles.videoPlaceholder}>
             <Typography variant="overline" sx={styles.videoPlaceholderEyebrow}>
-              {t(textVideoDetail + "playbackReady")}
+              {t(textVideoDetail + "playbackUnavailable")}
             </Typography>
             <Typography variant="h5" sx={styles.videoPlaceholderTitle}>
               {capitalizeFirstLetter(currentNode.name ?? t(textVideoDetail + "content"))}
             </Typography>
-            <Button
-              variant="contained"
-              size="large"
-              startIcon={<PlayArrowRoundedIcon />}
-              onClick={startPlayback}
-            >
-              {t(textVideoDetail + "startPlayback")}
-            </Button>
+            <Typography sx={styles.videoPlaceholderDescription}>
+              {t(textVideoDetail + "playbackUnavailableDescription")}
+            </Typography>
           </Box>
         )}
       </Box>

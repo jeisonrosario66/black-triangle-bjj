@@ -16,6 +16,8 @@ type NodeMetadata = {
   name: string;
   group: string;
   videoid: string;
+  subtitleEs?: string;
+  subtitleEn?: string;
   color?: string;
   viewsCount?: number;
   description: StructuredDescription;

@@ -4,7 +4,7 @@ import type { SxProps } from "@mui/system";
 import { useState } from "react";
 
 import { surfaceRecipes } from "@bt/shared/design-system";
-import { resolveDriveImageUrl } from "@src/utils/resolveDriveImageUrl";
+import { resolveStorageAssetUrl } from "@src/utils/resolveStorageAssetUrl";
 
 type EditorialImagePanelProps = {
   src?: string;
@@ -36,7 +36,7 @@ export default function EditorialImagePanel({
   const [hasError, setHasError] = useState(false);
   const [imageReady, setImageReady] = useState(false);
   const [coverOrientation, setCoverOrientation] = useState<CoverOrientation>("landscape");
-  const resolvedSrc = resolveDriveImageUrl(src);
+  const resolvedSrc = resolveStorageAssetUrl(src);
   const isPortrait = coverOrientation === "portrait";
 
   return (

@@ -71,7 +71,7 @@ export const cacheUser = {
     systemsLinksLoaded: []
 };
 
-const activeSystemsCollection = "systems_content";
+const activeSystemsCollection = "systems_r2";
 
 const getValidCachedSystemPaths = (
     key: string,

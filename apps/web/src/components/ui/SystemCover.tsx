@@ -4,7 +4,7 @@ import { alpha, useTheme } from "@mui/material/styles";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { shape } from "@bt/shared/design-system/index";
-import { resolveDriveImageUrl } from "@src/utils/resolveDriveImageUrl";
+import { resolveStorageAssetUrl } from "@src/utils/resolveStorageAssetUrl";
 
 type SystemCoverVariant = "hero" | "card" | "list" | "header" | "home";
 type CoverOrientation = "portrait" | "landscape" | "square";
@@ -105,7 +105,7 @@ export default function SystemCover({
   const seed = [title, subtitle, coach].filter(Boolean).join("-");
   const palette = getCoverPalette(seed);
   const variantStyles = getVariantStyles(variant);
-  const resolvedCoverUrl = resolveDriveImageUrl(coverUrl);
+  const resolvedCoverUrl = resolveStorageAssetUrl(coverUrl);
   const useImage = shouldUseImage(resolvedCoverUrl);
   const debugLabel = [title, subtitle, coach].filter(Boolean).join(" | ");
   const isPortrait = coverOrientation === "portrait";
