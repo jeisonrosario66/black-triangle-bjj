@@ -243,7 +243,7 @@ export default function CourseDetailScreen() {
     return [...modules].sort((a, b) => Number(a.id) - Number(b.id));
   }, [modules]);
   const canOpenGraph = isCourseGraphComplete(systemsOptions, system?.valueNodes);
-  const totalCourseVideos = system.videoCount ?? modules.length;
+  const totalCourseVideos = system?.videoCount ?? modules.length;
 
   if (resolvingDirectAccess && !system) {
     return (

@@ -80,6 +80,14 @@
       "title": "Login to your account",
       "loginGoogle": "Log in with Google"
     },
+    "authGate": {
+      "eyebrow": "Protected access",
+      "title": "You need an active session in this browser",
+      "description": "This direct link can only be opened when a session already exists here. Open the home page first, sign in, and then try the link again.",
+      "routeLabel": "Requested route",
+      "hint": "After you sign in, open this same link again.",
+      "action": "Go to home"
+    },
     "header": {
       "searchPlaceholder": "Search…",
       "goHome": "Go to home",

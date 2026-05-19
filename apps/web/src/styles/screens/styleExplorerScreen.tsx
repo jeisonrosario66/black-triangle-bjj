@@ -130,16 +130,12 @@ export const progressFooter: SxProps<Theme> = (theme) => ({
 });
 
 export const mobileProgressFooter: SxProps<Theme> = (theme) => ({
-  position: "absolute",
-  insetInline: 0,
-  insetBlockEnd: 0,
-  zIndex: 2,
   display: "flex",
   flexDirection: "column",
   gap: 0.55,
-  padding: 1,
-  background: `linear-gradient(180deg, transparent 0%, ${alpha("#020617", 0.86)} 100%)`,
-  borderTop: `1px solid ${alpha(theme.palette.outlineVariant, 0.35)}`,
+  padding: { xs: 1, sm: 1.1 },
+  backgroundColor: alpha(theme.palette.background.default, 0.82),
+  borderTop: `1px solid ${alpha(theme.palette.outlineVariant, 0.6)}`,
 });
 
 export const progressLabel: SxProps<Theme> = (theme) => ({
@@ -152,14 +148,14 @@ export const progressBar: SxProps = {
   borderRadius: 999,
 };
 
-export const mobileItemHeight = 196;
+export const mobileItemHeight = 248;
 
 export const mobileListItem: SxProps<Theme> = (theme) => ({
   position: "relative",
   display: "block",
   padding: 0,
   overflow: "hidden",
-  height: 174,
+  height: 232,
   marginX: 1.25,
   marginBottom: 2,
   border: `1px solid ${alpha(theme.palette.outlineVariant, 0.95)}`,
@@ -171,6 +167,6 @@ export const mobileListItem: SxProps<Theme> = (theme) => ({
 
 export const mobileListMedia: SxProps = {
   width: "100%",
-  height: "100%",
+  height: 174,
   overflow: "hidden",
 };

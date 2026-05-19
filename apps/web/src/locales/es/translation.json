@@ -80,6 +80,14 @@
       "title": "Inicia sesión en tu cuenta",
       "loginGoogle": "Iniciar sesión con Google"
     },
+    "authGate": {
+      "eyebrow": "Acceso protegido",
+      "title": "Debes iniciar sesión en este navegador",
+      "description": "Este enlace directo solo puede abrirse si ya existe una sesión activa. Entra primero desde el inicio para autenticarte y luego vuelve a abrir el enlace.",
+      "routeLabel": "Ruta solicitada",
+      "hint": "Cuando termines de iniciar sesión, vuelve a abrir este mismo enlace.",
+      "action": "Ir al inicio"
+    },
     "header": {
       "searchPlaceholder": "Buscar…",
       "goHome": "Ir al inicio",
