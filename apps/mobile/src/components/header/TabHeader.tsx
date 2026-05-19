@@ -8,9 +8,9 @@ import {
 } from "react-native-paper";
 import { Image } from "react-native";
 import { BottomTabHeaderProps } from "@react-navigation/bottom-tabs";
+import logoPrincipal from "../../../assets/logo.png";
 
 import { projectName, isLogin, userIniciales } from "../../../../../shared/packages/context/index";
-import { logoPrincipal } from "../../../../../shared/packages/assets/index";
 import { MenuHeader } from "./MenuHeader";
 import { createstylesHeader } from "../../styles/index";
 

@@ -6,19 +6,6 @@ export { default as LogoContainer } from "@src/components/LogoComponent";
 export { default as NavigationGestures } from "@src/components/NavigationGestures";
 export { default as NodeComponent} from "@src/components/NodeComponent";
 export { default as GraphScene } from "@src/components/GraphScene";
-// Components/icons
-export { default as iconsMap } from "@src/components/icons/IconsMap";
-export {
-  GuardIcon,
-  ControlIcon,
-  PassIcon,
-  SubmissionIcon,
-  SwitchIcon,
-  TachiWazaIcon,
-  TransitionIcon,
-  DefenseIcon,
-  SystemIcon,
-} from "@src/components/icons/IconsGroup";
 
 // Components/loginUser
 export { default as LoginUser } from "@src/components/loginUser/LoginUser";
