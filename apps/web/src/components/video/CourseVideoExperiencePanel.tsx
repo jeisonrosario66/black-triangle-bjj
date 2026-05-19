@@ -37,7 +37,9 @@ interface CourseVideoExperiencePanelProps {
   variant?: "page" | "dialog";
   tagItemsOverride?: TagItem[];
   metaExtra?: ReactNode;
+  beforeNavigation?: ReactNode;
   afterNavigation?: ReactNode;
+  initialNavigationExpanded?: boolean;
 }
 
 type ResolvedSubtitleTrack = {
@@ -83,10 +85,12 @@ export default function CourseVideoExperiencePanel({
   variant = "page",
   tagItemsOverride,
   metaExtra,
+  beforeNavigation,
   afterNavigation,
+  initialNavigationExpanded = true,
 }: CourseVideoExperiencePanelProps) {
   const { t, i18n } = useTranslation();
-  const [navigationExpanded, setNavigationExpanded] = useState(true);
+  const [navigationExpanded, setNavigationExpanded] = useState(initialNavigationExpanded);
   const textVideoDetail = "components.videoDetail.";
   const textHardcoded = "components.nodeConnectionViewer.";
   const preferredLanguage = i18n.language.startsWith("en") ? "en" : "es";
@@ -127,6 +131,10 @@ export default function CourseVideoExperiencePanel({
     lastSavedPositionRef.current = 0;
     hasRestoredPositionRef.current = false;
   }, [currentNode?.id]);
+
+  useEffect(() => {
+    setNavigationExpanded(initialNavigationExpanded);
+  }, [initialNavigationExpanded, currentNode?.id]);
 
   useEffect(() => {
     if (!currentNode || !subtitlesEnabled) {
@@ -425,6 +433,8 @@ export default function CourseVideoExperiencePanel({
           </Box>
         ) : null}
       </Box>
+
+      {beforeNavigation}
 
       {orderedModules.length > 0 ? (
         <Accordion

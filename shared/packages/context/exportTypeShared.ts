@@ -90,6 +90,7 @@ export type NodeViewData = CoreNode;
  * dentro del grafo tridimensional.
  */
 export type DagMode =
+  | ""
   | "td" // Top → Down (de arriba hacia abajo)
   | "bu" // Bottom → Up (de abajo hacia arriba)
   | "lr" // Left → Right (de izquierda a derecha)

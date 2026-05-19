@@ -27,6 +27,7 @@ import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import DeleteOutlineRoundedIcon from "@mui/icons-material/DeleteOutlineRounded";
 import {
   collection,
+  collectionGroup,
   deleteDoc,
   doc,
   getDoc,
@@ -44,7 +45,6 @@ import {
   primeNodeTaxonomyCache,
 } from "@src/hooks/index";
 import {
-  groupColor,
   tableNameDB,
   type GraphLink,
   type NodeViewData,
@@ -59,6 +59,19 @@ import {
   buildTaxonomyEditorModel,
   type TaxonomyOption,
 } from "@src/utils/nodeEditorTaxonomy";
+import {
+  areStringArraysEqual,
+  buildEditableNodeDraft,
+  buildEditableTaxonomyDraft,
+  buildLocalizedNodeData,
+  buildNodeUpdatePayload,
+  buildTaxonomyDocument,
+  EMPTY_TAXONOMY_DRAFT,
+  ensureOptionExists,
+  resolveNodeColor,
+  type EditableNodeDraft,
+  type EditableTaxonomyDraft,
+} from "@src/utils/nodeEditorState";
 import {
   CourseVideoExperiencePanel,
   NodeConnectionViewer,
@@ -103,22 +116,6 @@ const buildCoverageStats = (nodes: NodeViewData[], links: GraphLink[]) => {
   };
 };
 
-const buildTaxonomyDocument = (
-  node: NodeViewData,
-  nextTagIds: string[],
-  currentTaxonomyId?: string,
-  categoryId?: string,
-  subcategoryId?: string,
-  specificCategoryId?: string,
-) => ({
-  id: currentTaxonomyId ?? String(node.id),
-  category_id: categoryId ?? "",
-  subcategory_id: subcategoryId ?? "",
-  specific_category_id: specificCategoryId ?? "",
-  node_index: node.id,
-  tab_ids: nextTagIds,
-});
-
 type EditableSystemLink = {
   docId: string;
   direction: "incoming" | "outgoing";
@@ -126,217 +123,6 @@ type EditableSystemLink = {
   targetId: number;
   peerNodeId: number;
 };
-
-type EditableNodeDraft = {
-  name_es: string;
-  name_en: string;
-  group: string;
-  videoid: string;
-  descrip_es_summary: string;
-  descrip_es_points: string;
-  descrip_en_summary: string;
-  descrip_en_points: string;
-};
-
-type EditableTaxonomyDraft = {
-  category_id: string;
-  subcategory_id: string;
-  specific_category_id: string;
-};
-
-const EMPTY_TAXONOMY_DRAFT: EditableTaxonomyDraft = {
-  category_id: "",
-  subcategory_id: "",
-  specific_category_id: "",
-};
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-  Boolean(value) && typeof value === "object" && !Array.isArray(value);
-
-const normalizeString = (value: unknown) =>
-  typeof value === "string" ? value.trim() : "";
-
-const parsePointsText = (value: string) =>
-  value
-    .split("\n")
-    .map((item) => item.trim())
-    .filter(Boolean);
-
-const serializePoints = (value: unknown) => {
-  if (!Array.isArray(value)) {
-    return "";
-  }
-
-  return value
-    .map((item) => normalizeString(item))
-    .filter(Boolean)
-    .join("\n");
-};
-
-const normalizeDescription = (value: unknown) => {
-  if (!isRecord(value)) {
-    return {
-      summary: "",
-      points: [] as string[],
-    };
-  }
-
-  const points = Array.isArray(value.points)
-    ? value.points
-        .map((item) => normalizeString(item))
-        .filter(Boolean)
-    : [];
-
-  return {
-    summary: normalizeString(value.summary),
-    points,
-  };
-};
-
-const buildEditableNodeDraft = (
-  node: NodeViewData,
-  rawData: Record<string, unknown> | null,
-  isEnglish: boolean,
-): EditableNodeDraft => {
-  const fallbackDescription = normalizeDescription(node.description);
-  const descriptionEs = normalizeDescription(
-    rawData?.descrip_es ?? (!isEnglish ? node.description : undefined),
-  );
-  const descriptionEn = normalizeDescription(
-    rawData?.descrip_en ?? (isEnglish ? node.description : undefined),
-  );
-
-  return {
-    name_es:
-      normalizeString(rawData?.name_es) || (!isEnglish ? normalizeString(node.name) : ""),
-    name_en:
-      normalizeString(rawData?.name_en) || (isEnglish ? normalizeString(node.name) : ""),
-    group: normalizeString(rawData?.group) || normalizeString(node.group),
-    videoid: normalizeString(rawData?.videoid) || normalizeString(node.videoid),
-    descrip_es_summary: descriptionEs.summary || (!isEnglish ? fallbackDescription.summary : ""),
-    descrip_es_points:
-      serializePoints(descriptionEs.points) || (!isEnglish ? serializePoints(fallbackDescription.points) : ""),
-    descrip_en_summary: descriptionEn.summary || (isEnglish ? fallbackDescription.summary : ""),
-    descrip_en_points:
-      serializePoints(descriptionEn.points) || (isEnglish ? serializePoints(fallbackDescription.points) : ""),
-  };
-};
-
-const buildEditableTaxonomyDraft = (
-  taxonomy?: {
-    category_id?: string;
-    subcategory_id?: string;
-    specific_category_id?: string;
-  } | null,
-): EditableTaxonomyDraft => ({
-  category_id: normalizeString(taxonomy?.category_id),
-  subcategory_id: normalizeString(taxonomy?.subcategory_id),
-  specific_category_id: normalizeString(taxonomy?.specific_category_id),
-});
-
-const buildStructuredDescription = (summary: string, pointsText: string) => ({
-  summary: summary.trim(),
-  points: parsePointsText(pointsText),
-});
-
-const buildNodeUpdatePayload = (
-  initialDraft: EditableNodeDraft,
-  draft: EditableNodeDraft,
-) => {
-  const payload: Record<string, unknown> = {};
-
-  if (initialDraft.name_es !== draft.name_es) {
-    payload.name_es = draft.name_es.trim();
-  }
-
-  if (initialDraft.name_en !== draft.name_en) {
-    payload.name_en = draft.name_en.trim();
-  }
-
-  if (initialDraft.group !== draft.group) {
-    payload.group = draft.group.trim();
-  }
-
-  if (initialDraft.videoid !== draft.videoid) {
-    payload.videoid = draft.videoid.trim();
-  }
-
-  const initialDescriptionEs = buildStructuredDescription(
-    initialDraft.descrip_es_summary,
-    initialDraft.descrip_es_points,
-  );
-  const nextDescriptionEs = buildStructuredDescription(
-    draft.descrip_es_summary,
-    draft.descrip_es_points,
-  );
-
-  if (JSON.stringify(initialDescriptionEs) !== JSON.stringify(nextDescriptionEs)) {
-    payload.descrip_es = nextDescriptionEs;
-  }
-
-  const initialDescriptionEn = buildStructuredDescription(
-    initialDraft.descrip_en_summary,
-    initialDraft.descrip_en_points,
-  );
-  const nextDescriptionEn = buildStructuredDescription(
-    draft.descrip_en_summary,
-    draft.descrip_en_points,
-  );
-
-  if (JSON.stringify(initialDescriptionEn) !== JSON.stringify(nextDescriptionEn)) {
-    payload.descrip_en = nextDescriptionEn;
-  }
-
-  return payload;
-};
-
-const resolveNodeColor = (categoryId: string, group: string) =>
-  groupColor[categoryId.trim().toLowerCase()] ??
-  groupColor[group.trim()] ??
-  undefined;
-
-const buildLocalizedNodeData = (
-  node: NodeViewData,
-  draft: EditableNodeDraft,
-  taxonomyDraft: EditableTaxonomyDraft,
-  isEnglish: boolean,
-): NodeViewData => {
-  const description = isEnglish
-    ? buildStructuredDescription(draft.descrip_en_summary, draft.descrip_en_points)
-    : buildStructuredDescription(draft.descrip_es_summary, draft.descrip_es_points);
-  const localizedName = isEnglish
-    ? draft.name_en.trim() || draft.name_es.trim() || node.name
-    : draft.name_es.trim() || draft.name_en.trim() || node.name;
-
-  return {
-    ...node,
-    name: localizedName,
-    group: draft.group.trim(),
-    videoid: draft.videoid.trim(),
-    description,
-    color: resolveNodeColor(taxonomyDraft.category_id, draft.group),
-  };
-};
-
-const ensureOptionExists = (options: TaxonomyOption[], value: string) => {
-  if (!value || options.some((option) => option.id === value)) {
-    return options;
-  }
-
-  return [
-    {
-      id: value,
-      label: value,
-      parentId: "",
-      raw: {},
-      specificOptions: [],
-    },
-    ...options,
-  ];
-};
-
-const areStringArraysEqual = (left: string[], right: string[]) =>
-  left.length === right.length && left.every((item, index) => item === right[index]);
 
 const buildLinkDocId = (
   source: GraphLink["source"] | number,
@@ -370,10 +156,11 @@ const WindowViewNode: React.FC<WindowViewNodeProps> = ({
   const linksData = useUIStore((state) => state.linksData);
   const triggerAlert = useUIStore((state) => state.triggerAlert);
   const refreshGraphData = useUIStore((state) => state.refreshGraphData);
+  const editorModeEnabled = useUIStore((state) => state.editorModeEnabled);
   const allTabs = useAllTabs();
-  const canManageGraph = hasGraphEditorAccess(user);
-  const canSeeNodeIds = isSpecialGraphUser(user);
-  const canManageExistingLinks = isSpecialGraphUser(user);
+  const canManageGraph = hasGraphEditorAccess(user) && editorModeEnabled;
+  const canSeeNodeIds = isSpecialGraphUser(user) && editorModeEnabled;
+  const canManageExistingLinks = isSpecialGraphUser(user) && editorModeEnabled;
   const isEnglish = i18n.language.startsWith("en");
   const [selectedTargetId, setSelectedTargetId] = useState("");
   const [selectedEditableLinkId, setSelectedEditableLinkId] = useState("");
@@ -559,9 +346,10 @@ const WindowViewNode: React.FC<WindowViewNodeProps> = ({
       setIsLoadingEditorOptions(true);
 
       try {
-        const [categoriesSnapshot, subcategoriesSnapshot] = await Promise.all([
+        const [categoriesSnapshot, subcategoriesSnapshot, specificSnapshot] = await Promise.all([
           getDocs(collection(database, tableNameDB.categories)),
-          getDocs(collection(database, tableNameDB.subCategory)),
+          getDocs(collectionGroup(database, tableNameDB.subCategory)),
+          getDocs(collectionGroup(database, "items")),
         ]);
 
         if (cancelled) {
@@ -575,7 +363,19 @@ const WindowViewNode: React.FC<WindowViewNodeProps> = ({
           })),
           subcategoriesSnapshot.docs.map((snapshot) => ({
             docId: snapshot.id,
-            data: snapshot.data() as Record<string, unknown>,
+            data: {
+              ...(snapshot.data() as Record<string, unknown>),
+              parent_id:
+                (snapshot.ref.parent.parent?.id as string | undefined) ?? "",
+            },
+          })),
+          specificSnapshot.docs.map((snapshot) => ({
+            docId: snapshot.id,
+            data: {
+              ...(snapshot.data() as Record<string, unknown>),
+              parent_id:
+                (snapshot.ref.parent.parent?.id as string | undefined) ?? "",
+            },
           })),
           isEnglish ? "en" : "es",
         );
@@ -1293,6 +1093,30 @@ const WindowViewNode: React.FC<WindowViewNodeProps> = ({
                   )
                 }
               />
+              <TextField
+                label={t(CONNECTION_TEXT + "nodeSubtitleEsLabel")}
+                size="small"
+                value={editableNodeDraft.subtitleEs}
+                onChange={(event) =>
+                  setEditableNodeDraft((current) =>
+                    current
+                      ? { ...current, subtitleEs: event.target.value }
+                      : current,
+                  )
+                }
+              />
+              <TextField
+                label={t(CONNECTION_TEXT + "nodeSubtitleEnLabel")}
+                size="small"
+                value={editableNodeDraft.subtitleEn}
+                onChange={(event) =>
+                  setEditableNodeDraft((current) =>
+                    current
+                      ? { ...current, subtitleEn: event.target.value }
+                      : current,
+                  )
+                }
+              />
             </Box>
 
             <Box
@@ -1752,7 +1576,7 @@ const WindowViewNode: React.FC<WindowViewNodeProps> = ({
     </Stack>
   ) : null;
 
-  const afterNavigation = canManageGraph ? (
+  const beforeNavigation = nodeData ? (
     <Box
       sx={{
         mt: 2,
@@ -1771,6 +1595,9 @@ const WindowViewNode: React.FC<WindowViewNodeProps> = ({
         nodeId={nodeData?.id ? nodeData.id : 0}
         valueLinks={nodeData?.valueLinks}
         valueNodes={nodeData?.valueNodes}
+        visitedModuleIds={experience.visitedModuleIds}
+        videoProgressById={experience.videoProgressById}
+        defaultActiveStep={0}
         onSelectNode={(node) => useUIStore.setState({ nodeViewData: node })}
       />
     </Box>
@@ -1836,7 +1663,8 @@ const WindowViewNode: React.FC<WindowViewNodeProps> = ({
           variant="dialog"
           tagItemsOverride={canManageGraph ? activeTagItems : undefined}
           metaExtra={metaExtra}
-          afterNavigation={afterNavigation}
+          beforeNavigation={beforeNavigation}
+          initialNavigationExpanded={false}
         />
 
         {!canManageGraph && coverageStats.total > 0 ? (

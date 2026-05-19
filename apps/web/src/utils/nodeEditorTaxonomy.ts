@@ -141,6 +141,7 @@ const buildTaxonomyOption = (
 export const buildTaxonomyEditorModel = (
   categoryEntries: SourceMetadataEntry[],
   subcategoryEntries: SourceMetadataEntry[],
+  specificEntries: SourceMetadataEntry[],
   language: Language,
 ) => {
   const categoryLookup = toMetadataLookup(categoryEntries);
@@ -158,6 +159,34 @@ export const buildTaxonomyEditorModel = (
     },
     {},
   );
+
+  const specificEntriesBySubcategory = specificEntries.reduce<
+    Record<string, TaxonomyOption[]>
+  >((accumulator, { docId, data }) => {
+    const parentId =
+      normalizeString(data.subcategory_id) ||
+      normalizeString(data.parent_id) ||
+      normalizeString(data.parentId);
+
+    if (!parentId) {
+      return accumulator;
+    }
+
+    const specificId = resolveMetadataId(docId, data);
+
+    if (!specificId) {
+      return accumulator;
+    }
+
+    const currentEntries = accumulator[parentId] ?? [];
+
+    accumulator[parentId] = sortByLabel([
+      ...currentEntries,
+      buildTaxonomyOption(specificId, parentId, data, language),
+    ]);
+
+    return accumulator;
+  }, {});
 
   subcategoryEntries.forEach(({ docId, data }) => {
     const subcategoryId = resolveMetadataId(docId, data);
@@ -185,7 +214,7 @@ export const buildTaxonomyEditorModel = (
       data.items,
     ].find(Array.isArray);
 
-    const specificOptions = Array.isArray(rawSpecificOptions)
+    const inlineSpecificOptions = Array.isArray(rawSpecificOptions)
       ? rawSpecificOptions.flatMap<TaxonomyOption>((item, index) => {
           if (typeof item === "string") {
             const specificId = item.trim();
@@ -219,13 +248,17 @@ export const buildTaxonomyEditorModel = (
           ];
         })
       : [];
+    const specificOptions = sortByLabel([
+      ...inlineSpecificOptions,
+      ...(specificEntriesBySubcategory[subcategoryId] ?? []),
+    ]);
 
     const nextOption = buildTaxonomyOption(
       subcategoryId,
       resolvedCategoryId,
       data,
       language,
-      sortByLabel(specificOptions),
+      specificOptions,
     );
 
     const current = subcategoriesByCategory[resolvedCategoryId] ?? [];

@@ -120,9 +120,42 @@ export const cardMedia: SxProps = {
   height: { xs: 212, md: 260 },
 };
 
+export const progressFooter: SxProps<Theme> = (theme) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: 0.9,
+  padding: { xs: 1.2, md: 1.35 },
+  borderTop: `1px solid ${alpha(theme.palette.outlineVariant, 0.6)}`,
+  backgroundColor: alpha(theme.palette.background.default, 0.38),
+});
+
+export const mobileProgressFooter: SxProps<Theme> = (theme) => ({
+  position: "absolute",
+  insetInline: 0,
+  insetBlockEnd: 0,
+  zIndex: 2,
+  display: "flex",
+  flexDirection: "column",
+  gap: 0.55,
+  padding: 1,
+  background: `linear-gradient(180deg, transparent 0%, ${alpha("#020617", 0.86)} 100%)`,
+  borderTop: `1px solid ${alpha(theme.palette.outlineVariant, 0.35)}`,
+});
+
+export const progressLabel: SxProps<Theme> = (theme) => ({
+  color: theme.palette.text.secondary,
+  fontSize: "0.8rem",
+});
+
+export const progressBar: SxProps = {
+  height: 7,
+  borderRadius: 999,
+};
+
 export const mobileItemHeight = 196;
 
 export const mobileListItem: SxProps<Theme> = (theme) => ({
+  position: "relative",
   display: "block",
   padding: 0,
   overflow: "hidden",

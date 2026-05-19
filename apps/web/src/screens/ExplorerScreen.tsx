@@ -22,6 +22,7 @@ import {
   IconButton,
   InputAdornment,
   InputLabel,
+  LinearProgress,
   MenuItem,
   Select,
   TextField,
@@ -46,6 +47,7 @@ import {
   SystemCover,
   VirtualizedList,
 } from "@src/components/index";
+import type { UserCourseStatDoc } from "@bt/shared/services";
 
 const normalizeText = (value: string) =>
   value
@@ -87,12 +89,16 @@ type ExplorerSortOrder = "" | "alphabetical" | "views" | "videos";
 interface SystemCardProps {
   system: SystemCardUI;
   isVisited?: boolean;
+  progressLabel?: string | null;
+  progressPercentage?: number;
   onClick: () => void;
 }
 
 function SystemCard({
   system,
   isVisited = false,
+  progressLabel,
+  progressPercentage = 0,
   onClick,
 }: SystemCardProps) {
   return (
@@ -109,6 +115,18 @@ function SystemCard({
             variant="card"
           />
         </Box>
+        {progressLabel ? (
+          <Box sx={styles.progressFooter}>
+            <Typography variant="body2" sx={styles.progressLabel}>
+              {progressLabel}
+            </Typography>
+            <LinearProgress
+              variant="determinate"
+              value={progressPercentage}
+              sx={styles.progressBar}
+            />
+          </Box>
+        ) : null}
       </CardActionArea>
     </Card>
   );
@@ -117,12 +135,16 @@ function SystemCard({
 interface SystemListItemProps {
   system: SystemCardUI;
   isVisited?: boolean;
+  progressLabel?: string | null;
+  progressPercentage?: number;
   onClick: () => void;
 }
 
 function SystemListItem({
   system,
   isVisited = false,
+  progressLabel,
+  progressPercentage = 0,
   onClick,
 }: SystemListItemProps) {
   return (
@@ -147,6 +169,18 @@ function SystemListItem({
           variant="list"
         />
       </Box>
+      {progressLabel ? (
+        <Box sx={styles.mobileProgressFooter}>
+          <Typography variant="body2" sx={styles.progressLabel}>
+            {progressLabel}
+          </Typography>
+          <LinearProgress
+            variant="determinate"
+            value={progressPercentage}
+            sx={styles.progressBar}
+          />
+        </Box>
+      ) : null}
     </Box>
   );
 }
@@ -185,6 +219,9 @@ export default function ExplorerScreen() {
             .filter((stat) => Boolean(stat.watchedVideoIds?.length || stat.lastVideoAt))
             .map((stat) => stat.label)
         : [],
+  );
+  const [userCourseStatsMap, setUserCourseStatsMap] = useState<Map<string, UserCourseStatDoc>>(
+    () => cachedUserStats ?? new Map(),
   );
 
   useEffect(() => {
@@ -256,6 +293,7 @@ export default function ExplorerScreen() {
             .filter((stat) => Boolean(stat.watchedVideoIds?.length || stat.lastVideoAt))
             .map((stat) => stat.label),
         );
+        setUserCourseStatsMap(statsMap);
       } catch (error) {
         console.error("No se pudieron cargar los cursos vistos del usuario:", error);
       }
@@ -348,6 +386,41 @@ export default function ExplorerScreen() {
     () => new Set(visitedCourseLabels),
     [visitedCourseLabels],
   );
+  const courseMetricsByLabel = useMemo(() => {
+    const metrics = new Map<
+      string,
+      {
+        progressPercentage: number;
+        progressLabel: string | null;
+      }
+    >();
+
+    systems.forEach((system) => {
+      const stat = userCourseStatsMap.get(system.label);
+      const watchedVideosCount = stat?.watchedVideoIds?.length ?? 0;
+      const totalVideos = system.videoCount ?? 0;
+
+      if (!watchedVideosCount || !totalVideos) {
+        return;
+      }
+
+      const progressPercentage = Math.min(
+        100,
+        Math.round((watchedVideosCount / totalVideos) * 100),
+      );
+
+      metrics.set(system.label, {
+        progressPercentage,
+        progressLabel: t("components.home.progressLabel", {
+          current: watchedVideosCount,
+          percent: progressPercentage,
+          total: totalVideos,
+        }),
+      });
+    });
+
+    return metrics;
+  }, [systems, t, userCourseStatsMap]);
 
   const handleClear = () => {
     setSearchQuery("");
@@ -550,6 +623,10 @@ export default function ExplorerScreen() {
                 key={item.label}
                 system={item}
                 isVisited={visitedCourseSet.has(item.label)}
+                progressLabel={courseMetricsByLabel.get(item.label)?.progressLabel ?? null}
+                progressPercentage={
+                  courseMetricsByLabel.get(item.label)?.progressPercentage ?? 0
+                }
                 onClick={() => handleNavigate(item)}
               />
             )}
@@ -561,6 +638,10 @@ export default function ExplorerScreen() {
                 key={item.label}
                 system={item}
                 isVisited={visitedCourseSet.has(item.label)}
+                progressLabel={courseMetricsByLabel.get(item.label)?.progressLabel ?? null}
+                progressPercentage={
+                  courseMetricsByLabel.get(item.label)?.progressPercentage ?? 0
+                }
                 onClick={() => handleNavigate(item)}
               />
             ))}

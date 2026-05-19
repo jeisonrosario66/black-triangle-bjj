@@ -13,14 +13,17 @@ import LogoutOutlinedIcon from "@mui/icons-material/LogoutOutlined";
 import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import SubtitlesRoundedIcon from "@mui/icons-material/SubtitlesRounded";
+import EditRoundedIcon from "@mui/icons-material/EditRounded";
 import { useTheme } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
-import { matchPath, useLocation } from "react-router-dom";
+import { matchPath, useLocation, useNavigate } from "react-router-dom";
 
 import { cacheUser, routeList } from "@src/context/index";
 import { useUIStore } from "@src/store";
 import type { SessionUser } from "@src/context/index";
 import PrimaryScreenSwitcher from "@src/components/navigation/PrimaryScreenSwitcher";
+import { hasGraphEditorAccess } from "@src/utils";
+import { buildCoursePath } from "@src/utils/courseNavigation";
 
 /**
  * Menú contextual del encabezado de la aplicación.
@@ -52,9 +55,13 @@ export default function HeaderMenu({
 }) {
   const theme = useTheme();
   const location = useLocation();
+  const navigate = useNavigate();
   const { t, i18n } = useTranslation();
   const currentLanguage = i18n.language.startsWith("en") ? "en" : "es";
   const subtitlesEnabled = useUIStore((state) => state.subtitlesEnabled);
+  const editorModeEnabled = useUIStore((state) => state.editorModeEnabled);
+  const graphCourseContext = useUIStore((state) => state.graphCourseContext);
+  const canUseEditorMode = hasGraphEditorAccess(user);
   const isGraphView = Boolean(
     matchPath(
       { path: routeList.explorerGraphScreen, end: true },
@@ -86,6 +93,11 @@ export default function HeaderMenu({
 
   const handleSubtitlesToggle = () => {
     useUIStore.getState().setSubtitlesEnabled(!subtitlesEnabled);
+    onClose();
+  };
+
+  const handleEditorModeToggle = () => {
+    useUIStore.getState().setEditorModeEnabled(!editorModeEnabled);
     onClose();
   };
 
@@ -179,6 +191,33 @@ export default function HeaderMenu({
         </MenuItem>
       ) : null}
 
+      {isLogin && isGraphView && graphCourseContext ? (
+        <MenuItem
+          onClick={() => {
+            navigate(
+              routeList.courseDetailScreen.replace(
+                ":systemName",
+                buildCoursePath(graphCourseContext.label, graphCourseContext.coach),
+              ),
+              {
+                state: {
+                  entryPoint: "explorer",
+                },
+              },
+            );
+            onClose();
+          }}
+        >
+          <ListItemIcon>
+            <SettingsRoundedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText
+            primary={t("components.header.openCurrentCourse")}
+            secondary={graphCourseContext.label}
+          />
+        </MenuItem>
+      ) : null}
+
       <MenuItem disabled>
         <ListItemIcon>
           <TranslateRoundedIcon fontSize="small" />
@@ -214,6 +253,23 @@ export default function HeaderMenu({
         />
         {subtitlesEnabled ? <CheckRoundedIcon fontSize="small" /> : null}
       </MenuItem>
+
+      {canUseEditorMode ? (
+        <MenuItem onClick={handleEditorModeToggle}>
+          <ListItemIcon>
+            <EditRoundedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText
+            primary={t("components.header.editorModeTitle")}
+            secondary={
+              editorModeEnabled
+                ? t("components.header.editorModeOn")
+                : t("components.header.editorModeOff")
+            }
+          />
+          {editorModeEnabled ? <CheckRoundedIcon fontSize="small" /> : null}
+        </MenuItem>
+      ) : null}
 
       {isLogin && (
         <MenuItem onClick={() => void handleLogout()} disabled={isLoading}>

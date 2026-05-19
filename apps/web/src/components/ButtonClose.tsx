@@ -1,12 +1,7 @@
-import { Button } from "@mui/material";
+import { IconButton } from "@mui/material";
 import { CloseOutlined } from "@mui/icons-material";
-import { lighten } from "@mui/material/styles";
-
-import themeApp from "@src/styles/stylesThemeApp";
 
 import React from "react";
-
-const theme = themeApp;
 
 type ButtonCloseProps = {
   buttonFunction: () => void;
@@ -19,32 +14,31 @@ const ButtonClose: React.FC<ButtonCloseProps> = ({
   isPositionAbsolute,
 }) => {
   return (
-    <Button
+    <IconButton
       disabled={isUploadFirestore}
       onClick={buttonFunction}
       sx={{
         ...(isPositionAbsolute
           ? {
               position: "absolute",
-              top: 10,
-              right: 10,
+              top: 14,
+              right: 14,
             }
           : {}),
-
-        marginRight: "1rem",
-        backgroundColor: lighten(
-          theme.palette.formStyles.containerBackgroundColor,
-          0.4
-        ),
+        width: 40,
+        height: 40,
+        borderRadius: 2.5,
+        border: (theme) => `1px solid ${theme.palette.outlineVariant}`,
+        backgroundColor: (theme) => theme.palette.background.paper,
+        boxShadow: "0 10px 24px rgba(15, 23, 42, 0.18)",
         "&:hover": {
-          backgroundColor: theme.palette.formStyles.cardBackgroundColor,
-          opacity: 0.8,
+          backgroundColor: (theme) => theme.palette.surfaceContainerHigh,
         },
-        color: theme.palette.action.deactivate,
+        color: (theme) => theme.palette.text.secondary,
       }}
     >
-      <CloseOutlined sx={{ fontSize: "2em" }} />
-    </Button>
+      <CloseOutlined sx={{ fontSize: "1.35rem" }} />
+    </IconButton>
   );
 };
 

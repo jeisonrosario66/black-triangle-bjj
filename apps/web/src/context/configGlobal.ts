@@ -59,6 +59,9 @@ export const cacheUser = {
     subtitlesEnabledCache: "subtitlesEnabled",
     subtitlesEnabledDefault:
         localStorage.getItem("subtitlesEnabled") !== "false",
+    editorModeEnabledCache: "editorModeEnabled",
+    editorModeEnabledDefault:
+        localStorage.getItem("editorModeEnabled") === "true",
     navigationsGestures: "hideNavigationGestures",
 
     dagModeCache: "dagMode",
@@ -69,6 +72,7 @@ export const cacheUser = {
 
     systemsCacheNameNodes: "systemsCacheNodes",
     systemsCacheNameLinks: "systemsCacheLinks",
+    graphCourseContextCache: "graphCourseContext",
 
     systemsNodesLoaded: [],
     systemsLinksLoaded: []

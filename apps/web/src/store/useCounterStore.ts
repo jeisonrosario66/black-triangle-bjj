@@ -72,6 +72,14 @@ interface GlobalData {
   graphRefreshToken: number;
   refreshGraphData: () => void;
 
+  graphCourseContext: {
+    label: string;
+    coach: string;
+    valueNodes: string;
+    valueLinks: string;
+  } | null;
+  setGraphCourseContext: (context: GlobalData["graphCourseContext"]) => void;
+
 }
 
 // -------------------------------------------------------------------------
@@ -104,6 +112,9 @@ interface UIState {
 
   subtitlesEnabled: boolean;
   setSubtitlesEnabled: (enabled: boolean) => void;
+
+  editorModeEnabled: boolean;
+  setEditorModeEnabled: (enabled: boolean) => void;
 
   isConfigWindowActive: boolean;
   setIsconfigWindowActive: (configWindow: boolean) => void;
@@ -180,6 +191,12 @@ const useUIStore = create<AppState>((set, get) => ({
   setSubtitlesEnabled: (enabled) => {
     localStorage.setItem(cacheUser.subtitlesEnabledCache, String(enabled));
     set({ subtitlesEnabled: enabled });
+  },
+
+  editorModeEnabled: cacheUser.editorModeEnabledDefault,
+  setEditorModeEnabled: (enabled) => {
+    localStorage.setItem(cacheUser.editorModeEnabledCache, String(enabled));
+    set({ editorModeEnabled: enabled });
   },
 
   languageGlobal: { locale: getPreferredAppLanguage() },
@@ -262,6 +279,24 @@ const useUIStore = create<AppState>((set, get) => ({
   graphRefreshToken: 0,
   refreshGraphData: () =>
     set((state) => ({ graphRefreshToken: state.graphRefreshToken + 1 })),
+  graphCourseContext: (() => {
+    try {
+      const rawValue = localStorage.getItem(cacheUser.graphCourseContextCache);
+      return rawValue
+        ? (JSON.parse(rawValue) as AppState["graphCourseContext"])
+        : null;
+    } catch {
+      return null;
+    }
+  })(),
+  setGraphCourseContext: (context) => {
+    if (context) {
+      localStorage.setItem(cacheUser.graphCourseContextCache, JSON.stringify(context));
+    } else {
+      localStorage.removeItem(cacheUser.graphCourseContextCache);
+    }
+    set({ graphCourseContext: context });
+  },
   loadSystems: async () => {
     try {
       set({ isLoadingFirestore: true });

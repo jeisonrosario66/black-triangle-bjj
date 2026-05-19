@@ -11,7 +11,7 @@ import { database, useCourseVideoExperience } from "@src/hooks/index";
 import { useEffect, useMemo, useState } from "react";
 
 import { routeList } from "@src/context/index";
-import { capitalizeFirstLetter } from "@src/utils/index";
+import { capitalizeFirstLetter, hasGraphEditorAccess } from "@src/utils/index";
 import { useTranslation } from "react-i18next";
 import {
   AppBarNewHeader,
@@ -20,6 +20,7 @@ import {
   CourseVideoExperiencePanel,
   SystemCover,
 } from "@src/components/index";
+import NodeMetadataEditorPanel from "@src/components/editor/NodeMetadataEditorPanel";
 import * as styles from "@src/styles/screens/styleVideoDetailScreen";
 import { type NodeOptionFirestore } from "@bt/shared/context";
 import {
@@ -31,9 +32,9 @@ import {
 } from "@bt/shared/services";
 import type { SystemCardUI } from "@bt/shared/context";
 import { collection, getDocs } from "firebase/firestore";
-
-const buildCoursePath = (label: string, coach: string) =>
-  `${label}-${coach.replace(/ /g, "_")}`;
+import { useSession } from "@src/hooks";
+import { useUIStore } from "@src/store";
+import { buildCoursePath } from "@src/utils/courseNavigation";
 
 /**
  * Pantalla de detalle de video asociada a un nodo de contenido.
@@ -47,29 +48,41 @@ export default function VideoDetailScreen() {
   const location = useLocation();
   const navigate = useNavigate();
   const { systemName, nodeId } = useParams();
+  const { user } = useSession();
   const [resolvedSystem, setResolvedSystem] = useState<SystemCardUI | null>(null);
   const [resolvedModules, setResolvedModules] = useState<NodeOptionFirestore[]>([]);
   const [resolvedFirestoreRoute, setResolvedFirestoreRoute] = useState<string | null>(null);
   const [resolvingDirectAccess, setResolvingDirectAccess] = useState(false);
+  const [mutableModules, setMutableModules] = useState<NodeOptionFirestore[]>([]);
 
   const nodeData = location.state?.nodeRoute as NodeOptionFirestore | undefined;
   const stateFirestoreRoute = location.state?.firestoreRuta as string | undefined;
   const stateCourseModules =
     (location.state?.courseModules as NodeOptionFirestore[] | undefined) ?? [];
   const stateSystem = location.state?.system as SystemCardUI | undefined;
-  const system = stateSystem ?? resolvedSystem ?? undefined;
+  const system = resolvedSystem ?? stateSystem ?? undefined;
   const firestoreRoute =
     stateFirestoreRoute ?? resolvedFirestoreRoute ?? system?.valueNodes;
   const courseModules =
-    stateCourseModules.length > 0 ? stateCourseModules : resolvedModules;
+    mutableModules.length > 0
+      ? mutableModules
+      : stateCourseModules.length > 0
+        ? stateCourseModules
+        : resolvedModules;
+  const editorModeEnabled = useUIStore((state) => state.editorModeEnabled);
+  const canManageGraph = hasGraphEditorAccess(user);
 
   const orderedModules = useMemo(
     () => [...courseModules].sort((a, b) => Number(a.id) - Number(b.id)),
     [courseModules],
   );
+  const currentNodeFromModules = orderedModules.find(
+    (module) => module.id === Number(nodeId),
+  );
   const currentNode =
+    currentNodeFromModules ??
     nodeData ??
-    orderedModules.find((module) => module.id === Number(nodeId));
+    null;
 
   const { t, i18n } = useTranslation();
   const textVideoDetail = "components.videoDetail.";
@@ -82,6 +95,15 @@ export default function VideoDetailScreen() {
     system,
     fallbackSystemLabel: system?.label,
   });
+
+  useEffect(() => {
+    if (stateCourseModules.length > 0) {
+      setMutableModules(stateCourseModules);
+      return;
+    }
+
+    setMutableModules(resolvedModules);
+  }, [resolvedModules, stateCourseModules]);
 
   useEffect(() => {
     let mounted = true;
@@ -304,6 +326,19 @@ export default function VideoDetailScreen() {
           experience={experience}
           onSelectModule={(module) => navigateToModule(module as NodeOptionFirestore)}
         />
+        {canManageGraph && editorModeEnabled && currentNode ? (
+          <NodeMetadataEditorPanel
+            nodeData={currentNode}
+            taxonomy={experience.taxonomy}
+            onNodeUpdated={(nextNode) =>
+              setMutableModules((currentModules) =>
+                currentModules.map((module) =>
+                  module.id === nextNode.id ? { ...module, ...nextNode } : module,
+                ),
+              )
+            }
+          />
+        ) : null}
       </PageContainer>
     </Box>
   );

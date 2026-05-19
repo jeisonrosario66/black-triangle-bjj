@@ -28,6 +28,7 @@ const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
   const dagMode = useUIStore((state) => state.dagModeConfig);
   const dagLevel = useUIStore((state) => state.dagLevelDistanceConfig);
   const showFullGraph = useUIStore((state) => state.showFullGraph);
+  const graphRefreshToken = useUIStore((state) => state.graphRefreshToken);
 
   const graphRef = useRef<any>(undefined);
 
@@ -137,12 +138,14 @@ const NodeComponent: React.FC<NodeComponentProps> = ({ cameraControlsRef }) => {
     (node: object) => createNodeObject(node as GraphNode),
     [],
   );
+  const graphLayoutKey = `${dagMode || "none"}:${dagLevel}:${showFullGraph ? "full" : "focus"}:${graphRefreshToken}`;
 
   return (
     <ForceGraph3D
+      key={graphLayoutKey}
       ref={graphRef}
       graphData={displayedGraph}
-      dagMode={dagMode}
+      dagMode={dagMode || undefined}
       dagLevelDistance={dagLevel}
       cooldownTicks={80}
       linkWidth={2.4}

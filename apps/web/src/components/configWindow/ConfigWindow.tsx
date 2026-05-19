@@ -17,14 +17,18 @@ import {
   Stack,
 } from "@mui/material";
 import Check from "@mui/icons-material/Check";
+import LaunchRoundedIcon from "@mui/icons-material/LaunchRounded";
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 import { ButtonClose, PrimaryScreenSwitcher } from "@src/components/index";
-import { useSession } from "@src/hooks";
+import CourseMetadataEditorPanel from "@src/components/editor/CourseMetadataEditorPanel";
+import { useResolvedSystemCard, useSession } from "@src/hooks";
 import { useUIStore } from "@src/store/index";
-import { cacheUser, DagMode } from "@src/context/index";
-import { ToolTipInfo, hasGraphEditorAccess } from "@src/utils/index";
+import { cacheUser, DagMode, routeList } from "@src/context/index";
+import { ToolTipInfo, capitalizeFirstLetter, hasGraphEditorAccess } from "@src/utils/index";
+import { buildCoursePath } from "@src/utils/courseNavigation";
 import * as style from "@src/styles/configWindow/styleConfigWindow";
 
 const textHardcoded = "components.configWindow.";
@@ -35,10 +39,13 @@ const textHardcoded = "components.configWindow.";
  * y seleccionar sistemas de BJJ que se cargarán en la escena.
  */
 const ConfigWindow: React.FC = () => {
+  const navigate = useNavigate();
   /** Estado inicial desde Zustand */
   const initialLang = useUIStore((state) => state.languageGlobal);
   const initialDagMode = useUIStore((state) => state.dagModeConfig);
   const initialDagLevel = useUIStore((state) => state.dagLevelDistanceConfig);
+  const editorModeEnabled = useUIStore((state) => state.editorModeEnabled);
+  const graphCourseContext = useUIStore((state) => state.graphCourseContext);
   const systemsBjjSelectedNodesStore = useUIStore(
     (state) => state.systemBjjSelectedNodes
   );
@@ -56,6 +63,7 @@ const ConfigWindow: React.FC = () => {
   const [tempSystemsLinks, setTempSystemsLinks] = useState<string[]>(
     systemsBjjSelectedLinksStore
   );
+  const [systemSearch, setSystemSearch] = useState("");
 
   // Lista de sistemas disponibles para carga y visualización en la aplicación.
   const loadSystems = useUIStore((s) => s.loadSystems);
@@ -70,6 +78,7 @@ const ConfigWindow: React.FC = () => {
   }, [loadSystems]);
 
   const { t, i18n } = useTranslation();
+  const currentLanguage = i18n.language.startsWith("en") ? "en" : "es";
 
   const graphCoverage = useMemo(() => {
     const connectedIds = new Set<number>();
@@ -176,9 +185,43 @@ const ConfigWindow: React.FC = () => {
     () => visibleSystemGroups.flatMap((group) => group.systems),
     [visibleSystemGroups],
   );
+  const normalizedSearch = systemSearch.trim().toLowerCase();
+  const filteredSystemGroups = useMemo(
+    () =>
+      visibleSystemGroups
+        .map((group) => ({
+          ...group,
+          systems: group.systems.filter((system) => {
+            if (!normalizedSearch) {
+              return true;
+            }
+
+            return [system.label, system.coach ?? ""]
+              .join(" ")
+              .toLowerCase()
+              .includes(normalizedSearch);
+          }),
+        }))
+        .filter((group) => group.systems.length > 0),
+    [normalizedSearch, visibleSystemGroups],
+  );
   const visibleSystemNodesSet = useMemo(
     () => new Set(visibleSystemOptions.map((option) => option.valueNodes)),
     [visibleSystemOptions],
+  );
+  const selectedSystemOption = useMemo(
+    () =>
+      tempSystemsNodes.length === 1
+        ? allSystemOptions.find((option) => option.valueNodes === tempSystemsNodes[0]) ?? null
+        : null,
+    [allSystemOptions, tempSystemsNodes],
+  );
+  const selectedSystemLabelForEditor =
+    selectedSystemOption?.label ??
+    (tempSystemsNodes.length === 0 ? graphCourseContext?.label ?? null : null);
+  const { system: selectedSystemCard } = useResolvedSystemCard(
+    selectedSystemLabelForEditor,
+    currentLanguage,
   );
 
   const handleSelectAllSystems = () => {
@@ -242,6 +285,16 @@ const ConfigWindow: React.FC = () => {
       systemBjjSelectedLinks: nextSystemsLinks,
       isConfigWindowActive: false,
     });
+    useUIStore.getState().setGraphCourseContext(
+      nextSystemsNodes.length === 1 && selectedSystemOption
+        ? {
+            label: selectedSystemOption.label,
+            coach: selectedSystemOption.coach ?? "",
+            valueNodes: selectedSystemOption.valueNodes,
+            valueLinks: selectedSystemOption.valueLinks,
+          }
+        : graphCourseContext,
+    );
   };
 
   return (
@@ -341,7 +394,7 @@ const ConfigWindow: React.FC = () => {
           <MenuItem value={"radialin"}>
             {t(textHardcoded + "dagMode.radialin")}
           </MenuItem>
-          <MenuItem value={null as unknown as DagMode}>
+          <MenuItem value="">
             {t(textHardcoded + "dagMode.none")}
           </MenuItem>
         </Select>
@@ -380,10 +433,17 @@ const ConfigWindow: React.FC = () => {
             {t(textHardcoded + "systemClear")}
           </Button>
         </Stack>
+        <TextField
+          size="small"
+          value={systemSearch}
+          onChange={(event) => setSystemSearch(event.target.value)}
+          placeholder={t(textHardcoded + "systemSearch")}
+          sx={{ mb: 1 }}
+        />
         <Paper sx={style.selectSystemPaper}>
           <MenuList dense>
 
-            {visibleSystemGroups.map((set, index) => (
+            {filteredSystemGroups.map((set, index) => (
               <Box key={set.label} sx={{ marginBottom: 2 }}>
                 <Accordion defaultExpanded={index === 0}>
                   <AccordionSummary
@@ -442,6 +502,49 @@ const ConfigWindow: React.FC = () => {
         ) : null}
         <ToolTipInfo content={t(textHardcoded + "system.description")} />
       </FormControl>
+
+      {canManageGraph && selectedSystemCard ? (
+        <Box sx={style.sectionCard}>
+          <Typography sx={style.sectionEyebrow}>
+            {t(textHardcoded + "courseBridgeTitle")}
+          </Typography>
+          <Typography sx={style.sectionBody}>
+            {t(textHardcoded + "courseBridgeDescription")}
+          </Typography>
+          <Button
+            variant="outlined"
+            startIcon={<LaunchRoundedIcon />}
+            onClick={() => {
+              navigate(
+                routeList.courseDetailScreen.replace(
+                  ":systemName",
+                  buildCoursePath(selectedSystemCard.label, selectedSystemCard.coach),
+                ),
+                {
+                  state: {
+                    entryPoint: "explorer",
+                    system: selectedSystemCard,
+                  },
+                },
+              );
+              useUIStore.setState({ isConfigWindowActive: false });
+            }}
+          >
+            {t(textHardcoded + "courseBridgeButton", {
+              course: capitalizeFirstLetter(selectedSystemCard.name),
+            })}
+          </Button>
+        </Box>
+      ) : null}
+
+      {canManageGraph && editorModeEnabled && selectedSystemCard ? (
+        <CourseMetadataEditorPanel
+          system={selectedSystemCard}
+          modules={documentsFirestore.filter(
+            (node) => node.valueNodes === selectedSystemCard.valueNodes,
+          )}
+        />
+      ) : null}
 
       {/* Botón guardar */}
       <Button
