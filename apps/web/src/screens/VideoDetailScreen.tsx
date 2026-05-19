@@ -35,6 +35,12 @@ import { collection, getDocs } from "firebase/firestore";
 import { useSession } from "@src/hooks";
 import { useUIStore } from "@src/store";
 import { buildCoursePath } from "@src/utils/courseNavigation";
+import useSocialMetadata from "@src/hooks/useSocialMetadata";
+import {
+  buildSeoDescriptionFromSummary,
+  buildSeoTitle,
+} from "@src/utils/seo";
+import { resolveStorageAssetUrl } from "@src/utils/resolveStorageAssetUrl";
 
 /**
  * Pantalla de detalle de video asociada a un nodo de contenido.
@@ -201,6 +207,20 @@ export default function VideoDetailScreen() {
       .replace(/_/g, " ")
       .replace(/-/g, " · ");
   }, [stateSystemLabel, system?.name, systemName, t]);
+
+  useSocialMetadata({
+    title: buildSeoTitle(
+      currentNode?.name
+        ? `${currentNode.name} · ${system?.label ?? systemBreadcrumbLabel}`
+        : t(textVideoDetail + "title"),
+    ),
+    description: buildSeoDescriptionFromSummary(
+      currentNode?.description?.summary || system?.description,
+    ),
+    image: resolveStorageAssetUrl(system?.coverUrl),
+    type: "video.other",
+    locale: language,
+  });
 
   const navigateToModule = (module: NodeOptionFirestore) => {
     navigate(

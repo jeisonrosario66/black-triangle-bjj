@@ -43,6 +43,12 @@ import CourseMetadataEditorPanel from "@src/components/editor/CourseMetadataEdit
 import { useUIStore } from "@src/store";
 import { buildCoursePath, buildGraphCourseContext, isCourseGraphComplete } from "@src/utils/courseNavigation";
 import { hasGraphEditorAccess } from "@src/utils";
+import useSocialMetadata from "@src/hooks/useSocialMetadata";
+import {
+  buildSeoDescriptionFromSummary,
+  buildSeoTitle,
+} from "@src/utils/seo";
+import { resolveStorageAssetUrl } from "@src/utils/resolveStorageAssetUrl";
 
 /**
  * Pantalla de detalle de un sistema o curso en entorno web.
@@ -93,6 +99,16 @@ export default function CourseDetailScreen() {
   const [videoProgressById, setVideoProgressById] = useState<
     Record<string, VideoProgressEntry>
   >(() => cachedCourseStat?.videoProgressById ?? {});
+
+  useSocialMetadata({
+    title: buildSeoTitle(system?.label || t(textCourseDetail + "title")),
+    description: buildSeoDescriptionFromSummary(
+      system?.description || t(textCourseDetail + "description"),
+    ),
+    image: resolveStorageAssetUrl(system?.coverUrl),
+    type: "website",
+    locale: language,
+  });
 
   useEffect(() => {
     if (systemsOptions.length > 0) {

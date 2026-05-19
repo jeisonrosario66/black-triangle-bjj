@@ -21,9 +21,11 @@ import {
   PageContainer,
   SimpleGrid,
 } from "@src/components/index";
+import useSocialMetadata from "@src/hooks/useSocialMetadata";
 import { routeList } from "@src/context/index";
 import { useSession } from "@src/hooks/index";
 import * as styles from "@src/styles/screens/styleLandingPage";
+import { buildSeoDescriptionFromSummary, buildSeoTitle, getDefaultSeoImage } from "@src/utils/seo";
 
 const LANDING_TEXT = "components.landing.";
 
@@ -35,8 +37,16 @@ const LANDING_TEXT = "components.landing.";
  */
 export default function LandingPage() {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { isAuthenticated, isLoading, login } = useSession();
+  const language = i18n.language.startsWith("en") ? "en" : "es";
+
+  useSocialMetadata({
+    title: buildSeoTitle(t(LANDING_TEXT + "title")),
+    description: buildSeoDescriptionFromSummary(t(LANDING_TEXT + "subtitle")),
+    image: getDefaultSeoImage(),
+    locale: language,
+  });
 
   useEffect(() => {
     if (!isLoading && isAuthenticated) {
