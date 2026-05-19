@@ -14,6 +14,7 @@ import CheckRoundedIcon from "@mui/icons-material/CheckRounded";
 import SettingsRoundedIcon from "@mui/icons-material/SettingsRounded";
 import SubtitlesRoundedIcon from "@mui/icons-material/SubtitlesRounded";
 import EditRoundedIcon from "@mui/icons-material/EditRounded";
+import InsightsRoundedIcon from "@mui/icons-material/InsightsRounded";
 import { useTheme } from "@mui/material/styles";
 import { useTranslation } from "react-i18next";
 import { matchPath, useLocation, useNavigate } from "react-router-dom";
@@ -62,6 +63,7 @@ export default function HeaderMenu({
   const editorModeEnabled = useUIStore((state) => state.editorModeEnabled);
   const graphCourseContext = useUIStore((state) => state.graphCourseContext);
   const canUseEditorMode = hasGraphEditorAccess(user);
+  const canUseLocalMetrics = canUseEditorMode;
   const isGraphView = Boolean(
     matchPath(
       { path: routeList.explorerGraphScreen, end: true },
@@ -214,6 +216,23 @@ export default function HeaderMenu({
           <ListItemText
             primary={t("components.header.openCurrentCourse")}
             secondary={graphCourseContext.label}
+          />
+        </MenuItem>
+      ) : null}
+
+      {isLogin && canUseLocalMetrics ? (
+        <MenuItem
+          onClick={() => {
+            navigate(routeList.localMetricsScreen);
+            onClose();
+          }}
+        >
+          <ListItemIcon>
+            <InsightsRoundedIcon fontSize="small" />
+          </ListItemIcon>
+          <ListItemText
+            primary={t("components.header.localMetrics")}
+            secondary={t("components.header.localMetricsDescription")}
           />
         </MenuItem>
       ) : null}

@@ -11,6 +11,7 @@ import {
   CourseDetailScreen,
   VideoDetailScreen,
   HomeScreenWeb,
+  LocalMetricsScreen,
 } from "@src/screens/index";
 import { useTranslation } from "react-i18next";
 import { RequireAuth } from "@src/components/index";
@@ -85,6 +86,14 @@ function App() {
         element={(
           <RequireAuth>
             <VideoDetailScreen />
+          </RequireAuth>
+        )}
+      />
+      <Route
+        path={routeList.localMetricsScreen}
+        element={(
+          <RequireAuth>
+            <LocalMetricsScreen />
           </RequireAuth>
         )}
       />

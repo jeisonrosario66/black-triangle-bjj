@@ -93,6 +93,8 @@
       "goHome": "Ir al inicio",
       "continueWithGoogle": "Continuar con Google",
       "logOut": "Cerrar sesión",
+      "localMetrics": "Métricas locales",
+      "localMetricsDescription": "Panel interno de usuarios, cursos y videos",
       "navigationTitle": "Navegación",
       "languageTitle": "Idioma",
       "languageSpanish": "Español",

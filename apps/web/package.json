@@ -18,10 +18,11 @@
   "license": "UNLICENSED",
   "scripts": {
     "dev": "vite",
+    "dev:polling": "CHOKIDAR_USEPOLLING=true vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "deploy": "npm run build && gh-pages -d dist"
+    "deploy": "npm run build && gh-pages -d dist --cname blacktrianglebjj.com --nojekyll"
   },
   "dependencies": {
     "@auth0/auth0-react": "^2.9.0",

@@ -5,3 +5,4 @@ export {default as ExplorerScreen} from "@src/screens/ExplorerScreen";
 export {default as Explorer3DScreen} from "@src/screens/Explorer3DScreen";
 export {default as CourseDetailScreen} from "@src/screens/CourseDetailScreen";
 export {default as VideoDetailScreen} from "@src/screens/VideoDetailScreen";
+export {default as LocalMetricsScreen} from "@src/screens/LocalMetricsScreen";

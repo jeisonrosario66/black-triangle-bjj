@@ -138,6 +138,7 @@ export const routeList = {
     home: "/home",
     loginUser: "/login_user",
     profile: "/profile",
+    localMetricsScreen: "/__local/metrics",
     explorerScreen: "/explorer",
     explorerGraphScreen: "/explorer/3d",
     courseDetailScreen: "/course_detail/:systemName",

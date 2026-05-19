@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import { ReactNode } from "react";
 
 interface SimpleGridProps {
-  columns?: { xs: number; md?: number; lg?: number };
+  columns?: { xs: number; sm?: number; md?: number; lg?: number; xl?: number };
   gap?: number;
   children: ReactNode;
 }
@@ -22,11 +22,17 @@ export default function SimpleGrid({
         display: "grid",
         gridTemplateColumns: {
           xs: `repeat(${columns.xs}, minmax(0, 1fr))`,
+          sm: columns.sm
+            ? `repeat(${columns.sm}, minmax(0, 1fr))`
+            : undefined,
           md: columns.md
             ? `repeat(${columns.md}, minmax(0, 1fr))`
             : undefined,
           lg: columns.lg
             ? `repeat(${columns.lg}, minmax(0, 1fr))`
+            : undefined,
+          xl: columns.xl
+            ? `repeat(${columns.xl}, minmax(0, 1fr))`
             : undefined,
         },
         gap,
